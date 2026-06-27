@@ -9,6 +9,7 @@ public partial class HubAnimalSpawner : Node3D
     public override void _Ready()
     {
         SpawnMarkers ??= FindSpawnMarkers();
+        SeedDefaultAnimalPrefabs();
 
         if (GameManager.Instance != null)
         {
@@ -83,5 +84,29 @@ public partial class HubAnimalSpawner : Node3D
         }
 
         return markers.ToArray();
+    }
+
+    private void SeedDefaultAnimalPrefabs()
+    {
+        if (AnimalPrefabs.Count > 0)
+        {
+            return;
+        }
+
+        AddDefaultAnimal("Toby", "res://Scenes/Characters/Wildlife/Toby.tscn");
+    }
+
+    private void AddDefaultAnimal(string animalId, string scenePath)
+    {
+        if (string.IsNullOrWhiteSpace(animalId) || string.IsNullOrWhiteSpace(scenePath) || !ResourceLoader.Exists(scenePath))
+        {
+            return;
+        }
+
+        PackedScene scene = GD.Load<PackedScene>(scenePath);
+        if (scene != null)
+        {
+            AnimalPrefabs[animalId] = scene;
+        }
     }
 }

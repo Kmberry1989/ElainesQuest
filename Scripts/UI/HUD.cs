@@ -52,7 +52,7 @@ public partial class HUD : CanvasLayer
 
         if (FamilyLabel != null)
         {
-            FamilyLabel.Text = $"Family Rescued: {GameManager.Instance.FamilyRescuedCount} / 5";
+            FamilyLabel.Text = $"Family Rescued: {GameManager.Instance.FamilyRescuedCount} / {GameManager.TotalFamilyMembers}";
         }
     }
 }

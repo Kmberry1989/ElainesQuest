@@ -1,111 +1,130 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="PackedScene" path="res://Scenes/Characters/Player/Elaine.tscn" id="1_elaine"]
 [ext_resource type="PackedScene" path="res://Scenes/Interactables/LevelPortal.tscn" id="2_portal"]
-[ext_resource type="PackedScene" path="res://Scenes/Characters/Wildlife/Toby.tscn" id="3_toby"]
-[ext_resource type="PackedScene" path="res://Scenes/Characters/Wildlife/Sasha.tscn" id="4_sasha"]
-[ext_resource type="Script" path="res://Scripts/Camera/PlatformerCamera.cs" id="5_camera"]
-[ext_resource type="Script" path="res://Scripts/Hub/FamilyTree.cs" id="6_family_tree"]
-[ext_resource type="Script" path="res://Scripts/Hub/HubAnimalSpawner.cs" id="7_spawner"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Wildlife/Sasha.tscn" id="3_sasha"]
+[ext_resource type="Script" path="res://Scripts/Camera/PlatformerCamera.cs" id="4_camera"]
+[ext_resource type="Script" path="res://Scripts/Hub/FamilyTree.cs" id="5_family_tree"]
+[ext_resource type="Script" path="res://Scripts/Hub/HubAnimalSpawner.cs" id="6_spawner"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/HUD.tscn" id="7_hud"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/DialogueUI.tscn" id="8_dialogue"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/space_grassy.glb" id="9_ground_visual"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/familiarity_tree-1.glb" id="10_tree_1"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/familiarity_tree-2.glb" id="11_tree_2"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/familiarity_tree-3.glb" id="12_tree_3"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/familiarity_tree-4.glb" id="13_tree_4"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/familiarity_tree-5.glb" id="14_tree_5"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/campfire.glb" id="15_campfire"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/lamp_post.glb" id="16_lamp"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/flowers_wild.glb" id="17_flowers"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_1"]
-size = Vector3(28, 1, 28)
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(36, 1, 36)
 
-[sub_resource type="BoxMesh" id="BoxMesh_1"]
-size = Vector3(28, 1, 28)
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_1"]
-top_radius = 0.4
-bottom_radius = 0.6
-height = 1.5
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_2"]
-top_radius = 0.8
-bottom_radius = 1.0
-height = 2.2
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_3"]
-top_radius = 1.2
-bottom_radius = 1.4
-height = 3.2
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+size = Vector3(36, 1, 36)
 
 [node name="HubWorld" type="Node3D"]
 
 [node name="PlayerSpawn" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1.2, 0)
 
 [node name="Ground" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
-shape = SubResource("BoxShape3D_1")
+shape = SubResource("BoxShape3D_ground")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
-mesh = SubResource("BoxMesh_1")
+mesh = SubResource("BoxMesh_ground")
+
+[node name="GroundDecorA" parent="Ground" instance=ExtResource("9_ground_visual")]
+transform = Transform3D(1.8, 0, 0, 0, 1.0, 0, 0, 0, 1.8, -9, 0.5, -9)
+
+[node name="GroundDecorB" parent="Ground" instance=ExtResource("9_ground_visual")]
+transform = Transform3D(1.8, 0, 0, 0, 1.0, 0, 0, 0, 1.8, 9, 0.5, -9)
+
+[node name="GroundDecorC" parent="Ground" instance=ExtResource("9_ground_visual")]
+transform = Transform3D(1.8, 0, 0, 0, 1.0, 0, 0, 0, 1.8, -9, 0.5, 9)
+
+[node name="GroundDecorD" parent="Ground" instance=ExtResource("9_ground_visual")]
+transform = Transform3D(1.8, 0, 0, 0, 1.0, 0, 0, 0, 1.8, 9, 0.5, 9)
 
 [node name="Elaine" parent="." instance=ExtResource("1_elaine")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1.2, 0)
 
 [node name="Camera3D" type="Camera3D" parent="."]
-script = ExtResource("5_camera")
+script = ExtResource("4_camera")
+Offset = Vector3(0, 7, 11)
+
+[node name="HUD" parent="." instance=ExtResource("7_hud")]
+
+[node name="DialogueUI" parent="." instance=ExtResource("8_dialogue")]
 
 [node name="PortalToWorld1" parent="." instance=ExtResource("2_portal")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1.5, 0)
-TargetScene = "res://Scenes/Levels/World_01_Forest.tscn"
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 1.5, 0)
+TargetScene = "res://Scenes/Levels/World_1_Forest.tscn"
+
+[node name="Campfire" parent="." instance=ExtResource("15_campfire")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -5)
+
+[node name="LampNearPortal" parent="." instance=ExtResource("16_lamp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -2)
+
+[node name="FlowerPatch" parent="." instance=ExtResource("17_flowers")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 4)
+
+[node name="Sasha" parent="." instance=ExtResource("3_sasha")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.0, -2)
 
 [node name="FamilyTree" type="Node3D" parent="."]
-script = ExtResource("6_family_tree")
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -2)
+script = ExtResource("5_family_tree")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 2)
 
-[node name="Stage0" type="MeshInstance3D" parent="FamilyTree"]
-mesh = SubResource("CylinderMesh_1")
+[node name="Stage0" type="Node3D" parent="FamilyTree"]
 
-[node name="Stage1" type="MeshInstance3D" parent="FamilyTree"]
-mesh = SubResource("CylinderMesh_1")
+[node name="TreeStage0Visual" parent="FamilyTree/Stage0" instance=ExtResource("10_tree_1")]
+
+[node name="Stage1" type="Node3D" parent="FamilyTree"]
 visible = false
-transform = Transform3D(1.1, 0, 0, 0, 1.15, 0, 0, 0, 1.1, 0, 0.8, 0)
 
-[node name="Stage2" type="MeshInstance3D" parent="FamilyTree"]
-mesh = SubResource("CylinderMesh_2")
-visible = false
-transform = Transform3D(1.15, 0, 0, 0, 1.2, 0, 0, 0, 1.15, 0, 1.1, 0)
+[node name="TreeStage1Visual" parent="FamilyTree/Stage1" instance=ExtResource("11_tree_2")]
 
-[node name="Stage3" type="MeshInstance3D" parent="FamilyTree"]
-mesh = SubResource("CylinderMesh_3")
+[node name="Stage2" type="Node3D" parent="FamilyTree"]
 visible = false
-transform = Transform3D(1.2, 0, 0, 0, 1.35, 0, 0, 0, 1.2, 0, 1.6, 0)
 
-[node name="Stage4" type="MeshInstance3D" parent="FamilyTree"]
-mesh = SubResource("CylinderMesh_3")
+[node name="TreeStage2Visual" parent="FamilyTree/Stage2" instance=ExtResource("12_tree_3")]
+
+[node name="Stage3" type="Node3D" parent="FamilyTree"]
 visible = false
-transform = Transform3D(1.35, 0, 0, 0, 1.55, 0, 0, 0, 1.35, 0, 2.1, 0)
+
+[node name="TreeStage3Visual" parent="FamilyTree/Stage3" instance=ExtResource("13_tree_4")]
+
+[node name="Stage4" type="Node3D" parent="FamilyTree"]
+visible = false
+
+[node name="TreeStage4Visual" parent="FamilyTree/Stage4" instance=ExtResource("14_tree_5")]
 
 [node name="FamilySpawn1" type="Marker3D" parent="FamilyTree"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, 1.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0, 1.8)
 
 [node name="FamilySpawn2" type="Marker3D" parent="FamilyTree"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 0, 2.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 0, 2.6)
 
 [node name="FamilySpawn3" type="Marker3D" parent="FamilyTree"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.0)
 
 [node name="FamilySpawn4" type="Marker3D" parent="FamilyTree"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 0, 2.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 0, 2.6)
 
 [node name="FamilySpawn5" type="Marker3D" parent="FamilyTree"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0, 1.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0, 1.8)
 
 [node name="AnimalSpawner" type="Node3D" parent="."]
-script = ExtResource("7_spawner")
+script = ExtResource("6_spawner")
 
 [node name="SpawnMarker1" type="Marker3D" parent="AnimalSpawner"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 6)
 
 [node name="SpawnMarker2" type="Marker3D" parent="AnimalSpawner"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -6)
-
-[node name="Toby" parent="." instance=ExtResource("3_toby")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 3)
-
-[node name="Sasha" parent="." instance=ExtResource("4_sasha")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 7)

@@ -36,6 +36,20 @@ public partial class DialogueUI : CanvasLayer
         }
     }
 
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (Panel == null || !Panel.Visible)
+        {
+            return;
+        }
+
+        if (@event.IsActionPressed("interact") || @event.IsActionPressed("ui_cancel"))
+        {
+            HideDialogue();
+            GetViewport().SetInputAsHandled();
+        }
+    }
+
     public void ShowDialogue(string speaker, string text)
     {
         if (NameLabel != null)

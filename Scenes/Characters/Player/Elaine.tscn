@@ -1,6 +1,7 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://Scripts/Player/ElaineController.cs" id="1_elaine"]
+[ext_resource type="Script" path="res://Scripts/System/RuntimeGltfModel.cs" id="2_runtime_model"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.45
@@ -17,6 +18,10 @@ script = ExtResource("1_elaine")
 shape = SubResource("CapsuleShape3D_1")
 
 [node name="Visuals" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.0, 0)
+script = ExtResource("2_runtime_model")
+ModelPath = "res://Assets/Models/Elaine/Elaine-model.glb"
+PlaceholderRoot = NodePath("Body")
 
 [node name="Body" type="MeshInstance3D" parent="Visuals"]
 mesh = SubResource("CapsuleMesh_1")

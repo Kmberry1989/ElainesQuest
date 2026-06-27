@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://Scripts/NPCs/AnimalBehavior.cs" id="1_behavior"]
 [ext_resource type="Script" path="res://Scripts/NPCs/NPC.cs" id="2_npc"]
+[ext_resource type="Script" path="res://Scripts/System/RuntimeGltfModel.cs" id="3_runtime_model"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.35
@@ -17,12 +18,18 @@ script = ExtResource("1_behavior")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_1")
 
-[node name="Visuals" type="MeshInstance3D" parent="."]
+[node name="Visuals" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.85, 0)
+script = ExtResource("3_runtime_model")
+ModelPath = "res://Assets/Models/Wildlife/Toby.glb"
+PlaceholderRoot = NodePath("Body")
+
+[node name="Body" type="MeshInstance3D" parent="Visuals"]
 mesh = SubResource("CapsuleMesh_1")
 
 [node name="NPCData" type="Node3D" parent="."]
 script = ExtResource("2_npc")
 CharacterName = "Toby"
 AnimalId = "Toby"
-BaseDialogue = "*Soft animal sounds.*"
-TranslatedDialogue = "Toby is happy to see Elaine."
+BaseDialogue = "*Excited turtle chirps.*"
+TranslatedDialogue = "Toby found a safe trail through the forest and wants to visit the Hub later."

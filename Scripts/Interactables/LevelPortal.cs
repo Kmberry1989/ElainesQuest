@@ -2,7 +2,7 @@ using Godot;
 
 public partial class LevelPortal : Area3D
 {
-    [Export] public string TargetScene = "res://Scenes/Levels/World_01_Forest.tscn";
+    [Export] public string TargetScene = "res://Scenes/Levels/World_1_Forest.tscn";
 
     public override void _Ready()
     {

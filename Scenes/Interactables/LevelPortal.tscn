@@ -1,12 +1,10 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://Scripts/Interactables/LevelPortal.cs" id="1_portal"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/portal_stone.glb" id="2_model"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_1"]
 size = Vector3(2, 3, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_1"]
-size = Vector3(2, 3, 0.5)
 
 [node name="LevelPortal" type="Area3D"]
 script = ExtResource("1_portal")
@@ -14,5 +12,4 @@ script = ExtResource("1_portal")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_1")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("BoxMesh_1")
+[node name="PortalStone" parent="." instance=ExtResource("2_model")]

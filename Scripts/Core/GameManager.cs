@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 public partial class GameManager : Node
 {
+    public const int TotalFamilyMembers = 5;
+
     public static GameManager Instance { get; private set; }
 
     [Signal]
@@ -21,7 +23,7 @@ public partial class GameManager : Node
     public int FamilyRescuedCount { get; private set; }
 
     public bool HasMagicRing = true;
-    public bool CanTranslateAnimals = false;
+    public bool CanTranslateAnimals = true;
 
     public HashSet<string> RescuedFamilyIds { get; } = new();
     public HashSet<string> BefriendedAnimals { get; } = new();
@@ -66,7 +68,7 @@ public partial class GameManager : Node
 
         FamilyRescuedCount = RescuedFamilyIds.Count;
         EmitSignal(SignalName.FamilyRescuedChanged, FamilyRescuedCount);
-        GD.Print($"Family Rescued: {FamilyRescuedCount}/5");
+        GD.Print($"Family Rescued: {FamilyRescuedCount}/{TotalFamilyMembers}");
     }
 
     public void BefriendAnimal(string animalId)

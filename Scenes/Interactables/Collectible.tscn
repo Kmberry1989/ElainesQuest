@@ -1,13 +1,10 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://Scripts/Interactables/Collectible.cs" id="1_collectible"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/star.glb" id="2_star"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_1"]
 radius = 0.45
-
-[sub_resource type="SphereMesh" id="SphereMesh_1"]
-radius = 0.35
-height = 0.7
 
 [node name="Collectible" type="Area3D"]
 script = ExtResource("1_collectible")
@@ -15,5 +12,5 @@ script = ExtResource("1_collectible")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_1")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("SphereMesh_1")
+[node name="StarModel" parent="." instance=ExtResource("2_star")]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 0, 0.35, 0)
