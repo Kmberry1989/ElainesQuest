@@ -1,83 +1,159 @@
-# **Elaine's Quest: Complete Godot Setup Guide**
+# Elaine's Quest Setup Master Guide
 
-This document will take you from a totally blank Godot project to a running, playable prototype featuring Elaine, the Hub world, UI, dialogue, collectibles, and a fully functional game manager. Follow these steps sequentially.
+This guide is for working with the current repository, not for recreating the project from scratch. Use it when you want to open the repo cleanly, build the C# code, and verify the main playable loop inside Godot.
 
-## **Phase 1: Project Creation & Fundamentals**
+## Current Project Baseline
 
-1. **Download Godot:** Ensure you have the **Godot 4 .NET version** downloaded from the official website. You will also need an IDE like Visual Studio, Visual Studio Code, or JetBrains Rider installed to edit the C\# scripts.  
-2. **Create Project:** Open Godot, click "New Project", name it ElainesQuest, and select "Forward+" as the renderer.  
-3. **Build Folder Structure:** Run the provided build\_project.py script on your desktop to generate the folder structure and initial files, and manually add the newly generated C\# scripts to their appropriate folders (Scripts/UI/, Scripts/Core/, etc).  
-4. **Compile C\#:** In Godot, go to the bottom panel, click the MSBuild tab, and click the "Build" button (or press Alt+B). This compiles the C\# code so Godot recognizes your scripts.
+- Engine: Godot 4 .NET
+- C# solution: `ElainesQuest.sln`
+- Main scene: `res://Scenes/System/Bootstrap.tscn`
+- Default world: `res://Scenes/Hub/HubWorld.tscn`
+- Autoload: `Scripts/Core/GameManager.cs`
 
-## **Phase 2: Project Settings**
+CLI verification in this environment:
 
-1. **Input Map (Controls):**  
-   * Go to Project \-\> Project Settings \-\> Input Map.  
-   * Add the following new actions exactly as written:  
-     * move\_left (Assign: A key or Left Arrow)  
-     * move\_right (Assign: D key or Right Arrow)  
-     * move\_forward (Assign: W key or Up Arrow)  
-     * move\_backward (Assign: S key or Down Arrow)  
-     * jump (Assign: Spacebar)  
-     * interact (Assign: E key)  
-2. **Autoloads (GameManager):**  
-   * Go to Project \-\> Project Settings \-\> Autoload.  
-   * Click the file folder icon, navigate to Scripts/Core/GameManager.cs, and add it. Make sure the Node Name is GameManager. This makes it track rescues and currency universally.
+- `dotnet build ElainesQuest.sln`
+- result: succeeded with 0 warnings and 0 errors on June 27, 2026
 
-## **Phase 3: Building Elaine (The Player Scene)**
+## First Open Checklist
 
-1. Click Scene \-\> New Scene. Choose **CharacterBody3D** as the root node. Name it Elaine.  
-2. Add child nodes to Elaine:  
-   * **CollisionShape3D:** Assign a CapsuleShape3D to it in the inspector.  
-   * **Node3D:** Name this Visuals. Drag your imported Elaine model as a child here.  
-   * **AnimationTree:** Set Tree Root to AnimationNodeStateMachine. Set Anim Player to Elaine's AnimationPlayer.  
-3. **Set Up Animations:**  
-   * Open the AnimationTree editor (bottom panel). Right-click to add states: Idle, Run, Jump, Hover. Connect them with arrows.  
-4. **Attach Script:**  
-   * Drag ElaineController.cs onto the root Elaine node. Drag the Visuals and AnimationTree nodes into the script's inspector slots.  
-5. Save as Elaine.tscn in Scenes/Characters/.
+1. Open the project with the Godot 4 .NET editor.
+2. Let Godot import assets and regenerate any local editor cache it needs.
+3. Open the C# build panel and confirm the project compiles in-editor.
+4. Verify `project.godot` still points to `res://Scenes/System/Bootstrap.tscn`.
+5. Verify the `GameManager` autoload is present.
 
-## **Phase 4: The HUD and Dialogue Box**
+If Godot reports broken character asset imports, do not immediately wire raw `.glb` imports back into gameplay scenes. This repo currently relies on runtime GLTF loading for character safety.
 
-1. **Main HUD:**  
-   * Create a new Scene \-\> **CanvasLayer**, name it HUD. Add Control \-\> Two Labels (Glimmers & Family). Attach HUD.cs to the root and assign the labels. Save as HUD.tscn.  
-2. **Dialogue Box:**  
-   * Create a new Scene \-\> **CanvasLayer**, name it DialogueUI.  
-   * Add a **Panel** (size it to the bottom of the screen). Add two **Labels** inside it (one for Name, one for Dialogue text).  
-   * Attach DialogueUI.cs to the root. Assign the Panel and Labels in the inspector. Save as DialogueUI.tscn.
+## Input and Runtime Settings
 
-## **Phase 5: The Test Platforming Level**
+The expected gameplay actions already exist in `project.godot`:
 
-1. Create a new Scene \-\> **Node3D**. Name it World\_1\_Forest.  
-2. Add a **StaticBody3D** for the floor (with a Box CollisionShape3D and MeshInstance3D).  
-3. **Instance the Core Elements:** Click the link icon (Instantiate Child Scene). Instance Elaine.tscn, HUD.tscn, and DialogueUI.tscn into the level.  
-4. **The Camera:**  
-   * Add a **Camera3D**. Attach PlatformerCamera.cs to it. In the inspector, click "Target" and select the Elaine node.  
-5. **Collectibles & Hazards:**  
-   * Create a new Area3D scene named Collectible. Add a Sphere Mesh/Collision. Attach Collectible.cs. Save and instance a few into your level.  
-   * Add a massive Area3D under your map. Attach Hazard.cs. Add a Box collision shape. If Elaine falls, she resets.  
-6. Save and press **F6** to test\! You should be able to run, jump, collect Glimmers, and have the camera follow you smoothly.
+- `move_left`
+- `move_right`
+- `move_forward`
+- `move_backward`
+- `jump`
+- `interact`
 
-## **Phase 6: The Cozy Hub Village**
+`DialogueUI` also listens for `ui_cancel` when closing the dialogue panel.
 
-1. Create a new Scene \-\> **Node3D**. Name it HubWorld.  
-2. Build the ground. Instance Elaine, HUD, DialogueUI, and a Camera3D (with PlatformerCamera.cs attached) just like before.  
-3. **The Family Tree:**  
-   * Create a Node3D named FamilyTree. Attach FamilyTree.cs. Add child meshes for the tree stages and Marker3D nodes for where the family will stand.  
-4. **The Level Portal:**  
-   * Add an Area3D named PortalToWorld1. Attach LevelPortal.cs. Assign World\_1\_Forest.tscn in the inspector.  
-5. **Animal Spawner:**  
-   * Add a Node3D named AnimalSpawner. Attach HubAnimalSpawner.cs. Add several Marker3D nodes as children.  
-6. Save as HubWorld.tscn.
+If any of these actions are missing in the editor, repair them in Project Settings before debugging player behavior.
 
-## **Phase 7: Building the Wildlife (NPCs)**
+## How Startup Works
 
-1. Create a new Scene \-\> **CharacterBody3D**. Name it Toby.  
-2. Add CollisionShape3D, Visuals (Mesh), and AnimationTree. Attach AnimalBehavior.cs to the root.  
-3. Add an Area3D as a child with a large sphere collision (interaction zone). Attach NPCDialogueTrigger.cs. In the inspector, set Name to "Toby" and type a nice translated dialogue.  
-4. Save as Toby.tscn.  
-5. Back in HubWorld.tscn, click the AnimalSpawner, go to the inspector, add a Dictionary element: Key "Toby", Value Toby.tscn.
+Startup is intentionally simple:
 
-**Final Test\!** Open GameManager.cs and temporarily change CanTranslateAnimals \= true;.
+1. Godot runs `Bootstrap.tscn`
+2. `SceneBootstrap.cs` ensures a `WorldRoot` exists
+3. `SceneBootstrap.cs` instances `res://Scenes/Hub/HubWorld.tscn`
 
-Open HubWorld.tscn, press **F6**. Talk to Toby using 'E' to see the dialogue box pop up, watch the Family Tree, and walk into the portal to begin your platforming adventure\!
+Do not change the main scene to a level scene unless you deliberately want to bypass the bootstrap flow.
+
+## Scene Verification Order
+
+Open and verify scenes in this order:
+
+1. `Scenes/System/Bootstrap.tscn`
+2. `Scenes/Hub/HubWorld.tscn`
+3. `Scenes/Levels/World_1_Forest.tscn`
+4. character scenes that use runtime GLTF loading
+
+This order catches top-level startup problems before you spend time debugging secondary scenes.
+
+## Main Playable Loop
+
+The intended prototype loop is:
+
+1. Launch into the hub
+2. Move Elaine around the hub
+3. Talk to Sasha
+4. Enter the portal to `World_1_Forest.tscn`
+5. Collect glimmers
+6. Hit a checkpoint
+7. Fall into or trigger a hazard and confirm respawn works
+8. Talk to Toby
+9. Rescue Matthew
+10. Return to the hub
+11. Confirm the family tree and hub population reflect progression
+
+## Character Model Safety
+
+Character scenes currently avoid hard dependencies on imported `.glb` scene resources.
+
+The safe path is:
+
+1. keep a placeholder under `Visuals`
+2. load the raw model via `RuntimeGltfModel.cs`
+3. use exported transform overrides to align the loaded model
+
+This exists because some `.glb.import` files in the project history were invalid or incomplete. If Godot regenerates clean imports on this machine, that can be upgraded later, but it should be verified carefully first.
+
+## Manual Editor Checks
+
+These checks still matter even when the solution builds:
+
+- `Bootstrap.tscn` opens without missing-resource errors
+- `HubWorld.tscn` opens without missing-resource errors
+- `World_1_Forest.tscn` opens without missing-resource errors
+- Elaine can move, jump, and hover
+- HUD updates when glimmers are collected
+- dialogue opens and closes correctly
+- portals change scenes cleanly
+- checkpoints update respawn
+- hazards respawn Elaine at the expected location
+- Matthew rescue increments family progression
+- befriended animals appear in the hub on return
+
+## Common Problem Areas
+
+### Character visuals appear missing or misaligned
+
+Check the `Visuals` subtree on the character scene and inspect the exported values on `RuntimeGltfModel`:
+
+- `ModelPath`
+- `LoadedOffset`
+- `LoadedRotationDegrees`
+- `LoadedScale`
+
+If the placeholder remains visible, the runtime load probably failed or the model path is wrong.
+
+### Dialogue does not appear
+
+Check:
+
+- `DialogueUI.tscn` is instanced in the active world scene
+- `GameManager` autoload exists
+- the NPC is in the `npc_interaction` group through `NPC.cs`
+- the player is pressing `interact` within range
+
+### Respawn feels broken
+
+Check:
+
+- `Checkpoint.cs` is updating Elaine's respawn point
+- `HazardVolume.cs` has a valid `RespawnMarker`, or the scene contains `PlayerSpawn`
+- the active body is actually the `ElaineController`
+
+### Hub progression does not refresh
+
+Check:
+
+- `GameManager` signals are firing
+- `FamilyTree.cs` is subscribed to `FamilyRescuedChanged`
+- `HubAnimalSpawner.cs` is subscribed to `AnimalBefriended`
+
+## Safe Workflow For New Content
+
+1. Add new progression state to `GameManager` only when it must survive scene changes.
+2. Add new world triggers in `Scenes/Interactables/` and `Scripts/Interactables/`.
+3. Add new characters under `Scenes/Characters/`.
+4. Prefer signals and scene-local exports over hard cross-scene references.
+5. Treat direct `.glb` scene references as unsafe until Godot import health is confirmed on the current machine.
+
+## Recommended Follow-Up When Working In Godot
+
+1. Open `Bootstrap.tscn` and play the full hub-to-forest loop.
+2. Record any character alignment issues per scene.
+3. Fix offsets on the relevant `RuntimeGltfModel` nodes.
+4. Only after transforms are stable, decide whether animation hookup or clean imported wrapper scenes should be the next investment.

@@ -9,6 +9,8 @@ public partial class RuntimeGltfModel : Node3D
     [Export] public Vector3 LoadedRotationDegrees = Vector3.Zero;
     [Export] public Vector3 LoadedScale = Vector3.One;
     [Export] public bool LoadInEditor = true;
+    [Export] public AnimationTree LinkedAnimationTree;
+    [Export] public string LibraryToLoad = "res://Assets/Animations/MixamoLibrary.res";
 
     private const string GeneratedModelName = "__RuntimeModel";
 
@@ -41,25 +43,44 @@ public partial class RuntimeGltfModel : Node3D
             return;
         }
 
-        var gltfDocument = new GltfDocument();
-        var gltfState = new GltfState();
-        Error error = gltfDocument.AppendFromFile(ModelPath, gltfState);
-        if (error != Error.Ok)
+        var scene = ResourceLoader.Load<PackedScene>(ModelPath);
+        if (scene == null)
         {
-            GD.PushWarning($"Failed to load glTF model '{ModelPath}' with error {error}.");
+            GD.PushWarning($"Failed to load scene from '{ModelPath}'.");
             return;
         }
 
-        Node generatedNode = gltfDocument.GenerateScene(gltfState);
-        if (generatedNode == null)
-        {
-            GD.PushWarning($"glTF scene generation returned null for '{ModelPath}'.");
-            return;
-        }
+        Node generatedNode = scene.Instantiate();
 
         generatedNode.Name = GeneratedModelName;
         AddChild(generatedNode);
         generatedNode.Owner = null;
+
+        var animPlayer = generatedNode.GetNodeOrNull<AnimationPlayer>("AnimationPlayer");
+        
+        if (LinkedAnimationTree == null)
+        {
+            LinkedAnimationTree = GetNodeOrNull<AnimationTree>("../AnimationTree");
+        }
+
+        if (animPlayer != null && LinkedAnimationTree != null)
+        {
+            if (!string.IsNullOrEmpty(LibraryToLoad) && FileAccess.FileExists(LibraryToLoad))
+            {
+                var mixamoLib = ResourceLoader.Load<AnimationLibrary>(LibraryToLoad);
+                if (mixamoLib != null)
+                {
+                    animPlayer.AddAnimationLibrary("Mixamo", mixamoLib);
+                }
+            }
+
+            LinkedAnimationTree.AnimPlayer = LinkedAnimationTree.GetPathTo(animPlayer);
+            LinkedAnimationTree.RootNode = LinkedAnimationTree.GetPathTo(generatedNode);
+            
+            // Toggle active to force initialization!
+            LinkedAnimationTree.Active = false;
+            LinkedAnimationTree.Active = true;
+        }
 
         if (generatedNode is Node3D generatedNode3D)
         {

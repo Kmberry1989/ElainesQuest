@@ -1,29 +1,25 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://Scripts/Player/ElaineController.cs" id="1_elaine"]
-[ext_resource type="Script" path="res://Scripts/System/RuntimeGltfModel.cs" id="2_runtime_model"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Elaine/Elaine-model.glb" id="2_00of8"]
+[ext_resource type="AnimationLibrary" path="res://Assets/Animations/MixamoLibrary.res" id="4_sv6l0"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.45
 height = 1.1
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_1"]
-radius = 0.35
-mid_height = 1.1
-
-[node name="Elaine" type="CharacterBody3D"]
+[node name="Elaine" type="CharacterBody3D" unique_id=65812238]
 script = ExtResource("1_elaine")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=295033199]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+visible = false
 shape = SubResource("CapsuleShape3D_1")
 
-[node name="Visuals" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.0, 0)
-script = ExtResource("2_runtime_model")
-ModelPath = "res://Assets/Models/Elaine/Elaine-model.glb"
-PlaceholderRoot = NodePath("Body")
+[node name="Visuals" type="Node3D" parent="." unique_id=1036865365]
 
-[node name="Body" type="MeshInstance3D" parent="Visuals"]
-mesh = SubResource("CapsuleMesh_1")
+[node name="Elaine-model" type="Node3D" parent="Visuals" unique_id=881941244 instance=ExtResource("2_00of8")]
 
-[node name="AnimationTree" type="AnimationTree" parent="."]
+[node name="GlobalAnimationPlayer" type="AnimationPlayer" parent="." unique_id=115740099]
+root_node = NodePath("../Visuals/Elaine-model")
+libraries/Mixamo = ExtResource("4_sv6l0")

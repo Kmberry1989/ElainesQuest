@@ -12,7 +12,4 @@ mid_height = 1.1
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.0, 0)
 script = ExtResource("1_runtime_model")
 ModelPath = "res://Assets/Models/Family/Antonio-model.glb"
-PlaceholderRoot = NodePath("Body")
 
-[node name="Body" type="MeshInstance3D" parent="Visuals"]
-mesh = SubResource("CapsuleMesh_1")

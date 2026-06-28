@@ -16,27 +16,35 @@ public partial class ElaineController : CharacterBody3D
 
     [ExportCategory("Nodes")]
     [Export] public Node3D Visuals; // Drag the 3D mesh node here
-    [Export] public AnimationTree AnimTree; // Drag the AnimationTree here
+    [Export] public AnimationPlayer AnimPlayer; // Drag the AnimationPlayer here
     [Export] public float InteractionRadius = 4.0f;
 
-    private AnimationNodeStateMachinePlayback _animPlayback;
+    private string _currentAnim = "";
     private Vector3 _respawnPoint;
 
     public override void _Ready()
     {
         AddToGroup("player");
         Visuals ??= GetNodeOrNull<Node3D>("Visuals");
-        AnimTree ??= GetNodeOrNull<AnimationTree>("AnimationTree");
+        AnimPlayer ??= GetNodeOrNull<AnimationPlayer>("GlobalAnimationPlayer");
         _respawnPoint = GlobalPosition;
+        
+        PlayAnimation("Mixamo/idle");
+    }
 
-        if (AnimTree != null)
+    private void PlayAnimation(string animName, float blendTime = 0.2f)
+    {
+        if (AnimPlayer == null)
         {
-            // Get the state machine playback to trigger Mixamo animations
-            Variant playback = AnimTree.Get("parameters/playback");
-            if (playback.VariantType == Variant.Type.Object)
-            {
-                _animPlayback = playback.As<AnimationNodeStateMachinePlayback>();
-            }
+            GD.Print("AnimPlayer is NULL!");
+            return;
+        }
+
+        if (_currentAnim != animName)
+        {
+            GD.Print($"Playing animation: {animName}");
+            AnimPlayer.Play(animName, blendTime);
+            _currentAnim = animName;
         }
     }
 
@@ -62,13 +70,13 @@ public partial class ElaineController : CharacterBody3D
                 _isHovering = true;
                 velocity.Y -= (Gravity * HoverGravityModifier) * d;
                 _hoverTimer -= d;
-                _animPlayback?.Travel("Hover"); 
+                PlayAnimation("Mixamo/fallingtoroll", 0.5f); 
             }
             else
             {
                 _isHovering = false;
                 velocity.Y -= Gravity * d;
-                _animPlayback?.Travel("Jump"); 
+                PlayAnimation("Mixamo/jump", 0.1f); 
             }
         }
         else
@@ -82,7 +90,7 @@ public partial class ElaineController : CharacterBody3D
         if (Input.IsActionJustPressed("jump") && IsOnFloor())
         {
             velocity.Y = JumpVelocity;
-            _animPlayback?.Travel("Jump");
+            PlayAnimation("Mixamo/jump", 0.1f);
         }
 
         // 3. Handle Movement & Mixamo Animation Blending
@@ -103,7 +111,7 @@ public partial class ElaineController : CharacterBody3D
             }
 
             if (IsOnFloor()) 
-                _animPlayback?.Travel("Run");
+                PlayAnimation("Mixamo/run");
         }
         else
         {
@@ -111,7 +119,7 @@ public partial class ElaineController : CharacterBody3D
             velocity.Z = Mathf.MoveToward(Velocity.Z, 0, Speed);
             
             if (IsOnFloor()) 
-                _animPlayback?.Travel("Idle");
+                PlayAnimation("Mixamo/idle");
         }
 
         Velocity = velocity;

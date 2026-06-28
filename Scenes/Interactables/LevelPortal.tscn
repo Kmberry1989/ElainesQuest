@@ -1,6 +1,6 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3]
 
-[ext_resource type="Script" path="res://Scripts/Interactables/LevelPortal.cs" id="1_portal"]
+[ext_resource type="Script" uid="uid://cl421ivvbabbq" path="res://Scripts/Interactables/LevelPortal.cs" id="1_portal"]
 [ext_resource type="PackedScene" path="res://Assets/Models/Environment/portal_stone.glb" id="2_model"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_1"]

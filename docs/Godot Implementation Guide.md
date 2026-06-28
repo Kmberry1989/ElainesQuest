@@ -1,99 +1,266 @@
-# **Elaine's Quest: Complete Godot Setup Guide**
+# Elaine's Quest Implementation Guide
 
-This document will take you from a totally blank Godot project to a running, playable prototype featuring Elaine, the Hub world, UI, collectibles, and the game manager. Follow these steps sequentially.
+This guide explains how the current prototype is implemented in code and scenes. Use it when changing gameplay behavior, extending progression, or tracing how a world event updates UI and hub state.
 
-## **Phase 1: Project Creation & Fundamentals**
+## Core Runtime Model
 
-1. **Download Godot:** Ensure you have the **Godot 4 .NET version** downloaded from the official website. You will also need an IDE like Visual Studio, Visual Studio Code, or JetBrains Rider installed to edit the C\# scripts.  
-2. **Create Project:** Open Godot, click "New Project", name it ElainesQuest, and select "Forward+" as the renderer.  
-3. **Build Folder Structure:** Run the provided build\_project.py script on your desktop to generate the exact folder structure and code files, or manually create folders matching Assets/, Scenes/, and Scripts/. Move all provided .cs files into their respective Scripts/ subfolders.  
-4. **Compile C\#:** In Godot, go to the bottom panel, click the MSBuild tab, and click the "Build" button (or press Alt+B). This compiles the C\# code so Godot recognizes your scripts.
+The project is built around a small autoload plus scene-local gameplay scripts.
 
-## **Phase 2: Project Settings**
+- `GameManager.cs` owns persistent progression and shared signals
+- world scenes place content and instantiate reusable scenes
+- UI scenes subscribe to signals instead of polling world state
+- interactables update progression or move the player between scenes
 
-1. **Input Map (Controls):**  
-   * Go to Project \-\> Project Settings \-\> Input Map.  
-   * Add the following new actions exactly as written:  
-     * move\_left (Assign: A key or Left Arrow)  
-     * move\_right (Assign: D key or Right Arrow)  
-     * move\_forward (Assign: W key or Up Arrow)  
-     * move\_backward (Assign: S key or Down Arrow)  
-     * jump (Assign: Spacebar)  
-     * interact (Assign: E key)  
-2. **Autoload (The GameManager):**  
-   * Go to Project \-\> Project Settings \-\> Autoload.  
-   * Click the file folder icon, navigate to Scripts/Core/GameManager.cs, and add it. Make sure the Node Name is GameManager. This makes the GameManager run constantly in the background.
+That keeps the implementation simple while allowing progression to survive `ChangeSceneToFile(...)`.
 
-## **Phase 3: Building Elaine (The Player Scene)**
+## Global State: `GameManager`
 
-1. Click Scene \-\> New Scene. Choose **CharacterBody3D** as the root node. Name it Elaine.  
-2. Add the following child nodes to Elaine:  
-   * **CollisionShape3D:** In the Inspector, assign a new CapsuleShape3D to it. Adjust the height to match your character model.  
-   * **Node3D:** Name this Visuals. Drag your imported T-Pose Elaine 3D model (e.g., from Mixamo) as a child of this Visuals node.  
-   * **AnimationTree:** In the inspector, set Tree Root to AnimationNodeStateMachine. Set Anim Player to the AnimationPlayer that came with your 3D model.  
-3. **Set Up Animations:**  
-   * Open the AnimationTree editor (bottom panel).  
-   * Right-click to add Animations. Name them EXACTLY: Idle, Run, Jump, Hover.  
-   * Connect them with arrows (e.g., Idle \<-\> Run).  
-4. **Attach Script:**  
-   * Drag ElaineController.cs onto the root Elaine node.  
-   * In the Inspector for Elaine, drag the Visuals node into the Visuals script slot, and the AnimationTree node into the Anim Tree script slot.  
-5. Save the scene as Elaine.tscn in Scenes/Characters/.
+`Scripts/Core/GameManager.cs` is the central shared state container.
 
-## **Phase 4: The User Interface (HUD)**
+It currently owns:
 
-1. Click Scene \-\> New Scene. Choose **CanvasLayer** as the root node. Name it HUD.  
-2. Add a **Control** node as a child. In the 2D layout view, set its anchors to "Full Rect" (takes up the whole screen).  
-3. Add two **Label** nodes as children of the Control.  
-   * Name one GlimmersLabel and place it top-left. Type "Glimmers: 0" in its text.  
-   * Name the other FamilyLabel and place it top-right. Type "Family Rescued: 0 / 5" in its text.  
-4. Attach HUD.cs to the root HUD node.  
-5. In the inspector, assign the GlimmersLabel and FamilyLabel nodes to their respective slots in the script.  
-6. Save the scene as HUD.tscn in Scenes/UI/.
+- `Glimmers`
+- `FamilyRescuedCount`
+- `RescuedFamilyIds`
+- `BefriendedAnimals`
+- `HasMagicRing`
+- `CanTranslateAnimals`
 
-## **Phase 5: The Test Platforming Level**
+It also emits the main cross-scene events:
 
-1. Click Scene \-\> New Scene. Choose **Node3D** as the root node. Name it TestLevel.  
-2. Add a **StaticBody3D** for the floor. Give it a **CollisionShape3D** (BoxShape) and a **MeshInstance3D** (BoxMesh) so you have ground to stand on.  
-3. **Instance Elaine:** Click the link icon (Instantiate Child Scene) and select Elaine.tscn. Move her above the floor.  
-4. **Instance the HUD:** Click the link icon and select HUD.tscn.  
-5. **Add a Collectible:**  
-   * Create a new Scene (Root: Area3D). Name it Collectible.  
-   * Add a CollisionShape3D (Sphere) and a MeshInstance3D (Sphere, scaled small like a coin).  
-   * Attach Collectible.cs. Save it as Collectible.tscn.  
-   * Instance a few of these in your TestLevel.  
-6. **Add a Hazard (Death Pit):**  
-   * Add an **Area3D** under the floor in TestLevel. Attach Hazard.cs. Add a wide CollisionShape3D (Box). If Elaine falls here, she respawns.  
-7. Save the level as World\_1\_Forest.tscn in Scenes/Levels/. Press **F6** to test playing this specific scene. You should be able to run, jump, hover, collect Glimmers, and see the UI update\!
+- `GlimmersChanged`
+- `FamilyRescuedChanged`
+- `AnimalBefriended`
+- `DialogueRequested`
 
-## **Phase 6: The Cozy Hub World**
+Use `GameManager` when a value must persist across scene changes or when multiple systems need to react to the same gameplay event.
 
-1. Click Scene \-\> New Scene. Choose **Node3D**. Name it HubWorld.  
-2. Build a floor (like you did in the test level). Instance Elaine.tscn and HUD.tscn here as well.  
-3. **The Family Tree:**  
-   * Create an empty Node3D in the center of town. Name it FamilyTree. Attach FamilyTree.cs.  
-   * Add child mesh nodes for different tree sizes, and Marker3D nodes for family spawn points. Assign them all in the Inspector.  
-4. **The Level Portal:**  
-   * Add an **Area3D** named PortalToWorld1. Attach LevelPortal.cs.  
-   * Add a CollisionShape3D (Box) and a MeshInstance3D (maybe a glowing doorway).  
-   * In the Inspector for the script, click Level Scene Path and select your World\_1\_Forest.tscn.  
-5. **The Animal Spawner:**  
-   * Add a **Node3D** named AnimalSpawner. Attach HubAnimalSpawner.cs.  
-   * Add several **Marker3D** nodes as children of it (these are where Toby, Sasha, etc., will spawn).  
-6. Save the scene as HubWorld.tscn in Scenes/Hub/.
+## Scene Startup
 
-## **Phase 7: Building the Wildlife (NPCs)**
+`Scripts/System/SceneBootstrap.cs` is the launch bridge between project settings and the actual playable world.
 
-1. Create a new Scene (Root: CharacterBody3D). Name it Animal\_Toby.  
-2. Add a **CollisionShape3D** (Capsule), a **Visuals** node (with Toby the Turtle's mesh), and an **AnimationTree** (just like Elaine).  
-3. Attach AnimalBehavior.cs to the root node to let Toby wander around.  
-4. Add an **Area3D** as a child of Toby. Give it a large CollisionShape (Sphere) for interaction range. Attach NPC.cs (or NPCDialogueTrigger.cs).  
-5. In the NPC inspector, set the Character Name to "Toby" and Translated Dialogue to "Nice to be out of those caves\!".  
-6. Save as Toby.tscn in Scenes/Characters/.  
-7. **Crucial Link:** Go back to your HubWorld.tscn, select the AnimalSpawner node. In the inspector under Animal Prefabs, click "Add Element", type the key "Toby", and load the Toby.tscn file as the value.
+Behavior:
 
-**Final Test:**
+1. find or create `WorldRoot`
+2. load the configured `DefaultWorldScene`
+3. instantiate that scene if it is not already present
 
-In GameManager.cs, temporarily add BefriendAnimal("Toby"); inside the \_Ready() function.
+This allows startup logic to stay centralized without turning the hub scene itself into the global entry mechanism.
 
-Open HubWorld.tscn and press **F6**. You should spawn in, see Toby wandering around, be able to talk to him using 'E', and walk into the glowing portal to instantly teleport to your platforming level\!
+## Player Implementation
+
+`Scripts/Player/ElaineController.cs` owns:
+
+- movement input
+- jumping
+- hover behavior
+- visuals rotation toward movement direction
+- interaction search
+- respawn point tracking
+
+Implementation notes:
+
+- the player joins the `player` group in `_Ready()`
+- interaction is driven from `_UnhandledInput`
+- nearest NPC selection uses the `npc_interaction` group plus squared distance checks
+- hover is only active while airborne, the jump input is held, and hover time remains
+
+If you change movement feel, this is the primary script to touch.
+
+## Dialogue Flow
+
+Dialogue is event-driven:
+
+1. an NPC or rescue trigger calls `GameManager.RequestDialogue(...)`
+2. `DialogueUI.cs` receives `DialogueRequested`
+3. the dialogue panel is populated and shown
+4. the panel closes on `interact` or `ui_cancel`
+
+Relevant files:
+
+- `Scripts/NPCs/NPC.cs`
+- `Scripts/UI/DialogueUI.cs`
+- `Scenes/UI/DialogueUI.tscn`
+
+This is intentionally lightweight. The current system is a single-message overlay, not a branching dialogue tree.
+
+## NPC and Wildlife Implementation
+
+### `NPC.cs`
+
+`NPC.cs` is the interaction endpoint for animal conversations.
+
+On interaction:
+
+- it resolves the speaker identity
+- it chooses translated or untranslated dialogue based on `CanTranslateAnimals`
+- it sends the chosen line to the dialogue UI through `GameManager`
+- it marks the animal as befriended when translation is active
+
+### `AnimalBehavior.cs`
+
+`AnimalBehavior.cs` handles idle wildlife wandering:
+
+- timed pause and move phases
+- randomized horizontal move direction
+- simple facing rotation while moving
+- gravity and `MoveAndSlide()`
+
+This is good for lightweight hub or level ambience. More authored behavior should be added in a separate script rather than overloading the current wander loop.
+
+## UI Implementation
+
+### `HUD.cs`
+
+The HUD subscribes to:
+
+- `GlimmersChanged`
+- `FamilyRescuedChanged`
+
+It redraws its labels from `GameManager` state instead of maintaining its own counters.
+
+### `DialogueUI.cs`
+
+`DialogueUI` subscribes to:
+
+- `DialogueRequested`
+
+It owns:
+
+- current visible speaker name
+- current dialogue text
+- showing and hiding the dialogue panel
+
+If dialogue does not appear, the fastest path is to verify this scene is instanced and the autoload signal is reaching it.
+
+## Interactable Systems
+
+### `Collectible.cs`
+
+- reacts to `BodyEntered`
+- accepts only the player
+- adds `GlimmerValue`
+- removes itself
+
+### `Checkpoint.cs`
+
+- reacts to `BodyEntered`
+- accepts `ElaineController`
+- updates the player's stored respawn point
+
+### `HazardVolume.cs`
+
+- reacts to `BodyEntered`
+- accepts `ElaineController`
+- respawns the player at `RespawnMarker`
+- falls back to a scene node named `PlayerSpawn`
+- otherwise falls back to Elaine's stored respawn point
+
+### `LevelPortal.cs`
+
+- reacts to `BodyEntered`
+- accepts the player
+- changes scene using exported `TargetScene`
+
+### `FamilyRescue.cs`
+
+- reacts to `BodyEntered`
+- guards against duplicate rescues
+- calls `RescueFamilyMember`
+- optionally awards bonus glimmers
+- requests rescue dialogue
+- optionally removes itself after completion
+
+Together these scripts define most of the moment-to-moment level loop.
+
+## Hub Progression Systems
+
+### `FamilyTree.cs`
+
+`FamilyTree` reacts to rescued family count and updates the hub in two ways:
+
+1. show the correct tree growth stage
+2. instance rescued family scenes at configured spawn points
+
+It can also seed default family scene references if they were not assigned manually.
+
+### `HubAnimalSpawner.cs`
+
+`HubAnimalSpawner` reacts to befriended animals and:
+
+1. clears previously spawned hub animals
+2. sorts befriended animal ids
+3. instances matching scenes at available markers
+
+It also seeds a default prefab mapping for Toby when the exported dictionary is empty.
+
+These two scripts make the hub a projection of persistent progression rather than a place that stores its own copy of state.
+
+## Camera
+
+`Scripts/Camera/PlatformerCamera.cs` is a simple follow camera:
+
+- finds the player by group if no explicit target is set
+- lerps toward `Target.GlobalPosition + Offset`
+- looks at the player with a slight vertical aim offset
+
+If the camera feels wrong, adjust `Offset` and `FollowSpeed` before rewriting the script.
+
+## Character Visual Pipeline
+
+The most important implementation constraint in the repo is the character visual pipeline.
+
+`Scripts/System/RuntimeGltfModel.cs` exists because direct packed-scene references to imported character `.glb` assets have been unreliable in this checkout.
+
+Implementation behavior:
+
+1. clear any previously generated runtime model
+2. show the placeholder by default
+3. load a raw `.glb` or `.gltf` through `GltfDocument`
+4. generate a scene graph
+5. attach it under the runtime loader node
+6. apply position, rotation, and scale overrides
+7. hide the placeholder after success
+
+Do not remove this path casually. It is protecting the gameplay scenes from import-cache failures.
+
+## Extension Patterns
+
+Use these patterns when adding features:
+
+### Add a new collectible-like trigger
+
+Create a new scene under `Scenes/Interactables/` and a matching script under `Scripts/Interactables/`. Keep the trigger self-contained and call into `GameManager` only for persistent outcomes.
+
+### Add a new hub-reactive progression type
+
+Store the durable state in `GameManager`, emit a signal when it changes, and let the hub subscribe and redraw from that signal.
+
+### Add a new animal
+
+1. create the scene under `Scenes/Characters/Wildlife/`
+2. attach `AnimalBehavior.cs` if wandering is enough
+3. attach or configure `NPC.cs` for dialogue
+4. register the animal in `HubAnimalSpawner`
+
+### Add a new family rescue
+
+1. create or reuse a family character scene
+2. place a `FamilyRescue.tscn` trigger in the target level
+3. assign `FamilyId`, display text, and any bonus
+4. ensure the family scene can be spawned by `FamilyTree`
+
+## Current Technical Risks
+
+These are still the fragile areas:
+
+- character model import health
+- runtime GLTF alignment per character
+- incomplete animation hookup beyond the current movement state machine assumptions
+- any future scene that reintroduces direct imported-model dependencies without verification
+
+If you are deciding where to invest next, the safest sequence is:
+
+1. verify all current scenes in Godot
+2. stabilize character transforms
+3. decide whether to keep runtime GLTF loading or replace it with clean wrapper scenes generated from repaired imports
