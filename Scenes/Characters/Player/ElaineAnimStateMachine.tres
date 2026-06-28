@@ -9,6 +9,9 @@ animation = &"Mixamo/idle"
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_idkkg"]
 animation = &"Mixamo/jump"
 
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_walk"]
+animation = &"Mixamo/walk"
+
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_0mbqx"]
 animation = &"Mixamo/run"
 
@@ -41,11 +44,13 @@ advance_mode = 2
 
 [resource]
 states/Hover/node = SubResource("AnimationNodeAnimation_kpmkx")
-states/Hover/position = Vector2(0, 0)
+states/Hover/position = Vector2(640, 80)
 states/Idle/node = SubResource("AnimationNodeAnimation_an56b")
-states/Idle/position = Vector2(0, 0)
+states/Idle/position = Vector2(140, 80)
 states/Jump/node = SubResource("AnimationNodeAnimation_idkkg")
-states/Jump/position = Vector2(0, 0)
+states/Jump/position = Vector2(640, -120)
+states/Walk/node = SubResource("AnimationNodeAnimation_walk")
+states/Walk/position = Vector2(380, 80)
 states/Run/node = SubResource("AnimationNodeAnimation_0mbqx")
-states/Run/position = Vector2(0, 0)
-transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_7soft"), "Idle", "Run", SubResource("AnimationNodeStateMachineTransition_o4voj"), "Idle", "Jump", SubResource("AnimationNodeStateMachineTransition_67ht0"), "Idle", "Hover", SubResource("AnimationNodeStateMachineTransition_w31nh"), "Run", "Idle", SubResource("AnimationNodeStateMachineTransition_awurf"), "Run", "Jump", SubResource("AnimationNodeStateMachineTransition_y3re1"), "Run", "Hover", SubResource("AnimationNodeStateMachineTransition_85cow"), "Jump", "Idle", SubResource("AnimationNodeStateMachineTransition_kjiws"), "Jump", "Run", SubResource("AnimationNodeStateMachineTransition_u120c"), "Jump", "Hover", SubResource("AnimationNodeStateMachineTransition_yltoh"), "Hover", "Idle", SubResource("AnimationNodeStateMachineTransition_qxorl"), "Hover", "Run", SubResource("AnimationNodeStateMachineTransition_l2xhi"), "Hover", "Jump", SubResource("AnimationNodeStateMachineTransition_0tkf7")]
+states/Run/position = Vector2(640, 260)
+transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_7soft"), "Idle", "Run", SubResource("AnimationNodeStateMachineTransition_o4voj"), "Idle", "Jump", SubResource("AnimationNodeStateMachineTransition_67ht0"), "Idle", "Hover", SubResource("AnimationNodeStateMachineTransition_w31nh"), "Run", "Idle", SubResource("AnimationNodeStateMachineTransition_awurf"), "Run", "Jump", SubResource("AnimationNodeStateMachineTransition_y3re1"), "Run", "Hover", SubResource("AnimationNodeStateMachineTransition_85cow"), "Jump", "Idle", SubResource("AnimationNodeStateMachineTransition_kjiws"), "Jump", "Run", SubResource("AnimationNodeStateMachineTransition_u120c"), "Jump", "Hover", SubResource("AnimationNodeStateMachineTransition_yltoh"), "Hover", "Idle", SubResource("AnimationNodeStateMachineTransition_qxorl"), "Hover", "Run", SubResource("AnimationNodeStateMachineTransition_l2xhi"), "Hover", "Jump", SubResource("AnimationNodeStateMachineTransition_0tkf7"), "Idle", "Walk", SubResource("AnimationNodeStateMachineTransition_o4voj"), "Walk", "Idle", SubResource("AnimationNodeStateMachineTransition_awurf"), "Walk", "Run", SubResource("AnimationNodeStateMachineTransition_y3re1"), "Run", "Walk", SubResource("AnimationNodeStateMachineTransition_u120c"), "Walk", "Jump", SubResource("AnimationNodeStateMachineTransition_67ht0"), "Walk", "Hover", SubResource("AnimationNodeStateMachineTransition_w31nh"), "Jump", "Walk", SubResource("AnimationNodeStateMachineTransition_kjiws"), "Hover", "Walk", SubResource("AnimationNodeStateMachineTransition_qxorl")]

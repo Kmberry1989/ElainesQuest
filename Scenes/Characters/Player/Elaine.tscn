@@ -1,8 +1,9 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://lyol2svtyf03"]
 
-[ext_resource type="Script" path="res://Scripts/Player/ElaineController.cs" id="1_elaine"]
-[ext_resource type="PackedScene" path="res://Assets/Models/Elaine/Elaine-model.glb" id="2_00of8"]
+[ext_resource type="Script" uid="uid://copyeei1j32el" path="res://Scripts/Player/ElaineController.cs" id="1_elaine"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Elaine/Elaine-model.fbx" id="2_00of8"]
 [ext_resource type="AnimationLibrary" path="res://Assets/Animations/MixamoLibrary.res" id="4_sv6l0"]
+[ext_resource type="AnimationNodeStateMachine" path="res://Scenes/Characters/Player/ElaineAnimStateMachine.tres" id="5_state_machine"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.45
@@ -12,14 +13,22 @@ height = 1.1
 script = ExtResource("1_elaine")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=295033199]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65, 0)
 visible = false
 shape = SubResource("CapsuleShape3D_1")
 
 [node name="Visuals" type="Node3D" parent="." unique_id=1036865365]
+transform = Transform3D(1.45, 0, 0, 0, 1.45, 0, 0, 0, 1.45, 0, 0, 0)
 
-[node name="Elaine-model" type="Node3D" parent="Visuals" unique_id=881941244 instance=ExtResource("2_00of8")]
+[node name="Elaine-model" parent="Visuals" unique_id=881941244 instance=ExtResource("2_00of8")]
 
 [node name="GlobalAnimationPlayer" type="AnimationPlayer" parent="." unique_id=115740099]
 root_node = NodePath("../Visuals/Elaine-model")
 libraries/Mixamo = ExtResource("4_sv6l0")
+
+[node name="AnimationTree" type="AnimationTree" parent="." node_paths=PackedStringArray("anim_player")]
+tree_root = ExtResource("5_state_machine")
+anim_player = NodePath("../GlobalAnimationPlayer")
+active = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1417130941]

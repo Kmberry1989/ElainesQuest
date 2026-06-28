@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" path="res://Scenes/Characters/Wildlife/Toby.tscn" id="8_toby"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/HUD.tscn" id="9_hud"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/DialogueUI.tscn" id="10_dialogue"]
+[ext_resource type="PackedScene" path="res://Scenes/Environment/OutdoorAddons.tscn" id="10b_outdoor"]
 [ext_resource type="PackedScene" path="res://Assets/Models/Environment/space_grassy.glb" id="11_ground_visual"]
 [ext_resource type="PackedScene" path="res://Assets/Models/Environment/flowers_wild.glb" id="12_flowers"]
 [ext_resource type="PackedScene" path="res://Assets/Models/Environment/lamp_post.glb" id="13_lamp"]
@@ -35,6 +36,12 @@ size = Vector3(8, 1, 8)
 size = Vector3(8, 1, 8)
 
 [node name="World1Forest" type="Node3D"]
+
+[node name="OutdoorAddons" parent="." instance=ExtResource("10b_outdoor")]
+grass_center = Vector3(-7, 0, 0)
+grass_extent = Vector2i(8, 8)
+grass_spacing = 2
+grass_height = 0.02
 
 [node name="PlayerSpawn" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1.2, 0)

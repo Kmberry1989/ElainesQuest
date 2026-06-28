@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://Scripts/Hub/HubAnimalSpawner.cs" id="6_spawner"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/HUD.tscn" id="7_hud"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/DialogueUI.tscn" id="8_dialogue"]
+[ext_resource type="PackedScene" path="res://Scenes/Environment/OutdoorAddons.tscn" id="8b_outdoor"]
 [ext_resource type="PackedScene" path="res://Assets/Models/Environment/space_grassy.glb" id="9_ground_visual"]
 [ext_resource type="PackedScene" path="res://Assets/Models/Environment/familiarity_tree-1.glb" id="10_tree_1"]
 [ext_resource type="PackedScene" path="res://Assets/Models/Environment/familiarity_tree-2.glb" id="11_tree_2"]
@@ -26,12 +27,14 @@ size = Vector3(36, 1, 36)
 
 [node name="HubWorld" type="Node3D"]
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 10, 0)
-shadow_enabled = true
-
 [node name="PlayerSpawn" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1.2, 0)
+
+[node name="OutdoorAddons" parent="." instance=ExtResource("8b_outdoor")]
+grass_center = Vector3(0, 0, 0)
+grass_extent = Vector2i(16, 16)
+grass_spacing = 2
+grass_height = 0.02
 
 [node name="Ground" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
