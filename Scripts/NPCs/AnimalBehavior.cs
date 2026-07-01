@@ -6,6 +6,7 @@ public partial class AnimalBehavior : CharacterBody3D
     [Export] public float Gravity = 9.8f;
     [Export] public float MoveDuration = 2.0f;
     [Export] public float PauseDuration = 1.5f;
+    [Export] public bool StayPut = false;
 
     private float _stateTimer;
     private bool _isPaused = true;
@@ -20,6 +21,26 @@ public partial class AnimalBehavior : CharacterBody3D
     public override void _PhysicsProcess(double delta)
     {
         float d = (float)delta;
+
+        if (StayPut)
+        {
+            Vector3 stationaryVelocity = Velocity;
+            if (!IsOnFloor())
+            {
+                stationaryVelocity.Y -= Gravity * d;
+            }
+            else
+            {
+                stationaryVelocity.Y = 0.0f;
+            }
+
+            stationaryVelocity.X = 0.0f;
+            stationaryVelocity.Z = 0.0f;
+            Velocity = stationaryVelocity;
+            MoveAndSlide();
+            return;
+        }
+
         _stateTimer -= d;
 
         if (_stateTimer <= 0.0f)

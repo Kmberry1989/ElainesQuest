@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://dm864sd4ds54c"]
 
-[ext_resource type="Script" path="res://Scripts/Environment/OutdoorAddons.gd" id="1_outdoor"]
+[ext_resource type="Script" uid="uid://dqru04q83xp4j" path="res://Scripts/Environment/OutdoorAddons.gd" id="1_outdoor"]
 
-[node name="OutdoorAddons" type="Node3D"]
+[node name="OutdoorAddons" type="Node3D" unique_id=723685344]
+top_level = true
 script = ExtResource("1_outdoor")
+terrain_radius = 256
+terrain_base_y = -5.0

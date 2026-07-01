@@ -59,6 +59,9 @@ public partial class RebuildLibrary : SceneTree
             new ClipSource("walk", "res://Assets/Animations/Mixamo/Walk.fbx"),
             new ClipSource("jump", "res://Assets/Animations/Mixamo/Jump.fbx"),
             new ClipSource("flying", "res://Assets/Animations/Mixamo/Floating (1).fbx"),
+            new ClipSource("talk", "res://Assets/Animations/Mixamo/Talking.fbx"),
+            new ClipSource("cast", "res://Assets/Animations/Mixamo/Magic Spell Casting.fbx"),
+            new ClipSource("wave", "res://Assets/Animations/Mixamo/Waving.fbx"),
         };
     }
 
@@ -90,6 +93,11 @@ public partial class RebuildLibrary : SceneTree
             }
 
             string trimmed = path.Substring(skeletonIndex);
+            if (!trimmed.StartsWith("RootNode/", StringComparison.Ordinal))
+            {
+                trimmed = $"RootNode/{trimmed}";
+            }
+
             animation.TrackSetPath(i, new NodePath(trimmed));
         }
     }
