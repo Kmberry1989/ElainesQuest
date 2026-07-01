@@ -3,20 +3,24 @@ using Godot;
 public partial class ElaineController : CharacterBody3D
 {
     [ExportCategory("Movement Settings")]
-    [Export] public float Speed = 5.0f;
+    [Export] public float Speed = 7.0f;
     [Export] public float JumpVelocity = 4.5f;
     [Export] public float Gravity = 9.8f;
     [Export] public float RotationSpeed = 10.0f;
-    [Export] public float Acceleration = 14.0f;
+    [Export] public float Acceleration = 18.0f;
     [Export] public float GroundDeceleration = 18.0f;
-    [Export] public float WalkAnimationThreshold = 0.2f;
-    [Export] public float RunAnimationThreshold = 3.25f;
+    [Export] public float WalkAnimationThreshold = 0.05f;
+    [Export] public float RunAnimationThreshold = 0.2f;
+    [Export] public float RunInputThreshold = 0.65f;
 
     [ExportCategory("Magic Ring Settings")]
     [Export] public float HoverDuration = 2.0f;
     [Export] public float HoverGravityModifier = 0.2f; 
     private bool _isHovering = false;
     private float _hoverTimer = 0.0f;
+
+    [ExportCategory("Action Settings")]
+    [Export] public float OneShotFallbackDuration = 0.75f;
 
     [ExportCategory("Nodes")]
     [Export] public Node3D Visuals; // Drag the 3D mesh node here
@@ -27,6 +31,8 @@ public partial class ElaineController : CharacterBody3D
     private string _currentAnim = "";
     private Vector3 _respawnPoint;
     private AnimationNodeStateMachinePlayback _stateMachinePlayback;
+    private string _oneShotState = "";
+    private float _oneShotTimer = 0.0f;
 
     public override void _Ready()
     {
@@ -36,13 +42,22 @@ public partial class ElaineController : CharacterBody3D
         AnimTree ??= GetNodeOrNull<AnimationTree>("AnimationTree");
         _respawnPoint = GlobalPosition;
 
-        if (AnimTree != null)
+        CallDeferred(nameof(InitializeAnimationStateMachine));
+    }
+
+    private void InitializeAnimationStateMachine()
+    {
+        if (AnimTree == null)
         {
-            AnimTree.Active = true;
-            _stateMachinePlayback = (AnimationNodeStateMachinePlayback)AnimTree.Get("parameters/playback");
+            TravelAnimationState("Idle");
+            return;
         }
 
-        TravelAnimationState("Idle");
+        AnimTree.Active = true;
+        _stateMachinePlayback = (AnimationNodeStateMachinePlayback)AnimTree.Get("parameters/playback");
+        string initialState = string.IsNullOrEmpty(_currentAnim) ? "Idle" : _currentAnim;
+        _currentAnim = "";
+        TravelAnimationState(initialState);
     }
 
     private void TravelAnimationState(string stateName)
@@ -59,31 +74,34 @@ public partial class ElaineController : CharacterBody3D
             return;
         }
 
-        if (AnimPlayer == null)
-        {
-            GD.Print("AnimPlayer is NULL!");
-            return;
-        }
-
-        string clipName = stateName switch
-        {
-            "Walk" => "Mixamo/walk",
-            "Run" => "Mixamo/run",
-            "Jump" => "Mixamo/jump",
-            "Hover" => "Mixamo/flying",
-            _ => "Mixamo/idle",
-        };
-
-        GD.Print($"Playing animation: {clipName}");
-        AnimPlayer.Play(clipName, 0.2f);
         _currentAnim = stateName;
     }
 
     public override void _UnhandledInput(InputEvent @event)
     {
+        if (IsDialogueOpen())
+        {
+            return;
+        }
+
         if (@event.IsActionPressed("interact"))
         {
-            TryInteract();
+            if (TryInteract())
+            {
+                StartOneShot("Talk", "Mixamo/talk");
+            }
+            return;
+        }
+
+        if (@event.IsActionPressed("cast_magic"))
+        {
+            StartOneShot("Cast", "Mixamo/cast");
+            return;
+        }
+
+        if (@event.IsActionPressed("emote"))
+        {
+            StartOneShot("Wave", "Mixamo/wave");
         }
     }
 
@@ -100,9 +118,20 @@ public partial class ElaineController : CharacterBody3D
             direction = direction.Normalized();
         }
 
+        if (_oneShotTimer > 0.0f && !IsDialogueOpen())
+        {
+            _oneShotTimer = Mathf.Max(0.0f, _oneShotTimer - d);
+        }
+        else if (_oneShotTimer <= 0.0f)
+        {
+            _oneShotState = string.Empty;
+        }
+
         // 1. Handle Gravity & Magic Ring Hover
         if (!IsOnFloor())
         {
+            _oneShotState = string.Empty;
+            _oneShotTimer = 0.0f;
             if (Input.IsActionPressed("jump") && Velocity.Y < 0 && _hoverTimer > 0)
             {
                 // Magic Ring Hover logic
@@ -133,9 +162,16 @@ public partial class ElaineController : CharacterBody3D
         }
 
         // 3. Handle Movement & Animation State
+        bool oneShotActive = _oneShotTimer > 0.0f;
         float targetHorizontalSpeed = Speed * inputStrength;
 
-        if (direction != Vector3.Zero)
+        if (oneShotActive)
+        {
+            velocity.X = Mathf.MoveToward(Velocity.X, 0.0f, GroundDeceleration * d);
+            velocity.Z = Mathf.MoveToward(Velocity.Z, 0.0f, GroundDeceleration * d);
+            TravelAnimationState(_oneShotState);
+        }
+        else if (direction != Vector3.Zero)
         {
             velocity.X = Mathf.MoveToward(Velocity.X, direction.X * targetHorizontalSpeed, Acceleration * d);
             velocity.Z = Mathf.MoveToward(Velocity.Z, direction.Z * targetHorizontalSpeed, Acceleration * d);
@@ -154,21 +190,25 @@ public partial class ElaineController : CharacterBody3D
             velocity.Z = Mathf.MoveToward(Velocity.Z, 0, GroundDeceleration * d);
         }
 
-        if (IsOnFloor() && !_isHovering)
+        if (IsOnFloor() && !_isHovering && !oneShotActive)
         {
             float horizontalSpeed = new Vector2(velocity.X, velocity.Z).Length();
 
-            if (horizontalSpeed >= RunAnimationThreshold)
+            if (horizontalSpeed < WalkAnimationThreshold)
             {
-                TravelAnimationState("Run");
+                TravelAnimationState("Idle");
             }
-            else if (horizontalSpeed >= WalkAnimationThreshold)
+            else if (inputStrength < RunInputThreshold)
             {
                 TravelAnimationState("Walk");
             }
+            else if (horizontalSpeed >= RunAnimationThreshold)
+            {
+                TravelAnimationState("Run");
+            }
             else
             {
-                TravelAnimationState("Idle");
+                TravelAnimationState("Walk");
             }
         }
 
@@ -190,10 +230,17 @@ public partial class ElaineController : CharacterBody3D
     {
         GlobalPosition = point;
         Velocity = Vector3.Zero;
+        _oneShotState = string.Empty;
+        _oneShotTimer = 0.0f;
     }
 
-    private void TryInteract()
+    private bool TryInteract()
     {
+        if (IsDialogueOpen())
+        {
+            return false;
+        }
+
         NPC closestNpc = null;
         float closestDistanceSquared = InteractionRadius * InteractionRadius;
 
@@ -214,6 +261,56 @@ public partial class ElaineController : CharacterBody3D
             closestDistanceSquared = distanceSquared;
         }
 
-        closestNpc?.Interact();
+        if (closestNpc == null)
+        {
+            return false;
+        }
+
+        closestNpc.Interact();
+        return true;
+    }
+
+    private bool StartOneShot(string stateName, string animationName)
+    {
+        if (!IsOnFloor() || IsDialogueOpen() || _oneShotTimer > 0.0f)
+        {
+            return false;
+        }
+
+        _oneShotState = stateName;
+        _oneShotTimer = GetAnimationDuration(animationName);
+        TravelAnimationState(stateName);
+        return true;
+    }
+
+    private float GetAnimationDuration(string animationName)
+    {
+        AnimationPlayer activePlayer = ResolveActiveAnimationPlayer();
+        Animation animation = activePlayer?.GetAnimation(animationName);
+        if (animation == null)
+        {
+            return OneShotFallbackDuration;
+        }
+
+        return Mathf.Max(0.1f, (float)animation.Length - 0.05f);
+    }
+
+    private AnimationPlayer ResolveActiveAnimationPlayer()
+    {
+        if (AnimTree != null)
+        {
+            AnimationPlayer treePlayer = AnimTree.GetNodeOrNull<AnimationPlayer>(AnimTree.AnimPlayer);
+            if (treePlayer != null)
+            {
+                return treePlayer;
+            }
+        }
+
+        return AnimPlayer ?? GetNodeOrNull<AnimationPlayer>("GlobalAnimationPlayer");
+    }
+
+    private static bool IsDialogueOpen()
+    {
+        return DialogueUI.Instance?.Panel?.Visible ?? false;
     }
 }

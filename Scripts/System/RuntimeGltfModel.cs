@@ -56,8 +56,13 @@ public partial class RuntimeGltfModel : Node3D
         AddChild(generatedNode);
         generatedNode.Owner = null;
 
-        var animPlayer = generatedNode.GetNodeOrNull<AnimationPlayer>("AnimationPlayer");
-        
+        var animPlayer = generatedNode.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
+        var skeleton = generatedNode.FindChild("Skeleton3D", true, false) as Node;
+        Node animationRoot =
+            skeleton?.GetParent() ??
+            generatedNode.FindChild("RootNode", true, false) ??
+            generatedNode;
+
         if (LinkedAnimationTree == null)
         {
             LinkedAnimationTree = GetNodeOrNull<AnimationTree>("../AnimationTree");
@@ -75,7 +80,7 @@ public partial class RuntimeGltfModel : Node3D
             }
 
             LinkedAnimationTree.AnimPlayer = LinkedAnimationTree.GetPathTo(animPlayer);
-            LinkedAnimationTree.RootNode = LinkedAnimationTree.GetPathTo(generatedNode);
+            LinkedAnimationTree.RootNode = LinkedAnimationTree.GetPathTo(animationRoot);
             
             // Toggle active to force initialization!
             LinkedAnimationTree.Active = false;

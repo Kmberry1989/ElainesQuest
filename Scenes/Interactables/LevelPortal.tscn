@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" uid="uid://cl421ivvbabbq" path="res://Scripts/Interactables/LevelPortal.cs" id="1_portal"]
-[ext_resource type="PackedScene" path="res://Assets/Models/Environment/portal_stone.glb" id="2_model"]
+[ext_resource type="PackedScene" uid="uid://ucmhqbaax3ov" path="res://Assets/Models/Environment/stone_arch.glb" id="2_model"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_1"]
 size = Vector3(2, 3, 1)

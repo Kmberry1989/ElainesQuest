@@ -6,11 +6,10 @@ extends Node3D
 @export var terrain_radius: int = 128
 @export var terrain_base_y: float = -4.0
 @export var terrain_height: float = 5.5
-@export var grass_center: Vector3 = Vector3.ZERO
-@export var grass_extent: Vector2i = Vector2i(18, 18)
-@export var grass_spacing: int = 2
-@export var grass_height: float = 0.05
-
+@export var enable_lens_effects: bool = true
+@export var sun_energy: float = 1.45
+@export var sun_rotation_degrees: Vector3 = Vector3(-38.0, -28.0, 0.0)
+@export var sun_color: Color = Color(1.0, 0.93, 0.82)
 var _rng := RandomNumberGenerator.new()
 
 
@@ -19,9 +18,10 @@ func _ready() -> void:
 		return
 
 	_rng.seed = 1337
+	_ensure_sun()
+	_ensure_world_environment()
 	_ensure_sky()
 	await _ensure_terrain()
-	_ensure_grass()
 
 
 func _ensure_sky() -> void:
@@ -35,6 +35,65 @@ func _ensure_sky() -> void:
 	sky.set("editor_time_enabled", false)
 	sky.set("game_time_enabled", true)
 	add_child(sky, true)
+
+
+func _ensure_sun() -> DirectionalLight3D:
+	var sun := get_node_or_null("QuestSun") as DirectionalLight3D
+	if sun == null:
+		sun = DirectionalLight3D.new()
+		sun.name = "QuestSun"
+		add_child(sun, true)
+
+	sun.light_energy = sun_energy
+	sun.light_color = sun_color
+	sun.shadow_enabled = true
+	sun.rotation_degrees = sun_rotation_degrees
+	return sun
+
+
+func _ensure_world_environment() -> void:
+	var world_environment := get_node_or_null("QuestEnvironment") as WorldEnvironment
+	if world_environment == null:
+		world_environment = load("res://addons/lens_effects/world_environment.gd").new()
+		world_environment.name = "QuestEnvironment"
+
+	var environment := world_environment.environment
+	if environment == null:
+		environment = Environment.new()
+		world_environment.environment = environment
+
+	environment.background_mode = Environment.BG_CLEAR_COLOR
+	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	environment.ambient_light_color = Color(0.61, 0.7, 0.78)
+	environment.ambient_light_energy = 0.9
+	environment.ambient_light_sky_contribution = 0.35
+	environment.tonemap_mode = Environment.TONE_MAPPER_ACES
+	environment.glow_enabled = true
+	environment.fog_enabled = true
+	environment.fog_density = 0.01
+	environment.fog_sun_scatter = 0.45
+	environment.fog_aerial_perspective = 0.2
+	environment.fog_light_color = Color(0.97, 0.83, 0.67)
+	environment.fog_light_energy = 0.75
+
+	if enable_lens_effects:
+		var compositor := world_environment.compositor
+		if compositor == null:
+			compositor = Compositor.new()
+			world_environment.compositor = compositor
+
+		if compositor.compositor_effects.is_empty():
+			var lens_effect = load("res://addons/lens_effects/lens_flare_compositor_effect.gd").new()
+			lens_effect.Weight = 0.11
+			lens_effect.SampleCount = 72
+			lens_effect.Anamorphic_Intensity = 180.0
+			lens_effect.sun_color = Color(0.98, 0.88, 0.7, 0.42)
+			compositor.compositor_effects = [lens_effect]
+
+	if world_environment.get_parent() == null:
+		add_child(world_environment, true)
+
+	world_environment.set("sun", _ensure_sun())
 
 
 func _ensure_terrain() -> void:
@@ -53,11 +112,6 @@ func _ensure_terrain() -> void:
 	var dirt_texture: Terrain3DTextureAsset = await _create_texture_asset("QuestDirt", dirt_gradient, 512, 0.01)
 	dirt_texture.uv_scale = 0.04
 
-	var grass_mesh_asset := Terrain3DMeshAsset.new()
-	grass_mesh_asset.name = "QuestTerrainGrass"
-	grass_mesh_asset.generated_type = Terrain3DMeshAsset.TYPE_TEXTURE_CARD
-	grass_mesh_asset.material_override.albedo_color = Color(0.46, 0.62, 0.38)
-
 	var terrain := Terrain3D.new()
 	terrain.name = "Terrain3D"
 	add_child(terrain, true)
@@ -69,7 +123,6 @@ func _ensure_terrain() -> void:
 	terrain.assets = Terrain3DAssets.new()
 	terrain.assets.set_texture(0, green_texture)
 	terrain.assets.set_texture(1, dirt_texture)
-	terrain.assets.set_mesh_asset(0, grass_mesh_asset)
 
 	var noise := FastNoiseLite.new()
 	noise.frequency = 0.02
@@ -82,52 +135,6 @@ func _ensure_terrain() -> void:
 
 	terrain.region_size = terrain_radius
 	terrain.data.import_images([img, null, null], Vector3(-terrain_radius, terrain_base_y, -terrain_radius), 0.0, terrain_height)
-
-	var transforms: Array[Transform3D] = []
-	var half_radius := int(terrain_radius / 2)
-	for x in range(-half_radius, half_radius, 6):
-		for z in range(-half_radius, half_radius, 6):
-			var pos := Vector3(float(x), 0.0, float(z))
-			pos.y = terrain.data.get_height(pos)
-			transforms.push_back(Transform3D(Basis(), pos))
-	terrain.instancer.add_transforms(0, transforms)
-
-
-func _ensure_grass() -> void:
-	if has_node("ForegroundGrass"):
-		return
-
-	var grass: Node = load("res://addons/simplegrasstextured/grass.gd").new()
-	grass.name = "ForegroundGrass"
-	grass.set("albedo", Color(0.54, 0.71, 0.40))
-	grass.set("interactive", false)
-	grass.set("scale_h", 0.75)
-	grass.set("scale_w", 0.65)
-	grass.set("scale_var", -0.12)
-	grass.set("grass_strength", 0.35)
-	grass.set("optimization_by_distance", true)
-	grass.set("optimization_dist_min", 6.0)
-	grass.set("optimization_dist_max", 32.0)
-	add_child(grass, true)
-
-	var transforms: Array[Transform3D] = []
-	var min_x := int(round(grass_center.x)) - grass_extent.x
-	var max_x := int(round(grass_center.x)) + grass_extent.x
-	var min_z := int(round(grass_center.z)) - grass_extent.y
-	var max_z := int(round(grass_center.z)) + grass_extent.y
-	for x in range(min_x, max_x + 1, grass_spacing):
-		for z in range(min_z, max_z + 1, grass_spacing):
-			if _rng.randf() < 0.28:
-				continue
-			var rotation := _rng.randf_range(0.0, TAU)
-			var scale_value := _rng.randf_range(0.85, 1.2)
-			var basis := Basis().rotated(Vector3.UP, rotation).scaled(Vector3(scale_value, scale_value, scale_value))
-			var origin := Vector3(float(x), grass_height, float(z))
-			transforms.append(Transform3D(basis, origin))
-
-	grass.call("add_grass_batch", transforms)
-	grass.call("_update_multimesh")
-
 
 func _create_texture_asset(asset_name: String, gradient: Gradient, texture_size: int, noise_frequency: float) -> Terrain3DTextureAsset:
 	var fnl := FastNoiseLite.new()
