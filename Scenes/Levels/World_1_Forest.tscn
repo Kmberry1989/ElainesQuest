@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" uid="uid://dkbyxlgdt3b1e" path="res://Assets/Models/Environment/small_bridge.glb" id="17_wood_path"]
 [ext_resource type="PackedScene" uid="uid://sx577eby4xf8" path="res://Assets/Models/Environment/triple_sign.glb" id="18_signpost"]
 [ext_resource type="PackedScene" uid="uid://b2vkvhjiqe713" path="res://Assets/Models/Environment/white_yellow_flower_bed.glb" id="19_flowers_bed"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/SpellWisp.tscn" id="20_spell_wisp"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
 size = Vector3(18, 1, 18)
@@ -153,6 +154,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 4.7, 0)
 
 [node name="Toby" parent="." instance=ExtResource("8_toby")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 2.5, -2)
+
+[node name="SpellWispMid" parent="." instance=ExtResource("20_spell_wisp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.6, 2.6, 2.4)
+
+[node name="SpellWispGoal" parent="." instance=ExtResource("20_spell_wisp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.8, 4.6, -2.2)
 
 [node name="Checkpoint" parent="." instance=ExtResource("4_checkpoint")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4.5, 2)

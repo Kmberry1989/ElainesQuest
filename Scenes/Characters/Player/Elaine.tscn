@@ -2,15 +2,20 @@
 
 [ext_resource type="Script" uid="uid://copyeei1j32el" path="res://Scripts/Player/ElaineController.cs" id="1_elaine"]
 [ext_resource type="Script" uid="uid://b5ldfsry11u0" path="res://Scripts/System/RuntimeGltfModel.cs" id="2_runtime_model"]
+[ext_resource type="PackedScene" path="res://Scenes/Combat/ElaineFirebolt.tscn" id="3_firebolt"]
 [ext_resource type="AnimationLibrary" uid="uid://doq3kjd2xxe0q" path="res://Assets/Animations/MixamoLibrary.res" id="4_sv6l0"]
 [ext_resource type="AnimationNodeStateMachine" uid="uid://dclwhti3ypg7d" path="res://Scenes/Characters/Player/ElaineAnimStateMachine.tres" id="5_state_machine"]
+[ext_resource type="PackedScene" path="res://Scenes/Combat/SpellImpact.tscn" id="6_impact"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.45
 height = 1.1
 
-[node name="Elaine" type="CharacterBody3D" unique_id=65812238]
+[node name="Elaine" type="CharacterBody3D" unique_id=65812238 node_paths=PackedStringArray("SpellOrigin")]
 script = ExtResource("1_elaine")
+SpellProjectileScene = ExtResource("3_firebolt")
+SpellImpactScene = ExtResource("6_impact")
+SpellOrigin = NodePath("Visuals/SpellOrigin")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=295033199]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.543199, 0)
@@ -21,6 +26,9 @@ script = ExtResource("2_runtime_model")
 ModelPath = "res://Assets/Models/Elaine/Elaine-model.glb"
 LoadedScale = Vector3(1.5, 1.5, 1.5)
 LinkedAnimationTree = NodePath("../AnimationTree")
+
+[node name="SpellOrigin" type="Marker3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, -1.0)
 
 [node name="GlobalAnimationPlayer" type="AnimationPlayer" parent="." unique_id=115740099]
 root_node = NodePath("../Visuals/__RuntimeModel/RootNode")
