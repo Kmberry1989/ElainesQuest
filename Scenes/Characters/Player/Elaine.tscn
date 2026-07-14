@@ -6,6 +6,8 @@
 [ext_resource type="AnimationLibrary" uid="uid://doq3kjd2xxe0q" path="res://Assets/Animations/MixamoLibrary.res" id="4_sv6l0"]
 [ext_resource type="AnimationNodeStateMachine" uid="uid://dclwhti3ypg7d" path="res://Scenes/Characters/Player/ElaineAnimStateMachine.tres" id="5_state_machine"]
 [ext_resource type="PackedScene" path="res://Scenes/Combat/SpellImpact.tscn" id="6_impact"]
+[ext_resource type="PackedScene" path="res://Scenes/Combat/ElaineStarVolley.tscn" id="7_volley"]
+[ext_resource type="PackedScene" path="res://Scenes/Combat/ElaineSkyLance.tscn" id="8_lance"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.45
@@ -15,6 +17,10 @@ height = 1.1
 script = ExtResource("1_elaine")
 SpellProjectileScene = ExtResource("3_firebolt")
 SpellImpactScene = ExtResource("6_impact")
+BurstSpellProjectileScene = ExtResource("7_volley")
+BurstSpellImpactScene = ExtResource("6_impact")
+LanceSpellProjectileScene = ExtResource("8_lance")
+LanceSpellImpactScene = ExtResource("6_impact")
 SpellOrigin = NodePath("Visuals/SpellOrigin")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=295033199]

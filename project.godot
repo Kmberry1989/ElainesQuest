@@ -42,6 +42,7 @@ config/features=PackedStringArray("4.7", "C#", "Forward Plus")
 
 GameManager="*res://Scripts/Core/GameManager.cs"
 SimpleGrass="*uid://bfq0snth8sj3h"
+LovelyEvent="*uid://c0fwxnrrr7mnq"
 
 [dotnet]
 
@@ -49,7 +50,7 @@ project/assembly_name="ElainesQuest"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/lens_effects/plugin.cfg", "res://addons/simplegrasstextured/plugin.cfg", "res://addons/simplex_terrain/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/terrain_3d/plugin.cfg")
+enabled=PackedStringArray("res://addons/PlantGenerator/plugin.cfg", "res://addons/TileMapLayer3D/plugin.cfg", "res://addons/advanced_radial_menu/plugin.cfg", "res://addons/extendable-scene-transitions/plugin.cfg", "res://addons/lens_effects/plugin.cfg", "res://addons/lovely_event/plugin.cfg", "res://addons/simplegrasstextured/plugin.cfg", "res://addons/simplex_terrain/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/terrain_3d/plugin.cfg")
 
 [input]
 
@@ -116,10 +117,20 @@ cast_magic={
 , Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":10,"pressure":0.0,"pressed":false,"script":null)
 ])
 }
+spell_wheel={
+"deadzone": 0.5,
+"events": Array[InputEvent]([Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":16,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194306,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+, Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":9,"pressure":0.0,"pressed":false,"script":null)
+])
+}
 
 [layer_names]
 
 3d_render/layer_17="SimpleGrassTextured interactive layer"
+
+[scene_manager]
+
+initial_scene=""
 
 [shader_globals]
 

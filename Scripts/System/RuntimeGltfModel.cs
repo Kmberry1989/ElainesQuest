@@ -1,4 +1,6 @@
 using Godot;
+using System;
+using System.IO;
 
 [Tool]
 public partial class RuntimeGltfModel : Node3D
@@ -38,19 +40,26 @@ public partial class RuntimeGltfModel : Node3D
             PlaceholderRoot.Visible = true;
         }
 
-        if (string.IsNullOrWhiteSpace(ModelPath) || !FileAccess.FileExists(ModelPath))
+        if (string.IsNullOrWhiteSpace(ModelPath) || !Godot.FileAccess.FileExists(ModelPath))
         {
             return;
         }
 
-        var scene = ResourceLoader.Load<PackedScene>(ModelPath);
-        if (scene == null)
+        bool importRemapInvalid = IsImportRemapInvalid();
+        Node generatedNode = importRemapInvalid
+            ? TryInstantiateCachedImportedScene()
+            : TryInstantiateImportedScene() ??
+              TryInstantiateCachedImportedScene() ??
+              TryLoadRuntimeGltfScene();
+        if (generatedNode == null)
         {
-            GD.PushWarning($"Failed to load scene from '{ModelPath}'.");
+            if (PlaceholderRoot == null)
+            {
+                GD.PushWarning($"Failed to load scene from '{ModelPath}'.");
+            }
+
             return;
         }
-
-        Node generatedNode = scene.Instantiate();
 
         generatedNode.Name = GeneratedModelName;
         AddChild(generatedNode);
@@ -70,7 +79,7 @@ public partial class RuntimeGltfModel : Node3D
 
         if (animPlayer != null && LinkedAnimationTree != null)
         {
-            if (!string.IsNullOrEmpty(LibraryToLoad) && FileAccess.FileExists(LibraryToLoad))
+            if (!string.IsNullOrEmpty(LibraryToLoad) && Godot.FileAccess.FileExists(LibraryToLoad))
             {
                 var mixamoLib = ResourceLoader.Load<AnimationLibrary>(LibraryToLoad);
                 if (mixamoLib != null)
@@ -100,9 +109,94 @@ public partial class RuntimeGltfModel : Node3D
         }
     }
 
+    private Node TryInstantiateImportedScene()
+    {
+        PackedScene scene = ResourceLoader.Load<PackedScene>(ModelPath);
+        return scene?.Instantiate();
+    }
+
+    private Node TryLoadRuntimeGltfScene()
+    {
+        GltfDocument document = new();
+        GltfState state = new();
+        state.BasePath = ResolveBasePath(ModelPath);
+
+        Error result = document.AppendFromFile(ModelPath, state, 0, state.BasePath);
+        if (result != Error.Ok)
+        {
+            return null;
+        }
+
+        return document.GenerateScene(state, 30.0f, false, true);
+    }
+
+    private Node TryInstantiateCachedImportedScene()
+    {
+        string importedDirectory = ProjectSettings.GlobalizePath("res://.godot/imported");
+        if (!Directory.Exists(importedDirectory))
+        {
+            return null;
+        }
+
+        string fileName = Path.GetFileName(ModelPath);
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return null;
+        }
+
+        string[] matches = Directory.GetFiles(importedDirectory, $"{fileName}-*.scn");
+        Array.Sort(matches, StringComparer.Ordinal);
+
+        foreach (string match in matches)
+        {
+            string resourcePath = ProjectSettings.LocalizePath(match);
+            PackedScene scene = ResourceLoader.Load<PackedScene>(resourcePath);
+            if (scene != null)
+            {
+                return scene.Instantiate();
+            }
+        }
+
+        return null;
+    }
+
     private void ClearGeneratedModel()
     {
         Node existing = GetNodeOrNull<Node>(GeneratedModelName);
         existing?.QueueFree();
+    }
+
+    private bool IsImportRemapInvalid()
+    {
+        string importMetadataPath = $"{ModelPath}.import";
+        if (!Godot.FileAccess.FileExists(importMetadataPath))
+        {
+            return false;
+        }
+
+        using Godot.FileAccess importFile = Godot.FileAccess.Open(importMetadataPath, Godot.FileAccess.ModeFlags.Read);
+        if (importFile == null)
+        {
+            return false;
+        }
+
+        string importText = importFile.GetAsText();
+        return importText.Contains("valid=false", StringComparison.Ordinal);
+    }
+
+    private static string ResolveBasePath(string resourcePath)
+    {
+        if (string.IsNullOrWhiteSpace(resourcePath))
+        {
+            return string.Empty;
+        }
+
+        int slashIndex = resourcePath.LastIndexOf('/');
+        if (slashIndex <= 0)
+        {
+            return string.Empty;
+        }
+
+        return resourcePath[..slashIndex];
     }
 }

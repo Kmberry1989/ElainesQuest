@@ -14,6 +14,8 @@ public partial class GenerateAnimTree : SceneTree
         stateMachine.AddNode("Hover", new AnimationNodeAnimation { Animation = "Mixamo/flying" }, new Vector2(620, 20));
         stateMachine.AddNode("Talk", new AnimationNodeAnimation { Animation = "Mixamo/talk" }, new Vector2(380, -170));
         stateMachine.AddNode("Cast", new AnimationNodeAnimation { Animation = "Mixamo/cast" }, new Vector2(380, -300));
+        stateMachine.AddNode("CastBurst", new AnimationNodeAnimation { Animation = "Mixamo/cast_burst" }, new Vector2(620, -300));
+        stateMachine.AddNode("CastLance", new AnimationNodeAnimation { Animation = "Mixamo/cast_lance" }, new Vector2(860, -300));
         stateMachine.AddNode("Wave", new AnimationNodeAnimation { Animation = "Mixamo/wave" }, new Vector2(380, 190));
 
         var startToIdle = new AnimationNodeStateMachineTransition();
@@ -28,6 +30,8 @@ public partial class GenerateAnimTree : SceneTree
             ("Idle", "Hover"),
             ("Idle", "Talk"),
             ("Idle", "Cast"),
+            ("Idle", "CastBurst"),
+            ("Idle", "CastLance"),
             ("Idle", "Wave"),
             ("Walk", "Idle"),
             ("Walk", "Run"),
@@ -35,6 +39,8 @@ public partial class GenerateAnimTree : SceneTree
             ("Walk", "Hover"),
             ("Walk", "Talk"),
             ("Walk", "Cast"),
+            ("Walk", "CastBurst"),
+            ("Walk", "CastLance"),
             ("Walk", "Wave"),
             ("Run", "Idle"),
             ("Run", "Walk"),
@@ -42,6 +48,8 @@ public partial class GenerateAnimTree : SceneTree
             ("Run", "Hover"),
             ("Run", "Talk"),
             ("Run", "Cast"),
+            ("Run", "CastBurst"),
+            ("Run", "CastLance"),
             ("Run", "Wave"),
             ("Jump", "Idle"),
             ("Jump", "Walk"),
@@ -53,6 +61,8 @@ public partial class GenerateAnimTree : SceneTree
             ("Hover", "Jump"),
             ("Talk", "Idle"),
             ("Cast", "Idle"),
+            ("CastBurst", "Idle"),
+            ("CastLance", "Idle"),
             ("Wave", "Idle"),
         });
 

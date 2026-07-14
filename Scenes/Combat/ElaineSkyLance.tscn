@@ -1,0 +1,38 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Combat/SpellProjectile.cs" id="1_projectile"]
+[ext_resource type="PackedScene" path="res://Scenes/Combat/SpellImpact.tscn" id="2_impact"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hit"]
+radius = 0.28
+height = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_core"]
+albedo_color = Color(0.6, 0.95, 1, 1)
+emission_enabled = true
+emission = Color(0.36, 0.86, 1, 1)
+emission_energy_multiplier = 2.8
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_core"]
+radius = 0.2
+mid_height = 0.75
+material = SubResource("StandardMaterial3D_core")
+
+[node name="ElaineSkyLance" type="Area3D"]
+script = ExtResource("1_projectile")
+DefaultDamage = 1.8
+DefaultSpeed = 22.0
+DefaultRange = 34.0
+ImpactScene = ExtResource("2_impact")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_hit")
+
+[node name="Visuals" type="MeshInstance3D" parent="."]
+rotation = Vector3(1.5708, 0, 0)
+mesh = SubResource("CapsuleMesh_core")
+
+[node name="Glow" type="OmniLight3D" parent="."]
+light_color = Color(0.36, 0.86, 1, 1)
+light_energy = 1.45
+omni_range = 4.0

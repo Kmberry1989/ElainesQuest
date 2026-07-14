@@ -52,14 +52,14 @@ public partial class ForestAdventureDirector : Node3D
         if (_guideMet && !_firstEncounterComplete && AreEncounterEnemiesDefeated(FirstEncounterEnemyPaths))
         {
             _firstEncounterComplete = true;
-            GameManager.Instance?.RequestDialogue("Forest Trail", "The first corrupted clearing calms down. The ridge path has opened.");
+            GameManager.Instance?.RequestDialogue("Forest Trail", "The lower clearing is calm again. The ridge seal has fallen. Push across the bridge and break the ambush above.");
             UpdateWorldState();
         }
 
         if (_firstEncounterComplete && !_secondEncounterComplete && AreEncounterEnemiesDefeated(SecondEncounterEnemyPaths))
         {
             _secondEncounterComplete = true;
-            GameManager.Instance?.RequestDialogue("Forest Trail", "The upper ridge is safe now. Matthew is just ahead.");
+            GameManager.Instance?.RequestDialogue("Forest Trail", "The upper ambush is broken. Matthew is waiting at the lantern overlook just ahead.");
             UpdateWorldState();
         }
     }
@@ -68,8 +68,25 @@ public partial class ForestAdventureDirector : Node3D
     {
         _guideMet = GameManager.Instance?.HasBefriendedAnimal(GuideAnimalId) ?? false;
         _familyRescued = GameManager.Instance?.HasRescuedFamilyMember(RescuedFamilyId) ?? false;
+
+        if (_familyRescued)
+        {
+            _guideMet = true;
+            _firstEncounterComplete = true;
+            _secondEncounterComplete = true;
+            ClearEncounterEnemies(FirstEncounterEnemyPaths);
+            ClearEncounterEnemies(SecondEncounterEnemyPaths);
+            return;
+        }
+
         _firstEncounterComplete = AreEncounterEnemiesDefeated(FirstEncounterEnemyPaths);
         _secondEncounterComplete = AreEncounterEnemiesDefeated(SecondEncounterEnemyPaths);
+
+        if (_secondEncounterComplete)
+        {
+            _guideMet = true;
+            _firstEncounterComplete = true;
+        }
     }
 
     private void OnAnimalBefriended(string animalId)
@@ -91,6 +108,11 @@ public partial class ForestAdventureDirector : Node3D
         }
 
         _familyRescued = true;
+        _guideMet = true;
+        _firstEncounterComplete = true;
+        _secondEncounterComplete = true;
+        ClearEncounterEnemies(FirstEncounterEnemyPaths);
+        ClearEncounterEnemies(SecondEncounterEnemyPaths);
         UpdateWorldState();
     }
 
@@ -120,10 +142,15 @@ public partial class ForestAdventureDirector : Node3D
 
     private void UpdateWorldState()
     {
-        SetBarrierActive(FirstGate, !_firstEncounterComplete);
-        SetBarrierActive(SecondGate, !_secondEncounterComplete);
-        SetInteractableActive(RescueNode, _secondEncounterComplete && !_familyRescued);
-        SetInteractableActive(ReturnPortal, _familyRescued);
+        bool firstEncounterActive = _guideMet && !_firstEncounterComplete && !_familyRescued;
+        bool secondEncounterActive = _firstEncounterComplete && !_secondEncounterComplete && !_familyRescued;
+
+        SetEncounterEnemiesActive(FirstEncounterEnemyPaths, firstEncounterActive);
+        SetEncounterEnemiesActive(SecondEncounterEnemyPaths, secondEncounterActive);
+        SetNodeActive(FirstGate, !_firstEncounterComplete);
+        SetNodeActive(SecondGate, !_secondEncounterComplete);
+        SetNodeActive(RescueNode, _secondEncounterComplete && !_familyRescued);
+        SetNodeActive(ReturnPortal, _familyRescued);
         UpdateObjective();
     }
 
@@ -136,19 +163,19 @@ public partial class ForestAdventureDirector : Node3D
 
         if (!_guideMet)
         {
-            GameManager.Instance.SetObjective("Reach Toby and learn what happened in the forest.");
+            GameManager.Instance.SetObjective("Find Toby near the forest trailhead and learn where Matthew was taken.");
             return;
         }
 
         if (!_firstEncounterComplete)
         {
-            GameManager.Instance.SetObjective("Clear the lower clearing with Elaine's spells.");
+            GameManager.Instance.SetObjective("Clear the lower clearing and break the ridge seal.");
             return;
         }
 
         if (!_secondEncounterComplete)
         {
-            GameManager.Instance.SetObjective("Cross the ridge and defeat the ambush ahead.");
+            GameManager.Instance.SetObjective("Cross the ridge bridge and defeat the upper ambush guarding Matthew.");
             return;
         }
 
@@ -158,10 +185,50 @@ public partial class ForestAdventureDirector : Node3D
             return;
         }
 
-        GameManager.Instance.SetObjective("Return to the Hub and grow the Family Tree.");
+        GameManager.Instance.SetObjective("Matthew is safe. Return to the Hub and help the Family Tree bloom.");
     }
 
-    private static void SetBarrierActive(Node node, bool isActive)
+    private void SetEncounterEnemiesActive(Godot.Collections.Array<NodePath> enemyPaths, bool isActive)
+    {
+        if (enemyPaths == null || enemyPaths.Count == 0)
+        {
+            return;
+        }
+
+        foreach (NodePath enemyPath in enemyPaths)
+        {
+            if (enemyPath.IsEmpty)
+            {
+                continue;
+            }
+
+            SetNodeActive(GetNodeOrNull(enemyPath), isActive);
+        }
+    }
+
+    private void ClearEncounterEnemies(Godot.Collections.Array<NodePath> enemyPaths)
+    {
+        if (enemyPaths == null || enemyPaths.Count == 0)
+        {
+            return;
+        }
+
+        foreach (NodePath enemyPath in enemyPaths)
+        {
+            if (enemyPath.IsEmpty)
+            {
+                continue;
+            }
+
+            Node enemy = GetNodeOrNull(enemyPath);
+            if (enemy != null && !enemy.IsQueuedForDeletion())
+            {
+                enemy.QueueFree();
+            }
+        }
+    }
+
+    private static void SetNodeActive(Node node, bool isActive)
     {
         if (node == null)
         {
@@ -172,7 +239,12 @@ public partial class ForestAdventureDirector : Node3D
 
         foreach (Node child in node.GetChildren())
         {
-            SetBarrierActive(child, isActive);
+            SetNodeActive(child, isActive);
+        }
+
+        if (node is Node3D node3D)
+        {
+            node3D.Visible = isActive;
         }
 
         if (node is CollisionShape3D collisionShape)
@@ -180,46 +252,16 @@ public partial class ForestAdventureDirector : Node3D
             collisionShape.SetDeferred("disabled", !isActive);
         }
 
-        if (node is Area3D area)
+        if (node is CombatMeleeHitbox meleeHitbox)
         {
-            area.SetDeferred("monitoring", isActive);
-            area.SetDeferred("monitorable", isActive);
-        }
-
-        if (node is VisualInstance3D visual)
-        {
-            visual.Visible = isActive;
-        }
-    }
-
-    private static void SetInteractableActive(Node node, bool isActive)
-    {
-        if (node == null)
-        {
+            meleeHitbox.EndAttack();
             return;
         }
 
-        node.ProcessMode = isActive ? ProcessModeEnum.Inherit : ProcessModeEnum.Disabled;
-
-        foreach (Node child in node.GetChildren())
-        {
-            SetInteractableActive(child, isActive);
-        }
-
-        if (node is CollisionShape3D collisionShape)
-        {
-            collisionShape.SetDeferred("disabled", !isActive);
-        }
-
         if (node is Area3D area)
         {
             area.SetDeferred("monitoring", isActive);
             area.SetDeferred("monitorable", isActive);
-        }
-
-        if (node is VisualInstance3D visual)
-        {
-            visual.Visible = isActive;
         }
     }
 }

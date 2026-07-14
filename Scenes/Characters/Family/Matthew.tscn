@@ -8,8 +8,11 @@ mid_height = 1.1
 
 [node name="Matthew" type="Node3D"]
 
-[node name="Visuals" type="Node3D" parent="."]
+[node name="Visuals" type="Node3D" parent="." node_paths=PackedStringArray("PlaceholderRoot")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.0, 0)
 script = ExtResource("1_runtime_model")
 ModelPath = "res://Assets/Models/Family/Matthew-model.glb"
+PlaceholderRoot = NodePath("Placeholder")
 
+[node name="Placeholder" type="MeshInstance3D" parent="Visuals"]
+mesh = SubResource("CapsuleMesh_1")

@@ -61,6 +61,8 @@ public partial class RebuildLibrary : SceneTree
             new ClipSource("flying", "res://Assets/Animations/Mixamo/Floating (1).fbx"),
             new ClipSource("talk", "res://Assets/Animations/Mixamo/Talking.fbx"),
             new ClipSource("cast", "res://Assets/Animations/Mixamo/Magic Spell Casting.fbx"),
+            new ClipSource("cast_burst", "res://Assets/Animations/Mixamo/Magic From Hands.fbx"),
+            new ClipSource("cast_lance", "res://Assets/Animations/Mixamo/Standing 2H Cast Spell 01.fbx"),
             new ClipSource("wave", "res://Assets/Animations/Mixamo/Waving.fbx"),
         };
     }

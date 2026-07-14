@@ -27,7 +27,7 @@ public partial class GameManager : Node
 
     public bool HasMagicRing = true;
     public bool CanTranslateAnimals = true;
-    public string CurrentObjective { get; private set; } = "Reach Toby and learn what happened in the forest.";
+    public string CurrentObjective { get; private set; } = "Find Toby near the forest trailhead and learn where Matthew was taken.";
 
     public HashSet<string> RescuedFamilyIds { get; } = new();
     public HashSet<string> BefriendedAnimals { get; } = new();

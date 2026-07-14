@@ -22,7 +22,6 @@ public partial class HazardVolume : Area3D
             return;
         }
 
-        RespawnMarker ??= GetTree().CurrentScene?.GetNodeOrNull<Marker3D>("PlayerSpawn");
         if (RespawnMarker != null)
         {
             player.RespawnTo(RespawnMarker.GlobalPosition);

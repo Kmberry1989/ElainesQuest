@@ -49,6 +49,7 @@ func configure_input_map() -> void:
 	set_action("interact", [make_key_event(KEY_E), make_joy_button_event(JOY_BUTTON_X)])
 	set_action("emote", [make_key_event(KEY_Q), make_joy_button_event(JOY_BUTTON_Y)])
 	set_action("cast_magic", [make_key_event(KEY_F), make_joy_button_event(JOY_BUTTON_RIGHT_SHOULDER)])
+	set_action("spell_wheel", [make_key_event(KEY_TAB), make_joy_button_event(JOY_BUTTON_LEFT_SHOULDER)])
 	set_action("ui_cancel", [make_key_event(KEY_ESCAPE), make_joy_button_event(JOY_BUTTON_B), make_joy_button_event(JOY_BUTTON_START)])
 
 func set_action(action_name: String, events: Array[InputEvent], deadzone: float = INPUT_DEADZONE) -> void:

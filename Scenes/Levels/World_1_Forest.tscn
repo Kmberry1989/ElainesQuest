@@ -292,7 +292,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.6, 10.4, 0)
 
 [node name="MatthewRescue" parent="." unique_id=1188738114 instance=ExtResource("7_family_rescue")]
 transform = Transform3D(1.2, 0, 0, 0, 1.6, 0, 0, 0, 1.2, 66, 10, 0)
-RescueDialogue = "Elaine, your spells pushed the corruption back. Let's take this trail home."
+RescueDialogue = "Elaine, you drove the corruption back. Let's head home and help the Family Tree bloom."
 BonusGlimmers = 20
 
 [node name="ReturnPortal" parent="." unique_id=850866220 instance=ExtResource("6_portal")]

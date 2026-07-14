@@ -2,6 +2,44 @@ using Godot;
 
 public partial class ElaineController : CharacterBody3D
 {
+    private readonly struct SpellConfig
+    {
+        public SpellConfig(
+            string displayName,
+            string stateName,
+            string animationName,
+            float damage,
+            float cooldown,
+            float releaseTime,
+            float projectileSpeed,
+            float projectileRange,
+            PackedScene projectileScene,
+            PackedScene impactScene)
+        {
+            DisplayName = displayName;
+            StateName = stateName;
+            AnimationName = animationName;
+            Damage = damage;
+            Cooldown = cooldown;
+            ReleaseTime = releaseTime;
+            ProjectileSpeed = projectileSpeed;
+            ProjectileRange = projectileRange;
+            ProjectileScene = projectileScene;
+            ImpactScene = impactScene;
+        }
+
+        public string DisplayName { get; }
+        public string StateName { get; }
+        public string AnimationName { get; }
+        public float Damage { get; }
+        public float Cooldown { get; }
+        public float ReleaseTime { get; }
+        public float ProjectileSpeed { get; }
+        public float ProjectileRange { get; }
+        public PackedScene ProjectileScene { get; }
+        public PackedScene ImpactScene { get; }
+    }
+
     [ExportCategory("Movement Settings")]
     [Export] public float Speed = 7.0f;
     [Export] public float JumpVelocity = 4.5f;
@@ -31,6 +69,22 @@ public partial class ElaineController : CharacterBody3D
     [Export] public float SpellProjectileRange = 28.0f;
     [Export] public PackedScene SpellProjectileScene;
     [Export] public PackedScene SpellImpactScene;
+    [Export] public string BurstSpellDisplayName = "Star Volley";
+    [Export] public float BurstSpellDamage = 0.8f;
+    [Export] public float BurstSpellCooldown = 0.55f;
+    [Export] public float BurstSpellReleaseTime = 0.16f;
+    [Export] public float BurstSpellProjectileSpeed = 31.0f;
+    [Export] public float BurstSpellProjectileRange = 25.0f;
+    [Export] public PackedScene BurstSpellProjectileScene;
+    [Export] public PackedScene BurstSpellImpactScene;
+    [Export] public string LanceSpellDisplayName = "Sky Lance";
+    [Export] public float LanceSpellDamage = 1.8f;
+    [Export] public float LanceSpellCooldown = 1.2f;
+    [Export] public float LanceSpellReleaseTime = 0.3f;
+    [Export] public float LanceSpellProjectileSpeed = 22.0f;
+    [Export] public float LanceSpellProjectileRange = 34.0f;
+    [Export] public PackedScene LanceSpellProjectileScene;
+    [Export] public PackedScene LanceSpellImpactScene;
 
     [ExportCategory("Nodes")]
     [Export] public Node3D Visuals;
@@ -52,7 +106,10 @@ public partial class ElaineController : CharacterBody3D
     private float _currentHealth = 0.0f;
     private float _damageInvulnerabilityTimer = 0.0f;
     private float _spellCooldownTimer = 0.0f;
+    private float _spellCooldownDuration = 0.0f;
     private float _pendingSpellTimer = -1.0f;
+    private int _selectedSpellIndex = 0;
+    private int _pendingSpellIndex = -1;
 
     public override void _Ready()
     {
@@ -61,8 +118,15 @@ public partial class ElaineController : CharacterBody3D
         AnimPlayer ??= GetNodeOrNull<AnimationPlayer>("GlobalAnimationPlayer");
         AnimTree ??= GetNodeOrNull<AnimationTree>("AnimationTree");
         SpellOrigin ??= GetNodeOrNull<Marker3D>("Visuals/SpellOrigin");
+        SpellProjectileScene ??= ResourceLoader.Load<PackedScene>("res://Scenes/Combat/ElaineFirebolt.tscn");
+        SpellImpactScene ??= ResourceLoader.Load<PackedScene>("res://Scenes/Combat/SpellImpact.tscn");
+        BurstSpellProjectileScene ??= ResourceLoader.Load<PackedScene>("res://Scenes/Combat/ElaineStarVolley.tscn");
+        BurstSpellImpactScene ??= SpellImpactScene;
+        LanceSpellProjectileScene ??= ResourceLoader.Load<PackedScene>("res://Scenes/Combat/ElaineSkyLance.tscn");
+        LanceSpellImpactScene ??= SpellImpactScene;
         _respawnPoint = GlobalPosition;
         _currentHealth = MaxHealth;
+        _spellCooldownDuration = SpellCooldown;
 
         EmitSignal(SignalName.HealthChanged, _currentHealth, MaxHealth);
         CallDeferred(nameof(InitializeAnimationStateMachine));
@@ -133,7 +197,10 @@ public partial class ElaineController : CharacterBody3D
     {
         Vector3 velocity = Velocity;
         float d = (float)delta;
-        Vector2 inputDir = Input.GetVector("move_left", "move_right", "move_forward", "move_backward");
+        bool spellWheelOpen = IsSpellWheelOpen();
+        Vector2 inputDir = spellWheelOpen
+            ? Vector2.Zero
+            : Input.GetVector("move_left", "move_right", "move_forward", "move_backward");
         float inputStrength = Mathf.Clamp(inputDir.Length(), 0.0f, 1.0f);
         Vector3 direction = new Vector3(inputDir.X, 0.0f, inputDir.Y);
 
@@ -266,6 +333,7 @@ public partial class ElaineController : CharacterBody3D
         _oneShotState = string.Empty;
         _oneShotTimer = 0.0f;
         _spellCooldownTimer = 0.0f;
+        _spellCooldownDuration = GetCurrentSpell().Cooldown;
         CancelQueuedSpellCast();
         RestoreFullHealth();
         TravelAnimationState("Idle");
@@ -312,7 +380,33 @@ public partial class ElaineController : CharacterBody3D
 
     public string GetSpellDisplayName()
     {
-        return SpellDisplayName;
+        return GetCurrentSpell().DisplayName;
+    }
+
+    public string GetSpellDisplayName(int spellIndex)
+    {
+        return GetSpellConfig(spellIndex).DisplayName;
+    }
+
+    public int GetSpellCount()
+    {
+        return 3;
+    }
+
+    public int GetSelectedSpellIndex()
+    {
+        return _selectedSpellIndex;
+    }
+
+    public bool SelectSpell(int spellIndex)
+    {
+        if (spellIndex < 0 || spellIndex >= GetSpellCount())
+        {
+            return false;
+        }
+
+        _selectedSpellIndex = spellIndex;
+        return true;
     }
 
     public float GetSpellCooldownRemaining()
@@ -322,22 +416,27 @@ public partial class ElaineController : CharacterBody3D
 
     public float GetSpellCooldownRatio()
     {
-        if (SpellCooldown <= 0.0f)
+        float resolvedDuration = _spellCooldownTimer > 0.0f
+            ? _spellCooldownDuration
+            : GetCurrentSpell().Cooldown;
+
+        if (resolvedDuration <= 0.0f)
         {
             return 0.0f;
         }
 
-        return Mathf.Clamp(_spellCooldownTimer / SpellCooldown, 0.0f, 1.0f);
+        return Mathf.Clamp(_spellCooldownTimer / resolvedDuration, 0.0f, 1.0f);
     }
 
     public string GetSpellHudText()
     {
+        SpellConfig spell = GetCurrentSpell();
         if (_spellCooldownTimer <= 0.0f)
         {
-            return $"{SpellDisplayName}: Ready  [F]";
+            return $"{spell.DisplayName}: Ready  [F]  Wheel [Tab]";
         }
 
-        return $"{SpellDisplayName}: {Mathf.Ceil(_spellCooldownTimer * 10.0f) / 10.0f:0.0}s";
+        return $"{spell.DisplayName}: {Mathf.Ceil(_spellCooldownTimer * 10.0f) / 10.0f:0.0}s  Wheel [Tab]";
     }
 
     private bool TryInteract()
@@ -378,18 +477,21 @@ public partial class ElaineController : CharacterBody3D
 
     private bool TryCastSpell()
     {
-        if (_spellCooldownTimer > 0.0f || SpellProjectileScene == null)
+        SpellConfig spell = GetCurrentSpell();
+        if (_spellCooldownTimer > 0.0f || spell.ProjectileScene == null)
         {
             return false;
         }
 
-        if (!StartOneShot("Cast", "Mixamo/cast"))
+        if (!StartOneShot(spell.StateName, spell.AnimationName))
         {
             return false;
         }
 
-        _spellCooldownTimer = SpellCooldown;
-        _pendingSpellTimer = Mathf.Max(0.05f, Mathf.Min(SpellReleaseTime, _oneShotTimer));
+        _spellCooldownDuration = spell.Cooldown;
+        _spellCooldownTimer = spell.Cooldown;
+        _pendingSpellIndex = _selectedSpellIndex;
+        _pendingSpellTimer = Mathf.Max(0.05f, Mathf.Min(spell.ReleaseTime, _oneShotTimer));
         return true;
     }
 
@@ -447,16 +549,20 @@ public partial class ElaineController : CharacterBody3D
     private void CancelQueuedSpellCast()
     {
         _pendingSpellTimer = -1.0f;
+        _pendingSpellIndex = -1;
     }
 
     private void SpawnSpellProjectile()
     {
-        if (SpellProjectileScene == null)
+        SpellConfig spell = GetSpellConfig(_pendingSpellIndex >= 0 ? _pendingSpellIndex : _selectedSpellIndex);
+        _pendingSpellIndex = -1;
+
+        if (spell.ProjectileScene == null)
         {
             return;
         }
 
-        SpellProjectile projectile = SpellProjectileScene.Instantiate<SpellProjectile>();
+        SpellProjectile projectile = spell.ProjectileScene.Instantiate<SpellProjectile>();
         if (projectile == null)
         {
             GD.PushWarning("SpellProjectileScene does not instantiate a SpellProjectile.");
@@ -470,7 +576,7 @@ public partial class ElaineController : CharacterBody3D
 
         GetTree().CurrentScene?.AddChild(projectile);
         projectile.GlobalPosition = spawnPoint;
-        projectile.Launch(this, direction, SpellDamage, SpellProjectileSpeed, SpellProjectileRange, SpellImpactScene);
+        projectile.Launch(this, direction, spell.Damage, spell.ProjectileSpeed, spell.ProjectileRange, spell.ImpactScene);
     }
 
     private Vector3 ResolveSpellDirection()
@@ -489,5 +595,56 @@ public partial class ElaineController : CharacterBody3D
     private static bool IsDialogueOpen()
     {
         return DialogueUI.Instance?.Panel?.Visible ?? false;
+    }
+
+    private SpellConfig GetCurrentSpell()
+    {
+        return GetSpellConfig(_selectedSpellIndex);
+    }
+
+    private SpellConfig GetSpellConfig(int spellIndex)
+    {
+        int resolvedIndex = Mathf.Clamp(spellIndex, 0, GetSpellCount() - 1);
+        return resolvedIndex switch
+        {
+            1 => new SpellConfig(
+                BurstSpellDisplayName,
+                "CastBurst",
+                "Mixamo/cast_burst",
+                BurstSpellDamage,
+                BurstSpellCooldown,
+                BurstSpellReleaseTime,
+                BurstSpellProjectileSpeed,
+                BurstSpellProjectileRange,
+                BurstSpellProjectileScene,
+                BurstSpellImpactScene),
+            2 => new SpellConfig(
+                LanceSpellDisplayName,
+                "CastLance",
+                "Mixamo/cast_lance",
+                LanceSpellDamage,
+                LanceSpellCooldown,
+                LanceSpellReleaseTime,
+                LanceSpellProjectileSpeed,
+                LanceSpellProjectileRange,
+                LanceSpellProjectileScene,
+                LanceSpellImpactScene),
+            _ => new SpellConfig(
+                SpellDisplayName,
+                "Cast",
+                "Mixamo/cast",
+                SpellDamage,
+                SpellCooldown,
+                SpellReleaseTime,
+                SpellProjectileSpeed,
+                SpellProjectileRange,
+                SpellProjectileScene,
+                SpellImpactScene),
+        };
+    }
+
+    private static bool IsSpellWheelOpen()
+    {
+        return Input.IsActionPressed("spell_wheel") && !IsDialogueOpen();
     }
 }
