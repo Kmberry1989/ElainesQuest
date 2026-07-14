@@ -1,0 +1,86 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="PackedScene" path="res://Assets/Models/Enemies/Jacko.fbx" id="1_model"]
+[ext_resource type="Script" path="res://Scripts/Combat/EnemyCombatant.cs" id="2_enemy"]
+[ext_resource type="Script" path="res://Scripts/Combat/CombatHealth.cs" id="3_health"]
+[ext_resource type="Script" path="res://Scripts/Combat/CombatHurtbox.cs" id="4_hurtbox"]
+[ext_resource type="Script" path="res://Scripts/Combat/CombatMeleeHitbox.cs" id="5_hitbox"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Idle.fbx" id="6_idle"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Walking.fbx" id="7_walk"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Run.fbx" id="8_run"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Punch.fbx" id="9_attack"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Swiping.fbx" id="10_swipe"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Dying.fbx" id="11_death"]
+[ext_resource type="PackedScene" path="res://Scenes/Combat/SpellImpact.tscn" id="12_impact"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.45
+height = 1.25
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hurtbox"]
+radius = 0.65
+height = 1.7
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_attack"]
+radius = 0.9
+
+[node name="Jacko" type="CharacterBody3D" node_paths=PackedStringArray("AnimationTree", "Visuals", "Health", "CollisionShape", "Hurtbox", "AttackHitbox")]
+script = ExtResource("2_enemy")
+WalkSpeed = 2.2
+RunSpeed = 4.6
+Acceleration = 13.0
+DetectionRange = 20.0
+PreferredRange = 7.0
+AttackRange = 2.0
+AttackCooldown = 1.3
+AttackDamage = 1.0
+AttackWindup = 0.36
+AttackActiveDuration = 0.16
+AttackRecovery = 0.4
+HitStunDuration = 0.16
+DefeatGlimmers = 6
+DeathDelay = 0.95
+AnimationTree = NodePath("AnimationTree")
+IdleAnimationScene = ExtResource("6_idle")
+WalkAnimationScene = ExtResource("7_walk")
+RunAnimationScene = ExtResource("8_run")
+AttackAnimationScene = ExtResource("9_attack")
+SecondaryAttackAnimationScene = ExtResource("10_swipe")
+DeathAnimationScene = ExtResource("11_death")
+Visuals = NodePath("Visuals")
+Health = NodePath("Health")
+CollisionShape = NodePath("CollisionShape3D")
+Hurtbox = NodePath("Hurtbox")
+AttackHitbox = NodePath("AttackHitbox")
+DefeatEffectScene = ExtResource("12_impact")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="JackoModel" parent="Visuals" instance=ExtResource("1_model")]
+transform = Transform3D(0.9, 0, 0, 0, 0.9, 0, 0, 0, 0.9, 0, 0, 0)
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("3_health")
+MaxHealth = 3.0
+
+[node name="Hurtbox" type="Area3D" parent="." node_paths=PackedStringArray("Health", "ImpactAnchor")]
+script = ExtResource("4_hurtbox")
+Health = NodePath("../Health")
+ImpactAnchor = NodePath("../Visuals")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hurtbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, 0)
+shape = SubResource("CapsuleShape3D_hurtbox")
+
+[node name="AttackHitbox" type="Area3D" parent="."]
+script = ExtResource("5_hitbox")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AttackHitbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 1.1)
+shape = SubResource("SphereShape3D_attack")

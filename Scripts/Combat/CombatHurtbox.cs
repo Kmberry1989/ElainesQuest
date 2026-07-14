@@ -17,6 +17,11 @@ public partial class CombatHurtbox : Area3D
 
     public bool ApplySpellHit(float damage)
     {
+        return ApplyHit(damage);
+    }
+
+    public bool ApplyHit(float damage)
+    {
         Health ??= ResolveHealth();
         return Health?.ApplyDamage(damage) ?? false;
     }

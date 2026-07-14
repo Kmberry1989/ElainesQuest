@@ -19,11 +19,15 @@ public partial class GameManager : Node
     [Signal]
     public delegate void DialogueRequestedEventHandler(string speaker, string text);
 
+    [Signal]
+    public delegate void ObjectiveChangedEventHandler(string objectiveText);
+
     public int Glimmers { get; private set; }
     public int FamilyRescuedCount { get; private set; }
 
     public bool HasMagicRing = true;
     public bool CanTranslateAnimals = true;
+    public string CurrentObjective { get; private set; } = "Reach Toby and learn what happened in the forest.";
 
     public HashSet<string> RescuedFamilyIds { get; } = new();
     public HashSet<string> BefriendedAnimals { get; } = new();
@@ -95,5 +99,20 @@ public partial class GameManager : Node
     public void RequestDialogue(string speaker, string text)
     {
         EmitSignal(SignalName.DialogueRequested, speaker, text);
+    }
+
+    public void SetObjective(string objectiveText)
+    {
+        string resolvedObjective = string.IsNullOrWhiteSpace(objectiveText)
+            ? string.Empty
+            : objectiveText.Trim();
+
+        if (CurrentObjective == resolvedObjective)
+        {
+            return;
+        }
+
+        CurrentObjective = resolvedObjective;
+        EmitSignal(SignalName.ObjectiveChanged, CurrentObjective);
     }
 }

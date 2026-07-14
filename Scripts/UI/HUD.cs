@@ -6,6 +6,7 @@ public partial class HUD : CanvasLayer
     [Export] public Label FamilyLabel;
     [Export] public Label HealthLabel;
     [Export] public Label SpellLabel;
+    [Export] public Label ObjectiveLabel;
 
     private ElaineController _player;
 
@@ -15,11 +16,13 @@ public partial class HUD : CanvasLayer
         FamilyLabel ??= GetNodeOrNull<Label>("Control/FamilyLabel") ?? FindChild("FamilyLabel", true, false) as Label;
         HealthLabel ??= GetNodeOrNull<Label>("Control/HealthLabel") ?? FindChild("HealthLabel", true, false) as Label;
         SpellLabel ??= GetNodeOrNull<Label>("Control/SpellLabel") ?? FindChild("SpellLabel", true, false) as Label;
+        ObjectiveLabel ??= GetNodeOrNull<Label>("Control/ObjectiveLabel") ?? FindChild("ObjectiveLabel", true, false) as Label;
 
         if (GameManager.Instance != null)
         {
             GameManager.Instance.GlimmersChanged += OnGlimmersChanged;
             GameManager.Instance.FamilyRescuedChanged += OnFamilyRescuedChanged;
+            GameManager.Instance.ObjectiveChanged += OnObjectiveChanged;
         }
 
         ResolvePlayer();
@@ -42,6 +45,7 @@ public partial class HUD : CanvasLayer
         {
             GameManager.Instance.GlimmersChanged -= OnGlimmersChanged;
             GameManager.Instance.FamilyRescuedChanged -= OnFamilyRescuedChanged;
+            GameManager.Instance.ObjectiveChanged -= OnObjectiveChanged;
         }
 
         DisconnectPlayer();
@@ -91,6 +95,11 @@ public partial class HUD : CanvasLayer
         RefreshPlayerStatus();
     }
 
+    private void OnObjectiveChanged(string _objectiveText)
+    {
+        Refresh();
+    }
+
     private void Refresh()
     {
         if (GameManager.Instance != null)
@@ -103,6 +112,13 @@ public partial class HUD : CanvasLayer
             if (FamilyLabel != null)
             {
                 FamilyLabel.Text = $"Family Rescued: {GameManager.Instance.FamilyRescuedCount} / {GameManager.TotalFamilyMembers}";
+            }
+
+            if (ObjectiveLabel != null)
+            {
+                ObjectiveLabel.Text = string.IsNullOrWhiteSpace(GameManager.Instance.CurrentObjective)
+                    ? string.Empty
+                    : $"Objective: {GameManager.Instance.CurrentObjective}";
             }
         }
 

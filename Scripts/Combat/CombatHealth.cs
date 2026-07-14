@@ -6,6 +6,9 @@ public partial class CombatHealth : Node
     public delegate void HealthChangedEventHandler(float currentHealth, float maxHealth);
 
     [Signal]
+    public delegate void DamagedEventHandler(float amount, float currentHealth, float maxHealth);
+
+    [Signal]
     public delegate void DiedEventHandler();
 
     [Export] public float MaxHealth = 3.0f;
@@ -32,6 +35,7 @@ public partial class CombatHealth : Node
         }
 
         CurrentHealth = Mathf.Max(0.0f, CurrentHealth - amount);
+        EmitSignal(SignalName.Damaged, amount, CurrentHealth, MaxHealth);
         EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
 
         if (CurrentHealth <= 0.0f)

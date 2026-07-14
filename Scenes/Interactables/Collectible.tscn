@@ -1,10 +1,20 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://Scripts/Interactables/Collectible.cs" id="1_collectible"]
-[ext_resource type="PackedScene" path="res://Assets/Models/Environment/star.glb" id="2_star"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_1"]
 radius = 0.45
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_star"]
+albedo_color = Color(1, 0.858824, 0.25098, 1)
+emission_enabled = true
+emission = Color(1, 0.780392, 0.2, 1)
+emission_energy_multiplier = 1.4
+
+[sub_resource type="SphereMesh" id="SphereMesh_star"]
+radius = 0.28
+height = 0.56
+material = SubResource("StandardMaterial3D_star")
 
 [node name="Collectible" type="Area3D"]
 script = ExtResource("1_collectible")
@@ -12,5 +22,6 @@ script = ExtResource("1_collectible")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_1")
 
-[node name="StarModel" parent="." instance=ExtResource("2_star")]
-transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 0, 0.35, 0)
+[node name="StarModel" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.8, 0, 0, 0, 1.15, 0, 0, 0, 0.8, 0, 0.35, 0)
+mesh = SubResource("SphereMesh_star")
