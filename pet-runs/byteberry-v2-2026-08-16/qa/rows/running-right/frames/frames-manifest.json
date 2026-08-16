@@ -1,0 +1,28 @@
+{
+  "ok": true,
+  "chroma_key": {
+    "hex": "#00FFFF",
+    "rgb": [
+      0,
+      255,
+      255
+    ],
+    "threshold": 96.0
+  },
+  "rows": [
+    {
+      "state": "running-right",
+      "frames": [
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/running-right/frames/running-right/00.png",
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/running-right/frames/running-right/01.png",
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/running-right/frames/running-right/02.png",
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/running-right/frames/running-right/03.png",
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/running-right/frames/running-right/04.png",
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/running-right/frames/running-right/05.png",
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/running-right/frames/running-right/06.png",
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/running-right/frames/running-right/07.png"
+      ],
+      "method": "components"
+    }
+  ]
+}

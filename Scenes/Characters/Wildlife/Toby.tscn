@@ -29,4 +29,4 @@ script = ExtResource("2_npc")
 CharacterName = "Toby"
 AnimalId = "Toby"
 BaseDialogue = "*Excited turtle chirps.*"
-TranslatedDialogue = "Matthew is trapped past the lower clearing and the ridge ambush. Hold Tab to choose a spell, break through both fights, and bring him back to the Hub."
+TranslatedDialogue = "Matthew is trapped past the lower clearing and the ridge ambush. Hold Tab to open your spell wheel: Sun Ember is precise, Star Volley fires three close bolts, and Sky Lance pierces a line. Break through both fights and bring him home."

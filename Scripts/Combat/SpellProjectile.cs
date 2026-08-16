@@ -13,7 +13,11 @@ public partial class SpellProjectile : Area3D
     private float _speed = 24.0f;
     private float _range = 28.0f;
     private float _distanceTravelled = 0.0f;
+    private int _remainingTargetHits = 1;
+    private int _maxTargetHits = 1;
+    private int _spellIndex = -1;
     private bool _isSpent = false;
+    private readonly Godot.Collections.Array<CombatHurtbox> _hitHurtboxes = new();
 
     public override void _Ready()
     {
@@ -27,13 +31,18 @@ public partial class SpellProjectile : Area3D
         float damage,
         float speed,
         float range,
-        PackedScene impactScene = null)
+        PackedScene impactScene = null,
+        int maxTargetHits = 1,
+        int spellIndex = -1)
     {
         _caster = caster;
         _travelDirection = direction.LengthSquared() > 0.0f ? direction.Normalized() : -Vector3.Forward;
         _damage = damage > 0.0f ? damage : DefaultDamage;
         _speed = speed > 0.0f ? speed : DefaultSpeed;
         _range = range > 0.0f ? range : DefaultRange;
+        _maxTargetHits = Mathf.Max(1, maxTargetHits);
+        _remainingTargetHits = _maxTargetHits;
+        _spellIndex = spellIndex;
         ImpactScene = impactScene ?? ImpactScene;
 
         LookAt(GlobalPosition + _travelDirection, Vector3.Up, true);
@@ -69,10 +78,28 @@ public partial class SpellProjectile : Area3D
             return;
         }
 
+        if (_hitHurtboxes.Contains(hurtbox))
+        {
+            return;
+        }
+
         if (hurtbox.ApplySpellHit(_damage))
         {
+            _hitHurtboxes.Add(hurtbox);
             GlobalPosition = hurtbox.GetImpactPoint();
-            ImpactAndFree();
+            _remainingTargetHits--;
+            if (_caster is ElaineController elaine)
+            {
+                elaine.NotifySpellHit(_spellIndex, _hitHurtboxes.Count, _maxTargetHits);
+            }
+            GameManager.Instance?.RequestHitStop(_spellIndex == 2 ? 0.05f : 0.025f);
+            SpawnImpact();
+
+            if (_remainingTargetHits <= 0)
+            {
+                QueueFree();
+                _isSpent = true;
+            }
         }
     }
 
@@ -127,13 +154,24 @@ public partial class SpellProjectile : Area3D
 
         _isSpent = true;
 
-        if (ImpactScene != null)
-        {
-            Node3D effect = ImpactScene.Instantiate<Node3D>();
-            GetTree().CurrentScene?.AddChild(effect);
-            effect.GlobalPosition = GlobalPosition;
-        }
+        SpawnImpact();
 
         QueueFree();
+    }
+
+    private void SpawnImpact()
+    {
+        if (ImpactScene == null)
+        {
+            return;
+        }
+
+        Node3D effect = ImpactScene.Instantiate<Node3D>();
+        if (effect is OneShotEffect oneShot)
+        {
+            oneShot.SpellIndex = _spellIndex;
+        }
+        GetTree().CurrentScene?.AddChild(effect);
+        effect.GlobalPosition = GlobalPosition;
     }
 }

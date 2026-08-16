@@ -7,6 +7,9 @@ public partial class HUD : CanvasLayer
     [Export] public Label HealthLabel;
     [Export] public Label SpellLabel;
     [Export] public Label ObjectiveLabel;
+    [Export] public Label CombatFeedLabel;
+    [Export] public Label InteractionPromptLabel;
+    [Export] public Label TownClueProgressLabel;
     [Export] public Control SpellWheelContainer;
     [Export] public Control SpellWheelMenu;
     [Export] public Button SpellSlot0;
@@ -15,6 +18,8 @@ public partial class HUD : CanvasLayer
 
     private ElaineController _player;
     private bool _spellWheelVisible;
+    private float _combatFeedTimer;
+    private float _damageFlashTimer;
 
     public override void _Ready()
     {
@@ -23,6 +28,9 @@ public partial class HUD : CanvasLayer
         HealthLabel ??= GetNodeOrNull<Label>("Control/HealthLabel") ?? FindChild("HealthLabel", true, false) as Label;
         SpellLabel ??= GetNodeOrNull<Label>("Control/SpellLabel") ?? FindChild("SpellLabel", true, false) as Label;
         ObjectiveLabel ??= GetNodeOrNull<Label>("Control/ObjectiveLabel") ?? FindChild("ObjectiveLabel", true, false) as Label;
+        CombatFeedLabel ??= GetNodeOrNull<Label>("Control/CombatFeedLabel") ?? FindChild("CombatFeedLabel", true, false) as Label;
+        InteractionPromptLabel ??= GetNodeOrNull<Label>("Control/InteractionPromptLabel") ?? FindChild("InteractionPromptLabel", true, false) as Label;
+        TownClueProgressLabel ??= GetNodeOrNull<Label>("Control/TownClueProgressLabel") ?? FindChild("TownClueProgressLabel", true, false) as Label;
         SpellWheelContainer ??= GetNodeOrNull<Control>("Control/SpellWheelContainer") ?? FindChild("SpellWheelContainer", true, false) as Control;
         SpellWheelMenu ??= GetNodeOrNull<Control>("Control/SpellWheelContainer/SpellWheelMenu") ?? FindChild("SpellWheelMenu", true, false) as Control;
         SpellSlot0 ??= GetNodeOrNull<Button>("Control/SpellWheelContainer/SpellWheelMenu/SpellSlot0") ?? FindChild("SpellSlot0", true, false) as Button;
@@ -34,6 +42,7 @@ public partial class HUD : CanvasLayer
             GameManager.Instance.GlimmersChanged += OnGlimmersChanged;
             GameManager.Instance.FamilyRescuedChanged += OnFamilyRescuedChanged;
             GameManager.Instance.ObjectiveChanged += OnObjectiveChanged;
+            GameManager.Instance.TownClueFound += OnTownClueFound;
         }
 
         if (SpellWheelMenu != null)
@@ -56,6 +65,21 @@ public partial class HUD : CanvasLayer
 
         UpdateSpellWheelState();
         RefreshPlayerStatus();
+
+        _damageFlashTimer = Mathf.Max(0.0f, _damageFlashTimer - (float)delta);
+        if (HealthLabel != null)
+        {
+            HealthLabel.Modulate = _damageFlashTimer > 0.0f ? new Color(1.0f, 0.48f, 0.48f) : Colors.White;
+        }
+
+        if (_combatFeedTimer > 0.0f)
+        {
+            _combatFeedTimer = Mathf.Max(0.0f, _combatFeedTimer - (float)delta);
+            if (_combatFeedTimer <= 0.0f && CombatFeedLabel != null)
+            {
+                CombatFeedLabel.Text = string.Empty;
+            }
+        }
     }
 
     public override void _ExitTree()
@@ -65,6 +89,7 @@ public partial class HUD : CanvasLayer
             GameManager.Instance.GlimmersChanged -= OnGlimmersChanged;
             GameManager.Instance.FamilyRescuedChanged -= OnFamilyRescuedChanged;
             GameManager.Instance.ObjectiveChanged -= OnObjectiveChanged;
+            GameManager.Instance.TownClueFound -= OnTownClueFound;
         }
 
         DisconnectPlayer();
@@ -84,6 +109,12 @@ public partial class HUD : CanvasLayer
         if (_player != null)
         {
             _player.HealthChanged += OnPlayerHealthChanged;
+            _player.SpellSelected += OnPlayerSpellSelected;
+            _player.SpellCastStarted += OnPlayerSpellCastStarted;
+            _player.SpellProjectilesReleased += OnPlayerSpellProjectilesReleased;
+            _player.SpellHit += OnPlayerSpellHit;
+            _player.InteractionPromptChanged += OnInteractionPromptChanged;
+            _player.DamageTaken += OnPlayerDamageTaken;
         }
 
         RefreshPlayerStatus();
@@ -94,6 +125,12 @@ public partial class HUD : CanvasLayer
         if (_player != null && IsInstanceValid(_player))
         {
             _player.HealthChanged -= OnPlayerHealthChanged;
+            _player.SpellSelected -= OnPlayerSpellSelected;
+            _player.SpellCastStarted -= OnPlayerSpellCastStarted;
+            _player.SpellProjectilesReleased -= OnPlayerSpellProjectilesReleased;
+            _player.SpellHit -= OnPlayerSpellHit;
+            _player.InteractionPromptChanged -= OnInteractionPromptChanged;
+            _player.DamageTaken -= OnPlayerDamageTaken;
         }
 
         _player = null;
@@ -109,9 +146,56 @@ public partial class HUD : CanvasLayer
         Refresh();
     }
 
+    private void OnTownClueFound(string _clueId, int _foundCount)
+    {
+        Refresh();
+    }
+
     private void OnPlayerHealthChanged(float _currentHealth, float _maxHealth)
     {
         RefreshPlayerStatus();
+    }
+
+    private void OnPlayerDamageTaken(float _amount, float _currentHealth, float _maxHealth)
+    {
+        _damageFlashTimer = 0.22f;
+    }
+
+    private void OnInteractionPromptChanged(string prompt)
+    {
+        if (InteractionPromptLabel == null) return;
+        InteractionPromptLabel.Text = prompt;
+        InteractionPromptLabel.Visible = !string.IsNullOrWhiteSpace(prompt);
+    }
+
+    private void OnPlayerSpellSelected(int spellIndex, string displayName)
+    {
+        ShowCombatFeed($"{displayName}: {GetSpellRoleText(spellIndex)}");
+        RefreshPlayerStatus();
+    }
+
+    private void OnPlayerSpellCastStarted(int _spellIndex, string displayName)
+    {
+        ShowCombatFeed($"{displayName}: casting");
+    }
+
+    private void OnPlayerSpellProjectilesReleased(int spellIndex, int projectileCount, string displayName)
+    {
+        string detail = spellIndex switch
+        {
+            1 => $"{projectileCount} bolts released",
+            2 => "piercing beam released",
+            _ => "bolt released",
+        };
+        ShowCombatFeed($"{displayName}: {detail}");
+    }
+
+    private void OnPlayerSpellHit(int spellIndex, int hitNumber, int maxTargetHits, string displayName)
+    {
+        string detail = spellIndex == 2
+            ? $"pierced {hitNumber}/{maxTargetHits}"
+            : "hit";
+        ShowCombatFeed($"{displayName}: {detail}");
     }
 
     private void OnObjectiveChanged(string _objectiveText)
@@ -131,6 +215,11 @@ public partial class HUD : CanvasLayer
             if (FamilyLabel != null)
             {
                 FamilyLabel.Text = $"Family Rescued: {GameManager.Instance.FamilyRescuedCount} / {GameManager.TotalFamilyMembers}";
+            }
+
+            if (TownClueProgressLabel != null)
+            {
+                TownClueProgressLabel.Text = $"Town Clues: {GameManager.Instance.GetTownClueCount()} / 3";
             }
 
             if (ObjectiveLabel != null)
@@ -219,7 +308,29 @@ public partial class HUD : CanvasLayer
     private string FormatSpellSlot(int spellIndex, int selectedIndex)
     {
         string prefix = spellIndex == selectedIndex ? "> " : string.Empty;
-        return $"{prefix}{_player.GetSpellDisplayName(spellIndex)}";
+        return $"{prefix}{_player.GetSpellDisplayName(spellIndex)}\n{GetSpellRoleText(spellIndex)}";
+    }
+
+    private static string GetSpellRoleText(int spellIndex)
+    {
+        return spellIndex switch
+        {
+            0 => "Precise single target",
+            1 => "Three close-range bolts",
+            2 => "Pierces two targets",
+            _ => string.Empty,
+        };
+    }
+
+    private void ShowCombatFeed(string message)
+    {
+        if (CombatFeedLabel == null)
+        {
+            return;
+        }
+
+        CombatFeedLabel.Text = message;
+        _combatFeedTimer = 2.4f;
     }
 
     private static void SetSpellButtonText(Button button, string text)

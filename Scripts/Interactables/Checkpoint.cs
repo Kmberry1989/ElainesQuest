@@ -22,6 +22,11 @@ public partial class Checkpoint : Area3D
             return;
         }
 
-        player.SetRespawnPoint(RespawnMarker?.GlobalPosition ?? GlobalPosition);
+        Vector3 respawnPosition = RespawnMarker?.GlobalPosition ?? GlobalPosition;
+        player.SetRespawnPoint(respawnPosition);
+        GameManager.Instance?.SetCheckpoint(
+            Name.ToString(),
+            GetTree().CurrentScene?.SceneFilePath ?? string.Empty,
+            respawnPosition);
     }
 }

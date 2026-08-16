@@ -3,6 +3,12 @@
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_kpmkx"]
 animation = &"Mixamo/cast"
 
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_cast_burst"]
+animation = &"Mixamo/cast_burst"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_cast_lance"]
+animation = &"Mixamo/cast_lance"
+
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_an56b"]
 animation = &"Mixamo/flying"
 
@@ -91,9 +97,29 @@ advance_mode = 2
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_v8qu4"]
 
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_idle_burst"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_walk_burst"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_run_burst"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_burst_idle"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_idle_lance"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_walk_lance"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_run_lance"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_lance_idle"]
+
 [resource]
 states/Cast/node = SubResource("AnimationNodeAnimation_kpmkx")
 states/Cast/position = Vector2(380, -300)
+states/CastBurst/node = SubResource("AnimationNodeAnimation_cast_burst")
+states/CastBurst/position = Vector2(620, -300)
+states/CastLance/node = SubResource("AnimationNodeAnimation_cast_lance")
+states/CastLance/position = Vector2(860, -300)
 states/Hover/node = SubResource("AnimationNodeAnimation_an56b")
 states/Hover/position = Vector2(620, 20)
 states/Idle/node = SubResource("AnimationNodeAnimation_idkkg")
@@ -108,4 +134,4 @@ states/Walk/node = SubResource("AnimationNodeAnimation_67ht0")
 states/Walk/position = Vector2(380, 40)
 states/Wave/node = SubResource("AnimationNodeAnimation_w31nh")
 states/Wave/position = Vector2(380, 190)
-transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_awurf"), "Idle", "Walk", SubResource("AnimationNodeStateMachineTransition_y3re1"), "Idle", "Run", SubResource("AnimationNodeStateMachineTransition_85cow"), "Idle", "Jump", SubResource("AnimationNodeStateMachineTransition_kjiws"), "Idle", "Hover", SubResource("AnimationNodeStateMachineTransition_u120c"), "Idle", "Talk", SubResource("AnimationNodeStateMachineTransition_yltoh"), "Idle", "Cast", SubResource("AnimationNodeStateMachineTransition_qxorl"), "Idle", "Wave", SubResource("AnimationNodeStateMachineTransition_l2xhi"), "Walk", "Idle", SubResource("AnimationNodeStateMachineTransition_0tkf7"), "Walk", "Run", SubResource("AnimationNodeStateMachineTransition_vowto"), "Walk", "Jump", SubResource("AnimationNodeStateMachineTransition_ev3xl"), "Walk", "Hover", SubResource("AnimationNodeStateMachineTransition_ubvkf"), "Walk", "Talk", SubResource("AnimationNodeStateMachineTransition_1a338"), "Walk", "Cast", SubResource("AnimationNodeStateMachineTransition_ry7bu"), "Walk", "Wave", SubResource("AnimationNodeStateMachineTransition_gdrlu"), "Run", "Idle", SubResource("AnimationNodeStateMachineTransition_k3rwv"), "Run", "Walk", SubResource("AnimationNodeStateMachineTransition_7k3n1"), "Run", "Jump", SubResource("AnimationNodeStateMachineTransition_akp6e"), "Run", "Hover", SubResource("AnimationNodeStateMachineTransition_kxmp7"), "Run", "Talk", SubResource("AnimationNodeStateMachineTransition_ntw7d"), "Run", "Cast", SubResource("AnimationNodeStateMachineTransition_2emnm"), "Run", "Wave", SubResource("AnimationNodeStateMachineTransition_tuxb7"), "Jump", "Idle", SubResource("AnimationNodeStateMachineTransition_wqdkd"), "Jump", "Walk", SubResource("AnimationNodeStateMachineTransition_1dgbl"), "Jump", "Run", SubResource("AnimationNodeStateMachineTransition_rf1tq"), "Jump", "Hover", SubResource("AnimationNodeStateMachineTransition_urhba"), "Hover", "Idle", SubResource("AnimationNodeStateMachineTransition_kw7vk"), "Hover", "Walk", SubResource("AnimationNodeStateMachineTransition_akalg"), "Hover", "Run", SubResource("AnimationNodeStateMachineTransition_3f1rs"), "Hover", "Jump", SubResource("AnimationNodeStateMachineTransition_n5v2r"), "Talk", "Idle", SubResource("AnimationNodeStateMachineTransition_n6yt8"), "Cast", "Idle", SubResource("AnimationNodeStateMachineTransition_vwd83"), "Wave", "Idle", SubResource("AnimationNodeStateMachineTransition_v8qu4")]
+transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_awurf"), "Idle", "Walk", SubResource("AnimationNodeStateMachineTransition_y3re1"), "Idle", "Run", SubResource("AnimationNodeStateMachineTransition_85cow"), "Idle", "Jump", SubResource("AnimationNodeStateMachineTransition_kjiws"), "Idle", "Hover", SubResource("AnimationNodeStateMachineTransition_u120c"), "Idle", "Talk", SubResource("AnimationNodeStateMachineTransition_yltoh"), "Idle", "Cast", SubResource("AnimationNodeStateMachineTransition_qxorl"), "Idle", "CastBurst", SubResource("AnimationNodeStateMachineTransition_idle_burst"), "Idle", "CastLance", SubResource("AnimationNodeStateMachineTransition_idle_lance"), "Idle", "Wave", SubResource("AnimationNodeStateMachineTransition_l2xhi"), "Walk", "Idle", SubResource("AnimationNodeStateMachineTransition_0tkf7"), "Walk", "Run", SubResource("AnimationNodeStateMachineTransition_vowto"), "Walk", "Jump", SubResource("AnimationNodeStateMachineTransition_ev3xl"), "Walk", "Hover", SubResource("AnimationNodeStateMachineTransition_ubvkf"), "Walk", "Talk", SubResource("AnimationNodeStateMachineTransition_1a338"), "Walk", "Cast", SubResource("AnimationNodeStateMachineTransition_ry7bu"), "Walk", "CastBurst", SubResource("AnimationNodeStateMachineTransition_walk_burst"), "Walk", "CastLance", SubResource("AnimationNodeStateMachineTransition_walk_lance"), "Walk", "Wave", SubResource("AnimationNodeStateMachineTransition_gdrlu"), "Run", "Idle", SubResource("AnimationNodeStateMachineTransition_k3rwv"), "Run", "Walk", SubResource("AnimationNodeStateMachineTransition_7k3n1"), "Run", "Jump", SubResource("AnimationNodeStateMachineTransition_akp6e"), "Run", "Hover", SubResource("AnimationNodeStateMachineTransition_kxmp7"), "Run", "Talk", SubResource("AnimationNodeStateMachineTransition_ntw7d"), "Run", "Cast", SubResource("AnimationNodeStateMachineTransition_2emnm"), "Run", "CastBurst", SubResource("AnimationNodeStateMachineTransition_run_burst"), "Run", "CastLance", SubResource("AnimationNodeStateMachineTransition_run_lance"), "Run", "Wave", SubResource("AnimationNodeStateMachineTransition_tuxb7"), "Jump", "Idle", SubResource("AnimationNodeStateMachineTransition_wqdkd"), "Jump", "Walk", SubResource("AnimationNodeStateMachineTransition_1dgbl"), "Jump", "Run", SubResource("AnimationNodeStateMachineTransition_rf1tq"), "Jump", "Hover", SubResource("AnimationNodeStateMachineTransition_urhba"), "Hover", "Idle", SubResource("AnimationNodeStateMachineTransition_kw7vk"), "Hover", "Walk", SubResource("AnimationNodeStateMachineTransition_akalg"), "Hover", "Run", SubResource("AnimationNodeStateMachineTransition_3f1rs"), "Hover", "Jump", SubResource("AnimationNodeStateMachineTransition_n5v2r"), "Talk", "Idle", SubResource("AnimationNodeStateMachineTransition_n6yt8"), "Cast", "Idle", SubResource("AnimationNodeStateMachineTransition_vwd83"), "CastBurst", "Idle", SubResource("AnimationNodeStateMachineTransition_burst_idle"), "CastLance", "Idle", SubResource("AnimationNodeStateMachineTransition_lance_idle"), "Wave", "Idle", SubResource("AnimationNodeStateMachineTransition_v8qu4")]

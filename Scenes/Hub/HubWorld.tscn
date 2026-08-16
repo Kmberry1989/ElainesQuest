@@ -2,7 +2,6 @@
 
 [ext_resource type="PackedScene" uid="uid://lyol2svtyf03" path="res://Scenes/Characters/Player/Elaine.tscn" id="1_elaine"]
 [ext_resource type="PackedScene" path="res://Scenes/Interactables/LevelPortal.tscn" id="2_portal"]
-[ext_resource type="PackedScene" uid="uid://c8qyuukqdhg7i" path="res://Assets/Models/Environment/round_endtable.glb" id="2_yeibc"]
 [ext_resource type="PackedScene" path="res://Scenes/Characters/Wildlife/Sasha.tscn" id="3_sasha"]
 [ext_resource type="PackedScene" uid="uid://c65qtg6a5e7sa" path="res://Assets/Models/Environment/purple_flower_bed.glb" id="3_t0m0q"]
 [ext_resource type="Script" uid="uid://dme0cn4wvc0bl" path="res://Scripts/Camera/PlatformerCamera.cs" id="4_camera"]
@@ -24,7 +23,6 @@
 [ext_resource type="PackedScene" uid="uid://c5qpths8recvk" path="res://Assets/Models/Environment/wood_platform.glb" id="18_wood_path"]
 [ext_resource type="PackedScene" uid="uid://sx577eby4xf8" path="res://Assets/Models/Environment/triple_sign.glb" id="19_signpost"]
 [ext_resource type="PackedScene" uid="uid://b13365v14jwu4" path="res://Assets/Models/Environment/picket_fence.glb" id="20_fencing"]
-[ext_resource type="PackedScene" uid="uid://b2vkvhjiqe713" path="res://Assets/Models/Environment/white_yellow_flower_bed.glb" id="21_flowers_bed"]
 [ext_resource type="Shader" uid="uid://bi3o8elbtqoni" path="res://addons/simplegrasstextured/shaders/grass.gdshader" id="26_mai7p"]
 [ext_resource type="Texture2D" uid="uid://c4ggdp0kg5wjk" path="res://addons/simplegrasstextured/textures/grassbushcc008.png" id="27_5htik"]
 [ext_resource type="ArrayMesh" uid="uid://sptcpdx6wtm8" path="res://addons/simplegrasstextured/default_mesh.tres" id="28_xmiyk"]
@@ -34,6 +32,8 @@
 [ext_resource type="PackedScene" uid="uid://mt5sgew7o5s4" path="res://Assets/Models/Environment/fountain.glb" id="32_e23pu"]
 [ext_resource type="PackedScene" uid="uid://4670i8d8v4qf" path="res://Assets/Models/Environment/empty_farm_land.glb" id="34_f6esk"]
 [ext_resource type="PackedScene" uid="uid://cpnq6o2080m0m" path="res://Assets/Models/Environment/bench.glb" id="35_t0m0q"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Family/Matthew.tscn" id="36_matthew"]
+[ext_resource type="Script" path="res://Scripts/NPCs/NPC.cs" id="37_npc"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
 size = Vector3(36, 1, 36)
@@ -95,9 +95,6 @@ visible = false
 ignore_occlusion_culling = true
 mesh = SubResource("BoxMesh_ground")
 
-[node name="table_pen_paper" parent="Ground" unique_id=802420822 instance=ExtResource("2_yeibc")]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 47.87189, 4.804051, -81.54748)
-
 [node name="plant_bed" parent="Ground" unique_id=149149778 instance=ExtResource("3_t0m0q")]
 transform = Transform3D(-2, 0, -3.019916e-07, 0, 2, 0, 3.019916e-07, 0, -2, -35.937305, 5.4728403, -77.80528)
 
@@ -130,6 +127,40 @@ Offset = Vector3(0, 4.75, 7.5)
 [node name="PortalToWorld1" parent="." unique_id=278331382 instance=ExtResource("2_portal")]
 transform = Transform3D(3.9982448, 0, -0.11849881, 0, 4, 0, 0.11849881, 0, 3.9982448, 1.9716606, 9.0310135, -80.51198)
 
+[node name="TownTrailPortal" parent="." instance=ExtResource("2_portal")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, -8, 1, 8)
+PortalName = "Town Investigation"
+TargetScene = "res://Scenes/Levels/World_03_Town.tscn"
+ArrivalMarker = "HubArrival"
+
+[node name="CaveTrailPortal" parent="." instance=ExtResource("2_portal")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 9, 1, 8)
+PortalName = "Cave Trail"
+TargetScene = "res://Scenes/Levels/World_02_Caves.tscn"
+ArrivalMarker = "CaveArrival"
+RequiredRealmId = "MoonlitGarden"
+LockedMessage = "A cold cave wind rises from the arch. Restore the Moonlit Garden before following it."
+
+[node name="MatthewFinalLead" parent="." instance=ExtResource("36_matthew")]
+position = Vector3(2.5, 1, 4.5)
+
+[node name="NPCData" type="Node3D" parent="MatthewFinalLead"]
+script = ExtResource("37_npc")
+CharacterName = "Matthew"
+BaseDialogue = "The caves are beyond the northern arch. I will wait here until you are ready."
+TranslatedDialogue = "The schoolyard clues may have opened a moonlit realm. Start in town, then come back to me."
+RequiredRealmId = "MoonlitGarden"
+RequiredRealmDialogue = "You restored the Moonlit Garden! The cold wind beyond the northern arch leads to the Echoing Caves. Follow the cave trail when you are ready."
+RequiredRealmObjective = "Matthew has revealed the cave trail. Follow the northern arch to the Echoing Caves."
+CompletedRealmId = "EchoingCaves"
+CompletedRealmDialogue = "The last echo has faded. The final path is waiting for us beyond the town, Elaine."
+
+[node name="HubArrival" type="Marker3D" parent="."]
+position = Vector3(-4, 1.2, 6)
+
+[node name="CaveArrival" type="Marker3D" parent="."]
+position = Vector3(5, 1.2, 6)
+
 [node name="Campfire" parent="." unique_id=1322397961 instance=ExtResource("15_campfire")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.942013, 1.5227857, -59.24817)
 
@@ -138,9 +169,6 @@ transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 8, 4.940013, -2)
 
 [node name="FlowerPatch" parent="." unique_id=661166054 instance=ExtResource("17_flowers")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -11.23267)
-
-[node name="FlowerBedNearPath" parent="." unique_id=493990755 instance=ExtResource("21_flowers_bed")]
-transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 1.8, 0.02, -1.8)
 
 [node name="FenceNearPortal" parent="." unique_id=676812674 instance=ExtResource("20_fencing")]
 transform = Transform3D(2.549923, 0, 1.5804725, 0, 3, 0, -1.5804725, 0, 2.549923, -14.094637, 2.3146482, -82.56756)

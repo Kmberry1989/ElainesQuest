@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 
 public partial class DialogueUI : CanvasLayer
 {
@@ -7,6 +8,20 @@ public partial class DialogueUI : CanvasLayer
     [Export] public Control Panel;
     [Export] public Label NameLabel;
     [Export] public Label DialogueLabel;
+
+    private readonly Queue<DialogueLine> _dialogueQueue = new();
+
+    private readonly struct DialogueLine
+    {
+        public DialogueLine(string speaker, string text)
+        {
+            Speaker = speaker;
+            Text = text;
+        }
+
+        public string Speaker { get; }
+        public string Text { get; }
+    }
 
     public override void _Ready()
     {
@@ -45,7 +60,14 @@ public partial class DialogueUI : CanvasLayer
 
         if (@event.IsActionPressed("interact") || @event.IsActionPressed("ui_cancel"))
         {
-            HideDialogue();
+            if (_dialogueQueue.Count > 0)
+            {
+                ShowNextQueuedLine();
+            }
+            else
+            {
+                HideDialogue();
+            }
             GetViewport().SetInputAsHandled();
         }
     }
@@ -72,6 +94,24 @@ public partial class DialogueUI : CanvasLayer
 
     private void OnDialogueRequested(string speaker, string text)
     {
+        if (Panel?.Visible == true)
+        {
+            _dialogueQueue.Enqueue(new DialogueLine(speaker, text));
+            return;
+        }
+
         ShowDialogue(speaker, text);
+    }
+
+    private void ShowNextQueuedLine()
+    {
+        if (_dialogueQueue.Count == 0)
+        {
+            HideDialogue();
+            return;
+        }
+
+        DialogueLine line = _dialogueQueue.Dequeue();
+        ShowDialogue(line.Speaker, line.Text);
     }
 }

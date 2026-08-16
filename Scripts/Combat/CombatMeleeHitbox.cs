@@ -93,8 +93,6 @@ public partial class CombatMeleeHitbox : Area3D
 
     private void SetActive(bool enabled)
     {
-        Monitoring = enabled;
-        Monitorable = enabled;
         SetDeferred("monitoring", enabled);
         SetDeferred("monitorable", enabled);
     }

@@ -1,4 +1,5 @@
 using Godot;
+using System;
 
 public partial class EnemyCombatant : CharacterBody3D
 {
@@ -22,20 +23,39 @@ public partial class EnemyCombatant : CharacterBody3D
     [Export] public float HoverSpeed = 2.0f;
     [Export] public float RotationSpeed = 10.0f;
     [Export] public float DeathDelay = 0.9f;
+    [Export] public Vector3 VisualOffset = Vector3.Zero;
+    [Export] public Vector3 VisualRotationDegrees = Vector3.Zero;
+    [Export] public Vector3 VisualScale = Vector3.One;
 
     [ExportCategory("Animation")]
+    [Export] public EnemyAnimationProfile AnimationProfile;
     [Export] public AnimationTree AnimationTree;
     [Export] public string IdleStateName = "Idle";
     [Export] public string WalkStateName = "Walk";
     [Export] public string RunStateName = "Run";
     [Export] public string AttackStateName = "Attack";
+    [Export] public string SecondaryAttackStateName = "SecondaryAttack";
+    [Export] public string HitStateName = "Hit";
     [Export] public string DeathStateName = "Death";
     [Export] public PackedScene IdleAnimationScene;
     [Export] public PackedScene WalkAnimationScene;
     [Export] public PackedScene RunAnimationScene;
     [Export] public PackedScene AttackAnimationScene;
     [Export] public PackedScene SecondaryAttackAnimationScene;
+    [Export] public PackedScene HitAnimationScene;
     [Export] public PackedScene DeathAnimationScene;
+    [Export] public bool AlternateAttacks = false;
+    [Export] public float SecondaryAttackWindup = -1.0f;
+    [Export] public float SecondaryAttackActiveDuration = -1.0f;
+    [Export] public float SecondaryAttackRecovery = -1.0f;
+    [Export] public float SecondaryAttackMoveSpeed = 0.0f;
+    [Export] public bool AnimationPreviewMode = false;
+    [Export] public float AttackImpactNormalized = -1.0f;
+    [Export] public float AttackActiveNormalized = -1.0f;
+    [Export] public float AttackRecoveryNormalized = -1.0f;
+    [Export] public float SecondaryAttackImpactNormalized = -1.0f;
+    [Export] public float SecondaryAttackActiveNormalized = -1.0f;
+    [Export] public float SecondaryAttackRecoveryNormalized = -1.0f;
 
     [ExportCategory("Nodes")]
     [Export] public Node3D Visuals;
@@ -46,20 +66,123 @@ public partial class EnemyCombatant : CharacterBody3D
     [Export] public PackedScene DefeatEffectScene;
 
     private ElaineController _player;
+    private AnimationPlayer _animationPlayer;
     private AnimationNodeStateMachinePlayback _stateMachinePlayback;
     private string _currentAnimationState = string.Empty;
     private float _attackCooldownRemaining = 0.0f;
     private float _attackTimer = 0.0f;
     private float _hitStunRemaining = 0.0f;
+    private float _hitAnimationRemaining = 0.0f;
     private bool _isDefeated = false;
     private bool _isAttacking = false;
     private bool _attackWindowOpened = false;
+    private bool _usingSecondaryAttack = false;
+    private int _attackSequence = 0;
+    private Vector3 _attackDirection = Vector3.Zero;
     private float _baseVisualY = 0.0f;
     private double _hoverTime = 0.0f;
+    private OmniLight3D _attackTelegraph;
+
+    public bool IsAnimationReady => _stateMachinePlayback != null;
+    public bool IsDefeated => _isDefeated;
+    public string CurrentAnimationState => _currentAnimationState;
+
+    public bool HasAnimationClip(string clipName)
+    {
+        return _animationPlayer != null && _animationPlayer.HasAnimation($"Enemy/{clipName}");
+    }
+
+    public bool HasResolvedAnimationClip(string clipName)
+    {
+        if (_animationPlayer == null || AnimationTree == null || !AnimationTree.Active ||
+            !_animationPlayer.HasAnimation($"Enemy/{clipName}"))
+        {
+            return false;
+        }
+
+        Node animationRoot = AnimationTree.GetNodeOrNull<Node>(AnimationTree.RootNode);
+        Node playerRoot = _animationPlayer.GetNodeOrNull<Node>(_animationPlayer.RootNode);
+        Animation animation = _animationPlayer.GetAnimation($"Enemy/{clipName}");
+        if (animationRoot == null || animationRoot != playerRoot || animation == null || animation.GetTrackCount() == 0)
+        {
+            return false;
+        }
+
+        bool hasSkeletonTrack = false;
+        for (int i = 0; i < animation.GetTrackCount(); i++)
+        {
+            string trackPath = animation.TrackGetPath(i).ToString();
+            int propertySeparator = trackPath.IndexOf(':');
+            string nodePath = propertySeparator >= 0 ? trackPath.Substring(0, propertySeparator) : trackPath;
+            if (nodePath.Contains("Skeleton3D", System.StringComparison.Ordinal))
+            {
+                hasSkeletonTrack = true;
+            }
+
+            if (string.IsNullOrWhiteSpace(nodePath) || animationRoot.GetNodeOrNull<Node>(nodePath) == null)
+            {
+                return false;
+            }
+        }
+
+        return hasSkeletonTrack;
+    }
+
+    public string GetAnimationBindingSummary()
+    {
+        Node treeRoot = AnimationTree == null ? null : AnimationTree.GetNodeOrNull<Node>(AnimationTree.RootNode);
+        Node playerRoot = _animationPlayer == null ? null : _animationPlayer.GetNodeOrNull<Node>(_animationPlayer.RootNode);
+        return $"treeActive={AnimationTree?.Active ?? false}, treeRoot={AnimationTree?.RootNode}, playerRoot={_animationPlayer?.RootNode}, treeResolved={treeRoot?.GetPath()}, playerResolved={playerRoot?.GetPath()}, sameRoot={treeRoot != null && treeRoot == playerRoot}";
+    }
+
+    public bool DebugTravelAnimationState(string stateName)
+    {
+        if (!IsAnimationReady || string.IsNullOrWhiteSpace(stateName))
+        {
+            return false;
+        }
+
+        TravelAnimationState(stateName);
+        return CurrentAnimationState == stateName;
+    }
+
+    public Transform3D[] CaptureAnimationPose()
+    {
+        Skeleton3D skeleton = Visuals?.FindChild("Skeleton3D", true, false) as Skeleton3D;
+        if (skeleton == null)
+        {
+            return Array.Empty<Transform3D>();
+        }
+
+        Transform3D[] pose = new Transform3D[skeleton.GetBoneCount()];
+        for (int i = 0; i < pose.Length; i++)
+        {
+            pose[i] = skeleton.GetBonePose(i);
+        }
+
+        return pose;
+    }
+
+    public static float MeasureAnimationPoseDelta(Transform3D[] first, Transform3D[] second)
+    {
+        int count = Math.Min(first?.Length ?? 0, second?.Length ?? 0);
+        float delta = 0.0f;
+        for (int i = 0; i < count; i++)
+        {
+            delta += first[i].Origin.DistanceTo(second[i].Origin);
+            delta += first[i].Basis.X.DistanceTo(second[i].Basis.X);
+            delta += first[i].Basis.Y.DistanceTo(second[i].Basis.Y);
+            delta += first[i].Basis.Z.DistanceTo(second[i].Basis.Z);
+        }
+
+        return delta;
+    }
 
     public override void _Ready()
     {
         AddToGroup("enemy");
+
+        ApplyAnimationProfile();
 
         Visuals ??= GetNodeOrNull<Node3D>("Visuals");
         Health ??= GetNodeOrNull<CombatHealth>("Health");
@@ -70,6 +193,9 @@ public partial class EnemyCombatant : CharacterBody3D
 
         if (Visuals != null)
         {
+            Visuals.Position += VisualOffset;
+            Visuals.RotationDegrees = VisualRotationDegrees;
+            Visuals.Scale = VisualScale;
             _baseVisualY = Visuals.Position.Y;
         }
 
@@ -78,6 +204,16 @@ public partial class EnemyCombatant : CharacterBody3D
             Health.Damaged += OnDamaged;
             Health.Died += OnDefeated;
         }
+
+        _attackTelegraph = new OmniLight3D
+        {
+            LightColor = new Color(1.0f, 0.48f, 0.18f),
+            LightEnergy = 0.0f,
+            OmniRange = 2.8f,
+            ShadowEnabled = false,
+            Name = "AttackTelegraph"
+        };
+        AddChild(_attackTelegraph);
 
         AttackHitbox?.EndAttack();
         CallDeferred(nameof(InitializeAnimation));
@@ -101,10 +237,16 @@ public partial class EnemyCombatant : CharacterBody3D
         }
 
         AnimationPlayer animationPlayer = FindOrCreateAnimationPlayer();
+        _animationPlayer = animationPlayer;
         Node animationRoot =
             Visuals.FindChild("RootNode", true, false) ??
             Visuals.FindChild("Skeleton3D", true, false)?.GetParent() ??
             Visuals;
+
+        if (animationPlayer != null && animationRoot != null)
+        {
+            animationPlayer.RootNode = animationPlayer.GetPathTo(animationRoot);
+        }
 
         if (animationPlayer != null)
         {
@@ -136,6 +278,31 @@ public partial class EnemyCombatant : CharacterBody3D
         TravelAnimationState(IdleStateName);
     }
 
+    private void ApplyAnimationProfile()
+    {
+        if (AnimationProfile == null)
+        {
+            return;
+        }
+
+        IdleAnimationScene = AnimationProfile.IdleAnimationScene ?? IdleAnimationScene;
+        WalkAnimationScene = AnimationProfile.WalkAnimationScene ?? WalkAnimationScene;
+        RunAnimationScene = AnimationProfile.RunAnimationScene ?? RunAnimationScene;
+        AttackAnimationScene = AnimationProfile.AttackAnimationScene ?? AttackAnimationScene;
+        SecondaryAttackAnimationScene = AnimationProfile.SecondaryAttackAnimationScene ?? SecondaryAttackAnimationScene;
+        HitAnimationScene = AnimationProfile.HitAnimationScene ?? HitAnimationScene;
+        DeathAnimationScene = AnimationProfile.DeathAnimationScene ?? DeathAnimationScene;
+        AttackImpactNormalized = AnimationProfile.AttackImpactNormalized;
+        AttackActiveNormalized = AnimationProfile.AttackActiveNormalized;
+        AttackRecoveryNormalized = AnimationProfile.AttackRecoveryNormalized;
+        SecondaryAttackImpactNormalized = AnimationProfile.SecondaryAttackImpactNormalized;
+        SecondaryAttackActiveNormalized = AnimationProfile.SecondaryAttackActiveNormalized;
+        SecondaryAttackRecoveryNormalized = AnimationProfile.SecondaryAttackRecoveryNormalized;
+        VisualOffset = AnimationProfile.VisualOffset;
+        VisualRotationDegrees = AnimationProfile.VisualRotationDegrees;
+        VisualScale = AnimationProfile.VisualScale;
+    }
+
     private AnimationPlayer FindOrCreateAnimationPlayer()
     {
         AnimationPlayer animationPlayer = Visuals?.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
@@ -163,6 +330,7 @@ public partial class EnemyCombatant : CharacterBody3D
         AddAnimationToLibrary(library, "run", RunAnimationScene, true, ref hasAnimations);
         AddAnimationToLibrary(library, "attack", AttackAnimationScene, false, ref hasAnimations);
         AddAnimationToLibrary(library, "swipe", SecondaryAttackAnimationScene, false, ref hasAnimations);
+        AddAnimationToLibrary(library, "hit", HitAnimationScene, false, ref hasAnimations);
         AddAnimationToLibrary(library, "death", DeathAnimationScene, false, ref hasAnimations);
 
         return hasAnimations ? library : null;
@@ -176,28 +344,25 @@ public partial class EnemyCombatant : CharacterBody3D
         stateMachine.AddNode(WalkStateName, new AnimationNodeAnimation { Animation = "Enemy/walk" }, new Vector2(320, 60));
         stateMachine.AddNode(RunStateName, new AnimationNodeAnimation { Animation = "Enemy/run" }, new Vector2(560, 60));
         stateMachine.AddNode(AttackStateName, new AnimationNodeAnimation { Animation = "Enemy/attack" }, new Vector2(320, -140));
-        stateMachine.AddNode(DeathStateName, new AnimationNodeAnimation { Animation = "Enemy/death" }, new Vector2(560, -140));
+        stateMachine.AddNode(SecondaryAttackStateName, new AnimationNodeAnimation { Animation = "Enemy/swipe" }, new Vector2(560, -140));
+        stateMachine.AddNode(HitStateName, new AnimationNodeAnimation { Animation = "Enemy/hit" }, new Vector2(800, -140));
+        stateMachine.AddNode(DeathStateName, new AnimationNodeAnimation { Animation = "Enemy/death" }, new Vector2(1040, -140));
 
         AnimationNodeStateMachineTransition startToIdle = new();
         startToIdle.AdvanceMode = AnimationNodeStateMachineTransition.AdvanceModeEnum.Auto;
         stateMachine.AddTransition("Start", IdleStateName, startToIdle);
 
-        AddTransition(stateMachine, IdleStateName, WalkStateName);
-        AddTransition(stateMachine, IdleStateName, RunStateName);
-        AddTransition(stateMachine, IdleStateName, AttackStateName);
-        AddTransition(stateMachine, IdleStateName, DeathStateName);
-        AddTransition(stateMachine, WalkStateName, IdleStateName);
-        AddTransition(stateMachine, WalkStateName, RunStateName);
-        AddTransition(stateMachine, WalkStateName, AttackStateName);
-        AddTransition(stateMachine, WalkStateName, DeathStateName);
-        AddTransition(stateMachine, RunStateName, IdleStateName);
-        AddTransition(stateMachine, RunStateName, WalkStateName);
-        AddTransition(stateMachine, RunStateName, AttackStateName);
-        AddTransition(stateMachine, RunStateName, DeathStateName);
-        AddTransition(stateMachine, AttackStateName, IdleStateName);
-        AddTransition(stateMachine, AttackStateName, WalkStateName);
-        AddTransition(stateMachine, AttackStateName, RunStateName);
-        AddTransition(stateMachine, AttackStateName, DeathStateName);
+        string[] states = { IdleStateName, WalkStateName, RunStateName, AttackStateName, SecondaryAttackStateName, HitStateName, DeathStateName };
+        foreach (string from in states)
+        {
+            foreach (string to in states)
+            {
+                if (from != to)
+                {
+                    AddTransition(stateMachine, from, to);
+                }
+            }
+        }
 
         return stateMachine;
     }
@@ -266,7 +431,11 @@ public partial class EnemyCombatant : CharacterBody3D
 
     private static void AddTransition(AnimationNodeStateMachine stateMachine, string from, string to)
     {
-        stateMachine.AddTransition(from, to, new AnimationNodeStateMachineTransition());
+        AnimationNodeStateMachineTransition transition = new()
+        {
+            XfadeTime = 0.1f
+        };
+        stateMachine.AddTransition(from, to, transition);
     }
 
     public override void _Process(double delta)
@@ -290,9 +459,16 @@ public partial class EnemyCombatant : CharacterBody3D
             return;
         }
 
+        if (AnimationPreviewMode)
+        {
+            Velocity = Vector3.Zero;
+            return;
+        }
+
         float d = (float)delta;
         _attackCooldownRemaining = Mathf.Max(0.0f, _attackCooldownRemaining - d);
         _hitStunRemaining = Mathf.Max(0.0f, _hitStunRemaining - d);
+        _hitAnimationRemaining = Mathf.Max(0.0f, _hitAnimationRemaining - d);
         _player ??= GetTree().GetFirstNodeInGroup("player") as ElaineController;
 
         if (_player == null)
@@ -319,10 +495,10 @@ public partial class EnemyCombatant : CharacterBody3D
             return;
         }
 
-        if (_hitStunRemaining > 0.0f)
+        if (_hitStunRemaining > 0.0f || _hitAnimationRemaining > 0.0f)
         {
             DecelerateHorizontal(d);
-            TravelAnimationState(IdleStateName);
+            TravelAnimationState(_hitAnimationRemaining > 0.0f && HitAnimationScene != null ? HitStateName : IdleStateName);
             MoveAndSlide();
             return;
         }
@@ -363,16 +539,46 @@ public partial class EnemyCombatant : CharacterBody3D
         _isAttacking = true;
         _attackTimer = 0.0f;
         _attackWindowOpened = false;
-        DecelerateHorizontal(AttackWindup);
-        TravelAnimationState(AttackStateName);
+        _usingSecondaryAttack = AlternateAttacks && SecondaryAttackAnimationScene != null && _attackSequence++ % 2 == 1;
+        Vector3 toPlayer = _player?.GlobalPosition - GlobalPosition ?? Vector3.Zero;
+        _attackDirection = new Vector3(toPlayer.X, 0.0f, toPlayer.Z).Normalized();
+        DecelerateHorizontal(CurrentAttackWindup);
+        if (_attackTelegraph != null)
+        {
+            _attackTelegraph.LightColor = _usingSecondaryAttack
+                ? new Color(1.0f, 0.12f, 0.12f)
+                : new Color(1.0f, 0.48f, 0.18f);
+            _attackTelegraph.LightEnergy = 0.65f;
+        }
+        TravelAnimationState(_usingSecondaryAttack ? SecondaryAttackStateName : AttackStateName);
     }
 
     private void UpdateAttack(float delta)
     {
-        DecelerateHorizontal(delta);
         _attackTimer += delta;
 
-        if (!_attackWindowOpened && _attackTimer >= AttackWindup)
+        if (_attackTelegraph != null)
+        {
+            float windup = Mathf.Max(0.05f, CurrentAttackWindup);
+            float telegraphProgress = Mathf.Clamp(_attackTimer / windup, 0.0f, 1.0f);
+            _attackTelegraph.LightEnergy = _attackTimer < windup
+                ? Mathf.Lerp(0.65f, 2.4f, telegraphProgress)
+                : 0.0f;
+        }
+
+        bool isCharging = _usingSecondaryAttack && SecondaryAttackMoveSpeed > 0.0f &&
+            _attackTimer >= CurrentAttackWindup &&
+            _attackTimer < CurrentAttackWindup + CurrentAttackActiveDuration;
+        if (isCharging && _attackDirection.LengthSquared() > 0.001f)
+        {
+            ApplyDesiredVelocity(_attackDirection * SecondaryAttackMoveSpeed, delta);
+        }
+        else
+        {
+            DecelerateHorizontal(delta);
+        }
+
+        if (!_attackWindowOpened && _attackTimer >= CurrentAttackWindup)
         {
             _attackWindowOpened = true;
 
@@ -386,12 +592,12 @@ public partial class EnemyCombatant : CharacterBody3D
             }
         }
 
-        if (_attackWindowOpened && _attackTimer >= AttackWindup + AttackActiveDuration)
+        if (_attackWindowOpened && _attackTimer >= CurrentAttackWindup + CurrentAttackActiveDuration)
         {
             AttackHitbox?.EndAttack();
         }
 
-        if (_attackTimer >= AttackWindup + AttackActiveDuration + AttackRecovery)
+        if (_attackTimer >= CurrentAttackWindup + CurrentAttackActiveDuration + CurrentAttackRecovery)
         {
             FinishAttack();
         }
@@ -402,8 +608,13 @@ public partial class EnemyCombatant : CharacterBody3D
         AttackHitbox?.EndAttack();
         _isAttacking = false;
         _attackWindowOpened = false;
+        _usingSecondaryAttack = false;
         _attackTimer = 0.0f;
         _attackCooldownRemaining = AttackCooldown;
+        if (_attackTelegraph != null)
+        {
+            _attackTelegraph.LightEnergy = 0.0f;
+        }
     }
 
     private void ApplyDesiredVelocity(Vector3 desiredVelocity, float delta)
@@ -454,11 +665,45 @@ public partial class EnemyCombatant : CharacterBody3D
         }
 
         _hitStunRemaining = Mathf.Max(_hitStunRemaining, HitStunDuration);
+        _hitAnimationRemaining = Mathf.Max(_hitAnimationRemaining, ResolveAnimationDuration("hit", 0.35f));
+        GameManager.Instance?.RequestHitStop(0.025f);
 
         if (_isAttacking)
         {
             FinishAttack();
         }
+
+        if (HitAnimationScene != null)
+        {
+            TravelAnimationState(HitStateName);
+        }
+    }
+
+    private float CurrentAttackWindup => ResolveAttackTiming(
+        _usingSecondaryAttack ? SecondaryAttackWindup : AttackWindup,
+        _usingSecondaryAttack ? SecondaryAttackImpactNormalized : AttackImpactNormalized,
+        _usingSecondaryAttack ? "swipe" : "attack");
+
+    private float CurrentAttackActiveDuration => ResolveAttackTiming(
+        _usingSecondaryAttack ? SecondaryAttackActiveDuration : AttackActiveDuration,
+        _usingSecondaryAttack ? SecondaryAttackActiveNormalized : AttackActiveNormalized,
+        _usingSecondaryAttack ? "swipe" : "attack");
+
+    private float CurrentAttackRecovery => ResolveAttackTiming(
+        _usingSecondaryAttack ? SecondaryAttackRecovery : AttackRecovery,
+        _usingSecondaryAttack ? SecondaryAttackRecoveryNormalized : AttackRecoveryNormalized,
+        _usingSecondaryAttack ? "swipe" : "attack");
+
+    private float ResolveAttackTiming(float fallback, float normalized, string clipName)
+    {
+        float clipDuration = ResolveAnimationDuration(clipName, 0.0f);
+        return normalized >= 0.0f && clipDuration > 0.0f ? clipDuration * normalized : fallback;
+    }
+
+    private float ResolveAnimationDuration(string clipName, float fallback)
+    {
+        Animation animation = _animationPlayer?.GetAnimation($"Enemy/{clipName}");
+        return animation == null ? fallback : (float)animation.Length;
     }
 
     private async void OnDefeated()
@@ -470,18 +715,17 @@ public partial class EnemyCombatant : CharacterBody3D
 
         _isDefeated = true;
         _hitStunRemaining = 0.0f;
+        _hitAnimationRemaining = 0.0f;
         FinishAttack();
         Velocity = Vector3.Zero;
 
         if (CollisionShape != null)
         {
-            CollisionShape.Disabled = true;
+            CollisionShape.SetDeferred("disabled", true);
         }
 
         if (Hurtbox != null)
         {
-            Hurtbox.Monitorable = false;
-            Hurtbox.Monitoring = false;
             Hurtbox.SetDeferred("monitorable", false);
             Hurtbox.SetDeferred("monitoring", false);
         }

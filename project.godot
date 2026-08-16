@@ -41,6 +41,7 @@ config/features=PackedStringArray("4.7", "C#", "Forward Plus")
 [autoload]
 
 GameManager="*res://Scripts/Core/GameManager.cs"
+ElainesSceneTransition="*res://Scripts/System/ElainesSceneTransition.cs"
 SimpleGrass="*uid://bfq0snth8sj3h"
 LovelyEvent="*uid://c0fwxnrrr7mnq"
 

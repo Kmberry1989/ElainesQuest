@@ -169,13 +169,13 @@ public partial class ForestAdventureDirector : Node3D
 
         if (!_firstEncounterComplete)
         {
-            GameManager.Instance.SetObjective("Clear the lower clearing and break the ridge seal.");
+            GameManager.Instance.SetObjective("Hold Tab to choose Star Volley, then clear the lower clearing and break the ridge seal.");
             return;
         }
 
         if (!_secondEncounterComplete)
         {
-            GameManager.Instance.SetObjective("Cross the ridge bridge and defeat the upper ambush guarding Matthew.");
+            GameManager.Instance.SetObjective("Choose Sky Lance from the spell wheel; pierce the upper ambush guarding Matthew.");
             return;
         }
 

@@ -1,0 +1,54 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Levels/EnemyAnimationShowcase.cs" id="1_showcase"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/Corkrot.tscn" id="2_corkrot"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/FungalBlight.tscn" id="3_fungal"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/RustBucketBob.tscn" id="4_bob"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/BriarWarden.tscn" id="5_warden"]
+
+[sub_resource type="PlaneMesh" id="floor_mesh"]
+size = Vector2(16, 8)
+
+[sub_resource type="StandardMaterial3D" id="floor_material"]
+albedo_color = Color(0.12, 0.16, 0.14, 1)
+roughness = 0.9
+
+[node name="EnemyAnimationShowcase" type="Node3D"]
+script = ExtResource("1_showcase")
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.04, 0)
+mesh = SubResource("floor_mesh")
+material_override = SubResource("floor_material")
+
+[node name="KeyLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-48, -28, 0)
+light_energy = 1.4
+shadow_enabled = true
+
+[node name="FillLight" type="OmniLight3D" parent="."]
+position = Vector3(0, 3.5, 3)
+light_color = Color(0.45, 0.62, 1, 1)
+light_energy = 3.0
+omni_range = 12.0
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(0, 4.2, 13)
+current = true
+fov = 42.0
+
+[node name="Corkrot" parent="." instance=ExtResource("2_corkrot")]
+position = Vector3(-4.5, 0, 0)
+AnimationPreviewMode = true
+
+[node name="FungalBlight" parent="." instance=ExtResource("3_fungal")]
+position = Vector3(-1.5, 0, 0)
+AnimationPreviewMode = true
+
+[node name="RustBucketBob" parent="." instance=ExtResource("4_bob")]
+position = Vector3(1.5, 0, 0)
+AnimationPreviewMode = true
+
+[node name="BriarWarden" parent="." instance=ExtResource("5_warden")]
+position = Vector3(4.5, 0, 0)
+AnimationPreviewMode = true

@@ -1,9 +1,14 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="PackedScene" path="res://Scenes/Characters/Player/Elaine.tscn" id="1_elaine"]
 [ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/Jacko.tscn" id="2_jacko"]
 [ext_resource type="Script" path="res://Scripts/Camera/PlatformerCamera.cs" id="3_camera"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/HUD.tscn" id="4_hud"]
+[ext_resource type="Script" path="res://Scripts/Levels/CombatSandboxVerifier.cs" id="5_verifier"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/Corkrot.tscn" id="6_corkrot"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/FungalBlight.tscn" id="7_fungal"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/RustBucketBob.tscn" id="8_boss"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/BriarWarden.tscn" id="9_warden"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
 size = Vector3(28, 1, 18)
@@ -15,6 +20,14 @@ size = Vector3(28, 1, 18)
 albedo_color = Color(0.314, 0.361, 0.287, 1)
 
 [node name="CombatSandbox" type="Node3D"]
+
+[node name="CombatSandboxVerifier" type="Node3D" parent="." node_paths=PackedStringArray("Player")]
+script = ExtResource("5_verifier")
+Player = NodePath("../Elaine")
+CorkrotScene = ExtResource("6_corkrot")
+FungalBlightScene = ExtResource("7_fungal")
+RustBucketBobScene = ExtResource("8_boss")
+BriarWardenScene = ExtResource("9_warden")
 
 [node name="Ground" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)

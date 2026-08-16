@@ -1,0 +1,71 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Player/Elaine.tscn" id="1_elaine"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/Corkrot.tscn" id="2_corkrot"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/FungalBlight.tscn" id="3_fungal"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/RustBucketBob.tscn" id="4_boss"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/LevelPortal.tscn" id="5_portal"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/HUD.tscn" id="6_hud"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/DialogueUI.tscn" id="7_dialogue"]
+[ext_resource type="Script" path="res://Scripts/Levels/FantasyRealmDirector.cs" id="8_director"]
+[ext_resource type="Script" path="res://Scripts/Camera/PlatformerCamera.cs" id="9_camera"]
+[ext_resource type="Script" path="res://Scripts/System/SpaceAudioCue.cs" id="13_audio"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/stone_arch.glb" id="10_arch"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Checkpoint.tscn" id="11_checkpoint"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Collectible.tscn" id="12_collectible"]
+[sub_resource type="BoxShape3D" id="ground_shape"]
+size = Vector3(42, 1, 42)
+[sub_resource type="BoxMesh" id="ground_mesh"]
+size = Vector3(42, 1, 42)
+[sub_resource type="StandardMaterial3D" id="ground_material"]
+albedo_color = Color(0.12, 0.08, 0.25, 1)
+
+[node name="MoonlitGardenRealm" type="Node3D"]
+[node name="MoonlitArrivalCue" type="Node" parent="."]
+script = ExtResource("13_audio")
+CuePath = "res://sounds/break.ogg"
+VolumeDb = -24.0
+[node name="FantasyRealmDirector" type="Node3D" parent="." node_paths=PackedStringArray("BossGate", "Boss", "ReturnPortal")]
+script = ExtResource("8_director")
+OpeningEnemyPaths = Array[NodePath]([NodePath("../CorkrotA"), NodePath("../CorkrotB"), NodePath("../FungalBlight")])
+BossGate = NodePath("../BossGate")
+Boss = NodePath("../RustBucketBob")
+ReturnPortal = NodePath("../ReturnPortal")
+[node name="Ground" type="StaticBody3D" parent="."]
+position = Vector3(0, -0.5, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("ground_shape")
+[node name="Mesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("ground_mesh")
+surface_material_override/0 = SubResource("ground_material")
+[node name="Elaine" parent="." instance=ExtResource("1_elaine")]
+position = Vector3(0, 1.2, 15)
+[node name="Camera3D" type="Camera3D" parent="."]
+script = ExtResource("9_camera")
+Offset = Vector3(0, 5, 9)
+[node name="HUD" parent="." instance=ExtResource("6_hud")]
+[node name="DialogueUI" parent="." instance=ExtResource("7_dialogue")]
+[node name="CorkrotA" parent="." instance=ExtResource("2_corkrot")]
+position = Vector3(-6, 0, 3)
+[node name="CorkrotB" parent="." instance=ExtResource("2_corkrot")]
+position = Vector3(6, 0, 3)
+[node name="FungalBlight" parent="." instance=ExtResource("3_fungal")]
+position = Vector3(0, 0, -1)
+[node name="MoonlitCheckpoint" parent="." instance=ExtResource("11_checkpoint")]
+position = Vector3(0, 0, 0.8)
+[node name="MoonlitPocketGlimmer" parent="." instance=ExtResource("12_collectible")]
+position = Vector3(-11, 1.0, 5)
+GlimmerValue = 3
+[node name="BossGate" type="Node3D" parent="."]
+[node name="Arch" parent="BossGate" instance=ExtResource("10_arch")]
+position = Vector3(0, 0, -8)
+scale = Vector3(2, 2, 2)
+[node name="RustBucketBob" parent="." instance=ExtResource("4_boss")]
+position = Vector3(0, 0, -14)
+[node name="ReturnPortal" parent="." instance=ExtResource("5_portal")]
+position = Vector3(0, 0, 10.5)
+ArrivalMarker = "TownReturnArrival"
+TargetScene = "res://Scenes/Levels/World_03_Town.tscn"
+
+[node name="TownReturnArrival" type="Marker3D" parent="."]
+position = Vector3(0, 1.2, 13)

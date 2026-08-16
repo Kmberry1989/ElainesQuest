@@ -1,0 +1,230 @@
+[gd_scene load_steps=29 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Player/Elaine.tscn" id="1_elaine"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/HUD.tscn" id="2_hud"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/DialogueUI.tscn" id="3_dialogue"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/LevelPortal.tscn" id="4_portal"]
+[ext_resource type="Script" path="res://Scripts/Levels/TownAdventureDirector.cs" id="5_director"]
+[ext_resource type="Script" path="res://Scripts/Interactables/TownClue.cs" id="6_clue"]
+[ext_resource type="Script" path="res://Scripts/Camera/PlatformerCamera.cs" id="7_camera"]
+[ext_resource type="Script" path="res://Scripts/System/SpaceAudioCue.cs" id="16_audio"]
+[ext_resource type="Script" path="res://Scripts/System/RuntimeGltfModel.cs" id="17_runtime"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Collectible.tscn" id="15_collectible"]
+
+[sub_resource type="BoxShape3D" id="ground_shape"]
+size = Vector3(70, 1, 70)
+[sub_resource type="BoxMesh" id="ground_mesh"]
+size = Vector3(70, 1, 70)
+[sub_resource type="StandardMaterial3D" id="ground_material"]
+albedo_color = Color(0.22, 0.29, 0.24, 1)
+[sub_resource type="SphereShape3D" id="clue_shape"]
+radius = 1.35
+[sub_resource type="StandardMaterial3D" id="clue_material"]
+albedo_color = Color(0.3, 0.65, 1, 1)
+emission_enabled = true
+emission = Color(0.16, 0.48, 1, 1)
+[sub_resource type="SphereMesh" id="clue_mesh"]
+radius = 0.34
+height = 0.68
+material = SubResource("clue_material")
+[sub_resource type="BoxMesh" id="town_building_mesh"]
+size = Vector3(7, 3.5, 6)
+[sub_resource type="StandardMaterial3D" id="town_building_material"]
+albedo_color = Color(0.46, 0.34, 0.28, 1)
+[sub_resource type="BoxMesh" id="town_school_mesh"]
+size = Vector3(9, 4.2, 6)
+[sub_resource type="StandardMaterial3D" id="town_school_material"]
+albedo_color = Color(0.31, 0.42, 0.55, 1)
+[sub_resource type="BoxMesh" id="town_store_mesh"]
+size = Vector3(6, 3, 5)
+[sub_resource type="StandardMaterial3D" id="town_store_material"]
+albedo_color = Color(0.56, 0.45, 0.24, 1)
+[sub_resource type="BoxMesh" id="town_street_mesh"]
+size = Vector3(8, 0.08, 22)
+[sub_resource type="StandardMaterial3D" id="town_street_material"]
+albedo_color = Color(0.08, 0.09, 0.1, 1)
+[sub_resource type="CylinderMesh" id="town_trunk_mesh"]
+top_radius = 0.28
+bottom_radius = 0.38
+height = 2.8
+[sub_resource type="StandardMaterial3D" id="town_trunk_material"]
+albedo_color = Color(0.25, 0.16, 0.09, 1)
+[sub_resource type="SphereMesh" id="town_canopy_mesh"]
+radius = 1.65
+height = 3.3
+[sub_resource type="StandardMaterial3D" id="town_canopy_material"]
+albedo_color = Color(0.16, 0.35, 0.2, 1)
+[sub_resource type="CylinderMesh" id="town_lamp_mesh"]
+top_radius = 0.08
+bottom_radius = 0.12
+height = 3.2
+[sub_resource type="StandardMaterial3D" id="town_lamp_material"]
+albedo_color = Color(0.18, 0.2, 0.22, 1)
+[sub_resource type="BoxMesh" id="town_mailbox_mesh"]
+size = Vector3(0.8, 0.8, 1.2)
+[sub_resource type="StandardMaterial3D" id="town_mailbox_material"]
+albedo_color = Color(0.2, 0.28, 0.38, 1)
+
+[node name="World03Town" type="Node3D"]
+[node name="TownArrivalCue" type="Node" parent="."]
+script = ExtResource("16_audio")
+CuePath = "res://sounds/coin.ogg"
+VolumeDb = -22.0
+[node name="TownAdventureDirector" type="Node3D" parent="." node_paths=PackedStringArray("FantasyPortal", "CompletionBeacon", "ReturnToHub")]
+script = ExtResource("5_director")
+FantasyPortal = NodePath("../FantasyPortal")
+CompletionBeacon = NodePath("../CompletionBeacon")
+ReturnToHub = NodePath("../ReturnToHub")
+[node name="Ground" type="StaticBody3D" parent="."]
+position = Vector3(0, -0.5, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("ground_shape")
+[node name="Mesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("ground_mesh")
+surface_material_override/0 = SubResource("ground_material")
+[node name="Elaine" parent="." instance=ExtResource("1_elaine")]
+position = Vector3(0, 1.2, 18)
+[node name="Camera3D" type="Camera3D" parent="."]
+script = ExtResource("7_camera")
+Offset = Vector3(0, 5, 9)
+[node name="HUD" parent="." instance=ExtResource("2_hud")]
+[node name="DialogueUI" parent="." instance=ExtResource("3_dialogue")]
+[node name="Home" type="Node3D" parent="." node_paths=PackedStringArray("PlaceholderRoot")]
+script = ExtResource("17_runtime")
+ModelPath = "res://Assets/house 1.glb"
+PlaceholderRoot = NodePath("Placeholder")
+position = Vector3(-17, 0, 10)
+scale = Vector3(2.8, 2.8, 2.8)
+[node name="Placeholder" type="Node3D" parent="Home"]
+[node name="Body" type="MeshInstance3D" parent="Home/Placeholder"]
+mesh = SubResource("town_building_mesh")
+surface_material_override/0 = SubResource("town_building_material")
+[node name="School" type="Node3D" parent="." node_paths=PackedStringArray("PlaceholderRoot")]
+script = ExtResource("17_runtime")
+ModelPath = "res://Assets/school.glb"
+PlaceholderRoot = NodePath("Placeholder")
+position = Vector3(0, 0, -16)
+scale = Vector3(3.2, 3.2, 3.2)
+[node name="Placeholder" type="Node3D" parent="School"]
+[node name="Body" type="MeshInstance3D" parent="School/Placeholder"]
+mesh = SubResource("town_school_mesh")
+surface_material_override/0 = SubResource("town_school_material")
+[node name="ConvenienceStore" type="Node3D" parent="." node_paths=PackedStringArray("PlaceholderRoot")]
+script = ExtResource("17_runtime")
+ModelPath = "res://Assets/convenience store.glb"
+PlaceholderRoot = NodePath("Placeholder")
+position = Vector3(19, 0, 7)
+scale = Vector3(2.8, 2.8, 2.8)
+[node name="Placeholder" type="Node3D" parent="ConvenienceStore"]
+[node name="Body" type="MeshInstance3D" parent="ConvenienceStore/Placeholder"]
+mesh = SubResource("town_store_mesh")
+surface_material_override/0 = SubResource("town_store_material")
+[node name="Street" type="Node3D" parent="." node_paths=PackedStringArray("PlaceholderRoot")]
+script = ExtResource("17_runtime")
+ModelPath = "res://Assets/street.glb"
+PlaceholderRoot = NodePath("Placeholder")
+position = Vector3(0, 0.02, 3)
+scale = Vector3(4, 4, 4)
+[node name="Placeholder" type="Node3D" parent="Street"]
+[node name="Body" type="MeshInstance3D" parent="Street/Placeholder"]
+mesh = SubResource("town_street_mesh")
+surface_material_override/0 = SubResource("town_street_material")
+[node name="TreeA" type="Node3D" parent="." node_paths=PackedStringArray("PlaceholderRoot")]
+script = ExtResource("17_runtime")
+ModelPath = "res://Assets/tree 2.glb"
+PlaceholderRoot = NodePath("Placeholder")
+position = Vector3(-25, 0, -8)
+scale = Vector3(2.5, 2.5, 2.5)
+[node name="Placeholder" type="Node3D" parent="TreeA"]
+[node name="Trunk" type="MeshInstance3D" parent="TreeA/Placeholder"]
+mesh = SubResource("town_trunk_mesh")
+surface_material_override/0 = SubResource("town_trunk_material")
+[node name="Canopy" type="MeshInstance3D" parent="TreeA/Placeholder"]
+position = Vector3(0, 2.2, 0)
+mesh = SubResource("town_canopy_mesh")
+surface_material_override/0 = SubResource("town_canopy_material")
+[node name="TreeB" type="Node3D" parent="." node_paths=PackedStringArray("PlaceholderRoot")]
+script = ExtResource("17_runtime")
+ModelPath = "res://Assets/tree 2.glb"
+PlaceholderRoot = NodePath("Placeholder")
+position = Vector3(25, 0, -8)
+scale = Vector3(2.5, 2.5, 2.5)
+[node name="Placeholder" type="Node3D" parent="TreeB"]
+[node name="Trunk" type="MeshInstance3D" parent="TreeB/Placeholder"]
+mesh = SubResource("town_trunk_mesh")
+surface_material_override/0 = SubResource("town_trunk_material")
+[node name="Canopy" type="MeshInstance3D" parent="TreeB/Placeholder"]
+position = Vector3(0, 2.2, 0)
+mesh = SubResource("town_canopy_mesh")
+surface_material_override/0 = SubResource("town_canopy_material")
+[node name="StreetLight" type="Node3D" parent="." node_paths=PackedStringArray("PlaceholderRoot")]
+script = ExtResource("17_runtime")
+ModelPath = "res://Assets/streetlight.glb"
+PlaceholderRoot = NodePath("Placeholder")
+position = Vector3(8, 0, -4)
+scale = Vector3(2, 2, 2)
+[node name="Placeholder" type="Node3D" parent="StreetLight"]
+[node name="Pole" type="MeshInstance3D" parent="StreetLight/Placeholder"]
+mesh = SubResource("town_lamp_mesh")
+surface_material_override/0 = SubResource("town_lamp_material")
+[node name="Mailbox" type="Node3D" parent="." node_paths=PackedStringArray("PlaceholderRoot")]
+script = ExtResource("17_runtime")
+ModelPath = "res://Assets/mailbox.glb"
+PlaceholderRoot = NodePath("Placeholder")
+position = Vector3(-11, 0, 8)
+scale = Vector3(1.5, 1.5, 1.5)
+[node name="Placeholder" type="Node3D" parent="Mailbox"]
+[node name="Body" type="MeshInstance3D" parent="Mailbox/Placeholder"]
+mesh = SubResource("town_mailbox_mesh")
+surface_material_override/0 = SubResource("town_mailbox_material")
+[node name="OptionalGlimmerPocket" parent="." instance=ExtResource("15_collectible")]
+position = Vector3(-24, 1.0, -5)
+GlimmerValue = 2
+[node name="ClueHome" type="Area3D" parent="."]
+position = Vector3(-10, 1.1, 10)
+script = ExtResource("6_clue")
+ClueId = "TownHomeNote"
+DiscoveryText = "A note from home mentions moonlight gathering at the schoolyard."
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ClueHome"]
+shape = SubResource("clue_shape")
+[node name="Visual" type="MeshInstance3D" parent="ClueHome"]
+mesh = SubResource("clue_mesh")
+[node name="ClueStore" type="Area3D" parent="."]
+position = Vector3(15, 1.1, 6)
+script = ExtResource("6_clue")
+ClueId = "TownStoreReceipt"
+DiscoveryText = "The shop receipt bears a strange sigil pointing to the schoolyard."
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ClueStore"]
+shape = SubResource("clue_shape")
+[node name="Visual" type="MeshInstance3D" parent="ClueStore"]
+mesh = SubResource("clue_mesh")
+[node name="ClueSchool" type="Area3D" parent="."]
+position = Vector3(0, 1.1, -10)
+script = ExtResource("6_clue")
+ClueId = "TownSchoolMark"
+DiscoveryText = "The three signs align. A moonlit doorway is forming in the schoolyard."
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ClueSchool"]
+shape = SubResource("clue_shape")
+[node name="Visual" type="MeshInstance3D" parent="ClueSchool"]
+mesh = SubResource("clue_mesh")
+[node name="FantasyPortal" parent="." instance=ExtResource("4_portal")]
+position = Vector3(0, 0, -6)
+PortalName = "Moonlit Gate"
+TargetScene = "res://Scenes/Levels/MoonlitGardenRealm.tscn"
+ArrivalMarker = "MoonlitArrival"
+RequiredClueId = "TownPortalAwakened"
+LockedMessage = "The Moonlit Gate is dormant. Investigate home, the store, and the schoolyard (3 clues) before entering."
+[node name="CompletionBeacon" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.4, -6)
+mesh = SubResource("clue_mesh")
+[node name="ReturnToHub" parent="." instance=ExtResource("4_portal")]
+position = Vector3(0, 0, 25)
+PortalName = "Road Home"
+TargetScene = "res://Scenes/Hub/HubWorld.tscn"
+ArrivalMarker = "HubArrival"
+
+[node name="MoonlitArrival" type="Marker3D" parent="."]
+position = Vector3(0, 1.2, -2)
+
+[node name="TownReturnArrival" type="Marker3D" parent="."]
+position = Vector3(0, 1.2, 20)
