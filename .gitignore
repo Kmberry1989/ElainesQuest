@@ -10,4 +10,7 @@ export_presets.cfg
 *.dotCover
 .DS_Store
 bin/
+# Exception: Terrain3D ships prebuilt native libraries that are required at
+# runtime — keep the ones in the addon so a fresh clone runs out of the box.
+!addons/terrain_3d/bin/
 obj/
