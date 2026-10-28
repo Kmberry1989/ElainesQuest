@@ -11,6 +11,7 @@ public partial class NPC : Node3D, IPlayerInteractable
     [Export] public string RequiredRealmObjective = "";
     [Export] public string CompletedRealmId = "";
     [Export(PropertyHint.MultilineText)] public string CompletedRealmDialogue = "";
+    [Export] public string CompletedRealmObjective = "";
 
     public string InteractionPrompt => "E  Talk";
 
@@ -37,6 +38,10 @@ public partial class NPC : Node3D, IPlayerInteractable
         {
             GD.Print($"{CharacterName} says: {CompletedRealmDialogue}");
             GameManager.Instance.RequestDialogue(CharacterName, CompletedRealmDialogue);
+            if (!string.IsNullOrWhiteSpace(CompletedRealmObjective))
+            {
+                GameManager.Instance.SetObjective(CompletedRealmObjective);
+            }
             return;
         }
 

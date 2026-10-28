@@ -5,6 +5,7 @@ public partial class ForestAdventureDirector : Node3D
     [ExportCategory("Progression")]
     [Export] public string GuideAnimalId = "Toby";
     [Export] public string RescuedFamilyId = "Matthew";
+    [Export] public float EncounterRecovery = 1.0f;
 
     [ExportCategory("Encounter Enemies")]
     [Export] public Godot.Collections.Array<NodePath> FirstEncounterEnemyPaths = new();
@@ -52,6 +53,7 @@ public partial class ForestAdventureDirector : Node3D
         if (_guideMet && !_firstEncounterComplete && AreEncounterEnemiesDefeated(FirstEncounterEnemyPaths))
         {
             _firstEncounterComplete = true;
+            RestorePlayerAfterEncounter();
             GameManager.Instance?.RequestDialogue("Forest Trail", "The lower clearing is calm again. The ridge seal has fallen. Push across the bridge and break the ambush above.");
             UpdateWorldState();
         }
@@ -59,6 +61,7 @@ public partial class ForestAdventureDirector : Node3D
         if (_firstEncounterComplete && !_secondEncounterComplete && AreEncounterEnemiesDefeated(SecondEncounterEnemyPaths))
         {
             _secondEncounterComplete = true;
+            RestorePlayerAfterEncounter();
             GameManager.Instance?.RequestDialogue("Forest Trail", "The upper ambush is broken. Matthew is waiting at the lantern overlook just ahead.");
             UpdateWorldState();
         }
@@ -225,6 +228,20 @@ public partial class ForestAdventureDirector : Node3D
             {
                 enemy.QueueFree();
             }
+        }
+    }
+
+    private void RestorePlayerAfterEncounter()
+    {
+        if (EncounterRecovery <= 0.0f)
+        {
+            return;
+        }
+
+        ElaineController player = GetTree().GetFirstNodeInGroup("player") as ElaineController;
+        if (player?.RestoreHealth(EncounterRecovery) > 0.0f)
+        {
+            GameManager.Instance?.RequestDialogue("Magic Ring", "The clearing's glimmers restore a little of your strength.");
         }
     }
 

@@ -1,0 +1,91 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Player/Elaine.tscn" id="1_elaine"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/SpellWisp.tscn" id="2_guardian"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/LevelPortal.tscn" id="3_portal"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Checkpoint.tscn" id="4_checkpoint"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/HUD.tscn" id="5_hud"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/DialogueUI.tscn" id="6_dialogue"]
+[ext_resource type="Script" path="res://Scripts/Levels/FinalChapterDirector.cs" id="7_director"]
+[ext_resource type="Script" path="res://Scripts/Camera/PlatformerCamera.cs" id="8_camera"]
+[ext_resource type="Script" path="res://Scripts/System/SpaceAudioCue.cs" id="9_audio"]
+
+[sub_resource type="BoxShape3D" id="ground_shape"]
+size = Vector3(30, 1, 30)
+
+[sub_resource type="BoxMesh" id="ground_mesh"]
+size = Vector3(30, 1, 30)
+
+[sub_resource type="StandardMaterial3D" id="ground_material"]
+albedo_color = Color(0.07, 0.04, 0.18, 1)
+metallic = 0.25
+roughness = 0.55
+
+[sub_resource type="CylinderMesh" id="seal_mesh"]
+top_radius = 0.15
+bottom_radius = 0.7
+height = 2.8
+
+[sub_resource type="StandardMaterial3D" id="seal_material"]
+albedo_color = Color(0.45, 0.2, 0.95, 1)
+emission_enabled = true
+emission = Color(0.3, 0.1, 1, 1)
+emission_energy_multiplier = 1.7
+
+[node name="StarfallSanctum" type="Node3D"]
+
+[node name="StarfallArrivalCue" type="Node" parent="."]
+script = ExtResource("9_audio")
+CuePath = "res://sounds/land.ogg"
+VolumeDb = -24.0
+
+[node name="FinalChapterDirector" type="Node3D" parent="." node_paths=PackedStringArray("Guardian", "ReturnPortal", "ArrivalMarker")]
+script = ExtResource("7_director")
+Guardian = NodePath("../StarfallGuardian")
+ReturnPortal = NodePath("../ReturnPortal")
+ArrivalMarker = NodePath("../StarfallArrival")
+
+[node name="Ground" type="StaticBody3D" parent="."]
+position = Vector3(0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("ground_shape")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("ground_mesh")
+surface_material_override/0 = SubResource("ground_material")
+
+[node name="Elaine" parent="." instance=ExtResource("1_elaine")]
+position = Vector3(0, 1.2, 12)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+script = ExtResource("8_camera")
+Offset = Vector3(0, 5.0, 9.0)
+
+[node name="HUD" parent="." instance=ExtResource("5_hud")]
+[node name="DialogueUI" parent="." instance=ExtResource("6_dialogue")]
+
+[node name="StarfallGuardian" parent="." instance=ExtResource("2_guardian")]
+position = Vector3(0, 0, -3)
+
+[node name="SanctumCheckpoint" parent="." instance=ExtResource("4_checkpoint")]
+position = Vector3(0, 0, 5)
+
+[node name="SealA" type="MeshInstance3D" parent="."]
+position = Vector3(-8, 1.4, -5)
+mesh = SubResource("seal_mesh")
+material_override = SubResource("seal_material")
+
+[node name="SealB" type="MeshInstance3D" parent="."]
+position = Vector3(8, 1.4, -5)
+mesh = SubResource("seal_mesh")
+material_override = SubResource("seal_material")
+
+[node name="ReturnPortal" parent="." instance=ExtResource("3_portal")]
+position = Vector3(0, 0, 10.5)
+PortalName = "Return to the Hub"
+ArrivalMarker = "StarfallReturnArrival"
+TargetScene = "res://Scenes/Hub/HubWorld.tscn"
+
+[node name="StarfallArrival" type="Marker3D" parent="."]
+position = Vector3(0, 1.2, 10)

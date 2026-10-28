@@ -68,6 +68,9 @@ ReturnPortal = NodePath("ReturnPortal")
 [node name="PlayerSpawn" type="Marker3D" parent="." unique_id=33232399]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1.2, 0)
 
+[node name="ForestArrival" type="Marker3D" parent="."]
+position = Vector3(-20, 1.2, 0)
+
 [node name="Elaine" parent="." unique_id=1749308471 instance=ExtResource("1_elaine")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1.2, 0)
 
@@ -297,7 +300,9 @@ BonusGlimmers = 20
 
 [node name="ReturnPortal" parent="." unique_id=850866220 instance=ExtResource("6_portal")]
 transform = Transform3D(1.4, 0, 0, 0, 1.8, 0, 0, 0, 1.2, 72.2, 10.3, 0)
+PortalName = "Return to Hub"
 TargetScene = "res://Scenes/Hub/HubWorld.tscn"
+ArrivalMarker = "HubArrival"
 
 [node name="HazardVolume" parent="." unique_id=1943205213 instance=ExtResource("3_hazard")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, -3.4, 0)

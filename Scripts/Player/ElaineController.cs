@@ -676,6 +676,19 @@ public partial class ElaineController : CharacterBody3D
         EmitSignal(SignalName.HealthChanged, _currentHealth, MaxHealth);
     }
 
+    public float RestoreHealth(float amount)
+    {
+        if (amount <= 0.0f || _currentHealth >= MaxHealth)
+        {
+            return 0.0f;
+        }
+
+        float previousHealth = _currentHealth;
+        _currentHealth = Mathf.Min(MaxHealth, _currentHealth + amount);
+        EmitSignal(SignalName.HealthChanged, _currentHealth, MaxHealth);
+        return _currentHealth - previousHealth;
+    }
+
     private void CancelQueuedSpellCast()
     {
         _pendingSpellTimer = -1.0f;

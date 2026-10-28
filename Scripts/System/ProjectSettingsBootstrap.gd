@@ -65,11 +65,14 @@ func make_key_event(keycode: Key) -> InputEventKey:
 
 func make_joy_button_event(button_index: JoyButton) -> InputEventJoypadButton:
 	var event := InputEventJoypadButton.new()
+	# Accept the first available Bluetooth controller instead of requiring device 0.
+	event.device = -1
 	event.button_index = button_index
 	return event
 
 func make_joy_axis_event(axis: JoyAxis, axis_value: float) -> InputEventJoypadMotion:
 	var event := InputEventJoypadMotion.new()
+	event.device = -1
 	event.axis = axis
 	event.axis_value = axis_value
 	return event

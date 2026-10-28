@@ -19,8 +19,10 @@ func _ready() -> void:
 
 	_rng.seed = 1337
 	_ensure_sun()
-	_ensure_world_environment()
 	_ensure_sky()
+	# Lens Effects captures the active viewport camera in _ready. Run after sibling
+	# cameras have joined the tree and selected themselves.
+	call_deferred("_ensure_world_environment")
 	await _ensure_terrain()
 
 
