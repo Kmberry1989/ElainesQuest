@@ -40,7 +40,9 @@ public partial class RuntimeGltfModel : Node3D
             PlaceholderRoot.Visible = true;
         }
 
-        if (string.IsNullOrWhiteSpace(ModelPath) || !Godot.FileAccess.FileExists(ModelPath))
+        // Exported models may exist only as imported/remapped resources in the PCK.
+        if (string.IsNullOrWhiteSpace(ModelPath) ||
+            (!ResourceLoader.Exists(ModelPath) && !Godot.FileAccess.FileExists(ModelPath)))
         {
             return;
         }

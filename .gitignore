@@ -1,7 +1,6 @@
 .godot/
 .mono/
 .import/
-export_presets.cfg
 *.import
 *.translation
 *.uid
@@ -14,3 +13,6 @@ bin/
 # runtime — keep the ones in the addon so a fresh clone runs out of the box.
 !addons/terrain_3d/bin/
 obj/
+/build/
+/.desktop-tools/
+__pycache__/

@@ -176,7 +176,9 @@ Shortcuts/density_decrement=Object(Shortcut,
 
 config/name="Elaine's Quest"
 run/main_scene="res://Scenes/System/Bootstrap.tscn"
-config/features=PackedStringArray("4.8", "C#", "Forward Plus")
+config/features=PackedStringArray("4.7", "C#", "Forward Plus")
+config/version="0.1.0"
+config/icon="res://icon.png"
 
 [autoload]
 
@@ -184,6 +186,7 @@ GameManager="*res://Scripts/Core/GameManager.cs"
 ElainesSceneTransition="*res://Scripts/System/ElainesSceneTransition.cs"
 SimpleGrass="*res://addons/simplegrasstextured/singleton.tscn"
 LovelyEvent="*res://addons/lovely_event/scripts/LovelyEvent.gd"
+DeploymentVerifier="*res://Scripts/System/DeploymentVerifier.cs"
 
 [dotnet]
 
@@ -593,6 +596,10 @@ spell_wheel={
 [layer_names]
 
 3d_render/layer_17="SimpleGrassTextured interactive layer"
+
+[rendering]
+
+textures/vram_compression/import_etc2_astc=true
 
 [scene_manager]
 
