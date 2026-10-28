@@ -7,7 +7,7 @@ extends EditorPlugin
 ## Main plugin entry point for TileMapLayer3D
 
 # Preload UI coordinator class (ensures availability before class_name registration)
-const TileEditorUIClass = preload("uid://dy4cagfxufhpy")
+const TileEditorUIClass = preload("res://addons/TileMapLayer3D/core/editor_ui/tile_editor_ui.gd")
 # Preload RegionBaker + RegionBakeOptions so class_name registers before the first bake.
 # Replaces the old MeshBaker / CollisionGenerator preload — both have been removed.
 const RegionBakerClass = preload("res://addons/TileMapLayer3D/core/mesh_baker/region_baker.gd")

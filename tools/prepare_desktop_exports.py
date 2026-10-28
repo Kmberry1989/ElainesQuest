@@ -7,6 +7,12 @@ scenes = sorted((ROOT / 'Scenes').rglob('*.tscn'))
 resources = {'res://' + path.relative_to(ROOT).as_posix() for path in scenes}
 for scene in scenes:
     resources.update(re.findall(r'ModelPath = "(res://[^"]+)"', scene.read_text()))
+    resources.update(re.findall(r'path="(res://[^"]+)"', scene.read_text()))
+# A fresh import can encounter typed GDExtension scripts before registration.
+# Select game scripts explicitly rather than relying on that first dependency scan.
+for path in (ROOT / 'Scripts').rglob('*'):
+    if path.suffix in {'.gd', '.cs'}:
+        resources.add('res://' + path.relative_to(ROOT).as_posix())
 resources.update({
     'res://addons/terrain_3d/terrain.gdextension',
     'res://addons/sky_3d/src/Sky3D.gd',

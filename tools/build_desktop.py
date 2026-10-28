@@ -84,6 +84,10 @@ if not version.startswith('4.7.stable.mono.'):
 run([sys.executable, 'tools/prepare_desktop_exports.py'])
 run(['dotnet', 'build', 'ElainesQuest.csproj', '-v:minimal'])
 run([godot, '--headless', '--editor', '--path', ROOT, '--import'])
+# On a fresh checkout, native extension/global script registration happens during
+# the first scan. Reopen once with that registration available to scene parsers.
+run([godot, '--headless', '--editor', '--path', ROOT, '--import'])
+run([godot, '--headless', '--path', ROOT, '--script', 'tools/verify_export_shaders.gd'])
 folder = build / args.platform
 folder.mkdir(exist_ok=True)
 executable = folder / ('ElainesQuest.app' if args.platform == 'macos' else 'ElainesQuest.exe')
@@ -112,6 +116,7 @@ if any(marker in text for marker in ['SCRIPT ERROR:', 'SHADER ERROR:', 'Failed l
 
 shutil.copyfile(ROOT / 'PLAY.md', folder / 'READ-ME.md')
 shutil.copyfile(ROOT / 'LICENSE.md', folder / 'LICENSE.md')
+shutil.copyfile(ROOT / 'addons/lens_effects/shader_includes/GODOT-LICENSE.txt', folder / 'GODOT-LICENSE.txt')
 shutil.copyfile(verification, folder / 'BUILD-VALIDATION.log')
 output = build / f'ElainesQuest-{"macOS" if args.platform == "macos" else "Windows"}.zip'
 if args.platform == 'macos':

@@ -1,7 +1,4 @@
-#define MAX_VIEWS 2
-// ARez: Uncomment the next line if you build the engine using double precision
-//#define USE_DOUBLE_PRECISION
-#include "godot/scene_data_inc.glsl"
+// SceneData is included by the parent shader before these helpers.
 
 // Set 0: Scene
 layout(set = 0, binding = 0, std140) uniform SceneDataBlock {

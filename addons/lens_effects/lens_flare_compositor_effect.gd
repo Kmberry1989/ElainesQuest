@@ -104,6 +104,8 @@ func _initialize_resource() -> void:
 # Called on render thread after _init().
 func _initialize_render() -> void:
 	shader = create_shader(ShaderPath)
+	if not shader.is_valid():
+		enabled = false
 
 
 # Called at beginning of _render_callback(), after updating render variables

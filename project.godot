@@ -192,6 +192,16 @@ DeploymentVerifier="*res://Scripts/System/DeploymentVerifier.cs"
 
 project/assembly_name="ElainesQuest"
 
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=768
+window/size/window_width_override=1152
+window/size/window_height_override=692
+window/size/min_width=960
+window/size/min_height=576
+window/stretch/mode="canvas_items"
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/PlantGenerator/plugin.cfg", "res://addons/TileMapLayer3D/plugin.cfg", "res://addons/advanced_radial_menu/plugin.cfg", "res://addons/extendable-scene-transitions/plugin.cfg", "res://addons/lens_effects/plugin.cfg", "res://addons/lovely_event/plugin.cfg", "res://addons/simplegrasstextured/plugin.cfg", "res://addons/simplex_terrain/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/terrain_3d/plugin.cfg")

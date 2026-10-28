@@ -27,6 +27,12 @@ public partial class DeploymentVerifier : Node
             await VerifyModels(hub);
             GD.Print("EXPORT_VERIFY: hub models loaded");
             Require(GetViewport().GetCamera3D() != null, "active camera");
+            Rect2 viewport = GetViewport().GetVisibleRect();
+            foreach (string name in new[] { "FamilyLabel", "ObjectiveLabel", "InteractionPromptLabel" })
+            {
+                Label label = hub.FindChild(name, true, false) as Label;
+                Require(label != null && viewport.Encloses(label.GetGlobalRect()), "HUD fits viewport: " + name);
+            }
             DialogueUI.Instance?.HideDialogue();
             Vector3 start = player.GlobalPosition;
             Input.ActionPress("move_forward");

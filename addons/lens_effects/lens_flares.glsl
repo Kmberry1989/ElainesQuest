@@ -4,6 +4,8 @@ layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
 // ARez: This is the lens flare shader I used: https://www.shadertoy.com/view/wlcyzj
 
+#define MAX_VIEWS 2
+#include "shader_includes/scene_data_inc.glsl"
 #include "shader_includes/scene_data_helpers.glsl"
 #include "shader_includes/effect_data.glsl"
 
