@@ -17,7 +17,7 @@ layout(set = 0, binding = 2) uniform sampler2D depth_sampler;
 // in dev builds.
 // layout(set = 0, binding = 4) uniform sampler2D color_sampler;
 
-highp float length_squared(vec2 v) {
+highp float lens_length_squared(vec2 v) {
     return pow(v.x, 2.0) + pow(v.y, 2.0);
 }
 

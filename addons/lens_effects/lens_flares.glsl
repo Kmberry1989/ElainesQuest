@@ -38,11 +38,11 @@ void lensflares(vec2 uv, vec2 pos, out vec3 sunflare, out vec3 lensflare) {
     f0 = f0 + f0 * (sin((ang + 1.0 / 18.0) * 12.0) * .1 + dist * .1 + .8);
 
     float f2 =
-        max(1.0 / (1.0 + 32.0 * length_squared(uvd + 0.8 * pos)), .0) * 00.25;
+        max(1.0 / (1.0 + 32.0 * lens_length_squared(uvd + 0.8 * pos)), .0) * 00.25;
     float f22 =
-        max(1.0 / (1.0 + 32.0 * length_squared(uvd + 0.85 * pos)), .0) * 00.23;
+        max(1.0 / (1.0 + 32.0 * lens_length_squared(uvd + 0.85 * pos)), .0) * 00.23;
     float f23 =
-        max(1.0 / (1.0 + 32.0 * length_squared(uvd + 0.9 * pos)), .0) * 00.21;
+        max(1.0 / (1.0 + 32.0 * lens_length_squared(uvd + 0.9 * pos)), .0) * 00.21;
 
     vec2 uvx = mix(uv, uvd, -0.5);
 
