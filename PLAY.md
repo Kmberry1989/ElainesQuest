@@ -15,6 +15,7 @@ This is an early playable build. Progress currently lasts for the running sessio
 ## Rebuild
 
 Use Godot **4.7 stable .NET**, its matching .NET export templates, and .NET 8.
+Compatible runtime GLBs and their source hashes live in `Assets/RuntimeModels`; the original quantized models remain intact. To regenerate them, run `npm ci` then `node tools/prepare_runtime_models.cjs` before the commands below.
 
 ```sh
 python3 tools/prepare_desktop_exports.py

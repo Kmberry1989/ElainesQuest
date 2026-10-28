@@ -16,3 +16,4 @@ obj/
 /build/
 /.desktop-tools/
 __pycache__/
+node_modules/

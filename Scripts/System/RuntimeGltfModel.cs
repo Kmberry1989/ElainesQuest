@@ -15,15 +15,29 @@ public partial class RuntimeGltfModel : Node3D
     [Export] public string LibraryToLoad = "res://Assets/Animations/MixamoLibrary.res";
 
     private const string GeneratedModelName = "__RuntimeModel";
+    private bool _refreshQueued;
 
     public override void _EnterTree()
     {
-        CallDeferred(nameof(RefreshModel));
+        QueueModelRefresh();
     }
 
     public override void _Ready()
     {
-        CallDeferred(nameof(RefreshModel));
+        QueueModelRefresh();
+    }
+
+    private void QueueModelRefresh()
+    {
+        if (_refreshQueued) return;
+        _refreshQueued = true;
+        CallDeferred(nameof(FlushModelRefresh));
+    }
+
+    private void FlushModelRefresh()
+    {
+        _refreshQueued = false;
+        RefreshModel();
     }
 
     public void RefreshModel()
@@ -68,11 +82,6 @@ public partial class RuntimeGltfModel : Node3D
         generatedNode.Owner = null;
 
         var animPlayer = generatedNode.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
-        var skeleton = generatedNode.FindChild("Skeleton3D", true, false) as Node;
-        Node animationRoot =
-            skeleton?.GetParent() ??
-            generatedNode.FindChild("RootNode", true, false) ??
-            generatedNode;
 
         if (LinkedAnimationTree == null)
         {
@@ -91,7 +100,8 @@ public partial class RuntimeGltfModel : Node3D
             }
 
             LinkedAnimationTree.AnimPlayer = LinkedAnimationTree.GetPathTo(animPlayer);
-            LinkedAnimationTree.RootNode = LinkedAnimationTree.GetPathTo(animationRoot);
+            // The shared clips already include RootNode/Skeleton3D in their paths.
+            LinkedAnimationTree.RootNode = LinkedAnimationTree.GetPathTo(generatedNode);
             
             // Toggle active to force initialization!
             LinkedAnimationTree.Active = false;
@@ -165,7 +175,11 @@ public partial class RuntimeGltfModel : Node3D
     private void ClearGeneratedModel()
     {
         Node existing = GetNodeOrNull<Node>(GeneratedModelName);
-        existing?.QueueFree();
+        if (existing != null)
+        {
+            RemoveChild(existing);
+            existing.QueueFree();
+        }
     }
 
     private bool IsImportRemapInvalid()

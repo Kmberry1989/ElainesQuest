@@ -87,6 +87,10 @@ run([godot, '--headless', '--editor', '--path', ROOT, '--import'])
 folder = build / args.platform
 folder.mkdir(exist_ok=True)
 executable = folder / ('ElainesQuest.app' if args.platform == 'macos' else 'ElainesQuest.exe')
+if executable.is_dir():
+    shutil.rmtree(executable)
+elif executable.exists():
+    executable.unlink()
 run([godot, '--headless', '--path', ROOT, '--export-release',
      'macOS' if args.platform == 'macos' else 'Windows', executable])
 
@@ -103,6 +107,8 @@ run([game, '--headless', '--log-file', verification.resolve(), '--', '--verify-e
 text = verification.read_text(errors='replace')
 if 'EXPORT_VERIFY: PASS' not in text or 'EXPORT_VERIFY: FAIL' in text:
     raise RuntimeError('The exported executable did not pass its integration check: ' + text[-12000:])
+if any(marker in text for marker in ['SCRIPT ERROR:', 'SHADER ERROR:', 'Failed loading resource:']):
+    raise RuntimeError('The exported executable reported a script, shader, or resource error: ' + text[-12000:])
 
 shutil.copyfile(ROOT / 'PLAY.md', folder / 'READ-ME.md')
 shutil.copyfile(ROOT / 'LICENSE.md', folder / 'LICENSE.md')

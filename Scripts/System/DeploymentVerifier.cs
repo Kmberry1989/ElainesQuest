@@ -25,6 +25,7 @@ public partial class DeploymentVerifier : Node
             ElaineController player = FindPlayer();
             Require(player != null && player.GetCurrentHealth() > 0, "healthy playable Elaine");
             await VerifyModels(hub);
+            GD.Print("EXPORT_VERIFY: hub models loaded");
             Require(GetViewport().GetCamera3D() != null, "active camera");
             DialogueUI.Instance?.HideDialogue();
             Vector3 start = player.GlobalPosition;
@@ -41,6 +42,7 @@ public partial class DeploymentVerifier : Node
             portal.Interact(player);
             await WaitFor(() => GetTree().CurrentScene?.SceneFilePath == "res://Scenes/Levels/World_1_Forest.tscn", "forest portal transition");
             await VerifyModels(GetTree().CurrentScene);
+            GD.Print("EXPORT_VERIFY: forest models loaded");
             Require(FindPlayer() != null, "forest player");
 
             // Exercise the same scene-transition/arrival service used by the return portal.
@@ -69,7 +71,9 @@ public partial class DeploymentVerifier : Node
         foreach (RuntimeGltfModel model in models)
         {
             await WaitFor(() => model.GetChildren().Any(child =>
-                child is Node3D && Descendants(child).OfType<MeshInstance3D>().Any(mesh => mesh.Mesh != null)),
+                child.Name == "__RuntimeModel" &&
+                ((child is MeshInstance3D rootMesh && rootMesh.Mesh != null) ||
+                 Descendants(child).OfType<MeshInstance3D>().Any(mesh => mesh.Mesh != null))),
                 "packaged model " + model.ModelPath);
         }
     }
