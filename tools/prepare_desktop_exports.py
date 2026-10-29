@@ -13,7 +13,10 @@ for scene in scenes:
 for path in (ROOT / 'Scripts').rglob('*'):
     if path.suffix in {'.gd', '.cs'}:
         resources.add('res://' + path.relative_to(ROOT).as_posix())
-        resources.update(re.findall(r'"(res://[^"\n]+\.(?:glb|tscn|tres|res|png|webp|gdshader))"', path.read_text()))
+        for resource in re.findall(r'"(res://[^"\n]+\.(?:glb|tscn|tres|res|png|webp|gdshader))"', path.read_text()):
+            # Script strings can also name future screenshot/output files.
+            if (ROOT / resource.removeprefix('res://')).is_file():
+                resources.add(resource)
 resources.update({
     'res://addons/terrain_3d/terrain.gdextension',
     'res://addons/sky_3d/src/Sky3D.gd',

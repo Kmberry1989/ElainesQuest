@@ -377,6 +377,7 @@ public partial class ElaineController : CharacterBody3D
     public void RespawnTo(Vector3 point)
     {
         GlobalPosition = point;
+        ResetPhysicsInterpolation();
         Velocity = Vector3.Zero;
         _oneShotState = string.Empty;
         _oneShotTimer = 0.0f;
@@ -582,6 +583,7 @@ public partial class ElaineController : CharacterBody3D
         if (markerNode is Node3D marker)
         {
             GlobalPosition = marker.GlobalPosition;
+            ResetPhysicsInterpolation();
             Velocity = Vector3.Zero;
             SetRespawnPoint(marker.GlobalPosition);
             _sceneArrivalApplied = true;
@@ -599,6 +601,7 @@ public partial class ElaineController : CharacterBody3D
         if (GameManager.Instance.TryGetCheckpoint(scenePath, out Vector3 checkpointPosition))
         {
             GlobalPosition = checkpointPosition;
+            ResetPhysicsInterpolation();
             Velocity = Vector3.Zero;
             SetRespawnPoint(checkpointPosition);
         }
