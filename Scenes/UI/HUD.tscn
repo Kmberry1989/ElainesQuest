@@ -15,6 +15,8 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="GlimmersLabel" type="Label" parent="Control"]
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.05, 0.95)
+theme_override_constants/outline_size = 4
 offset_left = 24.0
 offset_top = 20.0
 offset_right = 250.0
@@ -22,6 +24,8 @@ offset_bottom = 50.0
 text = "Glimmers: 0"
 
 [node name="HealthLabel" type="Label" parent="Control"]
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.05, 0.95)
+theme_override_constants/outline_size = 4
 offset_left = 24.0
 offset_top = 50.0
 offset_right = 250.0
@@ -29,6 +33,8 @@ offset_bottom = 80.0
 text = "Health: 5 / 5"
 
 [node name="SpellLabel" type="Label" parent="Control"]
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.05, 0.95)
+theme_override_constants/outline_size = 4
 offset_left = 24.0
 offset_top = 80.0
 offset_right = 420.0
@@ -36,6 +42,8 @@ offset_bottom = 110.0
 text = "Sun Ember: Ready  [F]  Wheel [Tab]"
 
 [node name="CombatFeedLabel" type="Label" parent="Control"]
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.05, 0.95)
+theme_override_constants/outline_size = 4
 offset_left = 24.0
 offset_top = 112.0
 offset_right = 440.0
@@ -44,6 +52,8 @@ theme_override_colors/font_color = Color(0.71, 0.94, 1, 1)
 text = ""
 
 [node name="InteractionPromptLabel" type="Label" parent="Control"]
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.05, 0.95)
+theme_override_constants/outline_size = 4
 offset_left = 470.0
 offset_top = 600.0
 offset_right = 810.0
@@ -55,6 +65,8 @@ text = ""
 visible = false
 
 [node name="TownClueProgressLabel" type="Label" parent="Control"]
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.05, 0.95)
+theme_override_constants/outline_size = 4
 offset_left = 924.0
 offset_top = 50.0
 offset_right = 1256.0
@@ -64,6 +76,8 @@ text = "Town Clues: 0 / 3"
 horizontal_alignment = 2
 
 [node name="FamilyLabel" type="Label" parent="Control"]
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.05, 0.95)
+theme_override_constants/outline_size = 4
 offset_left = 924.0
 offset_top = 20.0
 offset_right = 1256.0
@@ -72,6 +86,8 @@ text = "Family Rescued: 0 / 5"
 horizontal_alignment = 2
 
 [node name="ObjectiveLabel" type="Label" parent="Control"]
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.05, 0.95)
+theme_override_constants/outline_size = 4
 offset_left = 24.0
 offset_top = 680.0
 offset_right = 1028.0
@@ -137,6 +153,8 @@ custom_minimum_size = Vector2(112, 52)
 text = "Sky Lance"
 
 [node name="SpellWheelTitle" type="Label" parent="Control/SpellWheelContainer"]
+theme_override_colors/font_outline_color = Color(0.04, 0.08, 0.05, 0.95)
+theme_override_constants/outline_size = 4
 layout_mode = 1
 anchors_preset = 10
 anchor_left = 0.5

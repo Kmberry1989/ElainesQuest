@@ -27,6 +27,8 @@ public partial class DeploymentVerifier : Node
             await VerifyModels(hub);
             GD.Print("EXPORT_VERIFY: hub models loaded");
             Require(GetViewport().GetCamera3D() != null, "active camera");
+            Require(Descendants(hub).OfType<WorldEnvironment>().Count() == 1, "one environment controller");
+            Require(Descendants(hub).OfType<DirectionalLight3D>().Count() == 1, "one daylight sun");
             Rect2 viewport = GetViewport().GetVisibleRect();
             foreach (string name in new[] { "FamilyLabel", "ObjectiveLabel", "InteractionPromptLabel" })
             {
@@ -34,10 +36,19 @@ public partial class DeploymentVerifier : Node
                 Require(label != null && viewport.Encloses(label.GetGlobalRect()), "HUD fits viewport: " + name);
             }
             DialogueUI.Instance?.HideDialogue();
+            await WaitFor(() => player.IsOnFloor(), "grounded Hub spawn");
+            float groundY = player.GlobalPosition.Y;
+            Input.ActionPress("jump");
+            await WaitSeconds(0.2);
+            Input.ActionRelease("jump");
+            Require(player.GlobalPosition.Y > groundY + 0.5f, "visible jump clearance");
+            await WaitFor(() => player.IsOnFloor(), "jump returns to visible ground");
+            Require(Mathf.Abs(player.GlobalPosition.Y - groundY) < 0.1f, "stable ground height");
             Vector3 start = player.GlobalPosition;
             Input.ActionPress("move_forward");
             await WaitSeconds(0.35);
             Input.ActionRelease("move_forward");
+            Input.ActionRelease("jump");
             Vector3 displacement = player.GlobalPosition - start;
             displacement.Y = 0;
             Require(displacement.Length() > 0.1f, "movement input");
@@ -58,12 +69,13 @@ public partial class DeploymentVerifier : Node
             await WaitFor(() => GetTree().CurrentScene?.SceneFilePath == "res://Scenes/Hub/HubWorld.tscn", "hub return transition");
             await VerifyModels(GetTree().CurrentScene);
             Require(FindPlayer() != null, "returned hub player");
-            GD.Print("EXPORT_VERIFY: PASS (hub models, movement, camera, forest portal, forest models, hub return)");
+            GD.Print("EXPORT_VERIFY: PASS (models, movement, jump and landing, single daylight rig, camera, forest portal, hub return)");
             GetTree().Quit(0);
         }
         catch (Exception error)
         {
             Input.ActionRelease("move_forward");
+            Input.ActionRelease("jump");
             GD.PushError("EXPORT_VERIFY: FAIL " + error.Message);
             GetTree().Quit(1);
         }

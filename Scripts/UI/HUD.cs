@@ -65,6 +65,9 @@ public partial class HUD : CanvasLayer
 
         UpdateSpellWheelState();
         RefreshPlayerStatus();
+        bool dialogueOpen = DialogueUI.Instance?.Panel?.Visible == true;
+        if (ObjectiveLabel != null) ObjectiveLabel.Visible = !dialogueOpen;
+        if (InteractionPromptLabel != null) InteractionPromptLabel.Visible = !dialogueOpen;
 
         _damageFlashTimer = Mathf.Max(0.0f, _damageFlashTimer - (float)delta);
         if (HealthLabel != null)

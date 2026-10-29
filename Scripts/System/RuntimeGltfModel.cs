@@ -13,6 +13,8 @@ public partial class RuntimeGltfModel : Node3D
     [Export] public bool LoadInEditor = true;
     [Export] public AnimationTree LinkedAnimationTree;
     [Export] public string LibraryToLoad = "res://Assets/Animations/MixamoLibrary.res";
+    [Export] public float DisplayHeight = 0.0f;
+    [Export] public string DefaultAnimation = string.Empty;
 
     private const string GeneratedModelName = "__RuntimeModel";
     private bool _refreshQueued;
@@ -82,6 +84,11 @@ public partial class RuntimeGltfModel : Node3D
         generatedNode.Owner = null;
 
         var animPlayer = generatedNode.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
+        if (animPlayer == null && !string.IsNullOrEmpty(DefaultAnimation))
+        {
+            animPlayer = new AnimationPlayer { Name = "IdleAnimationPlayer" };
+            generatedNode.AddChild(animPlayer);
+        }
 
         if (LinkedAnimationTree == null)
         {
@@ -113,12 +120,60 @@ public partial class RuntimeGltfModel : Node3D
             generatedNode3D.Position = LoadedOffset;
             generatedNode3D.RotationDegrees = LoadedRotationDegrees;
             generatedNode3D.Scale = LoadedScale;
+            if (!Engine.IsEditorHint())
+            {
+                if (!string.IsNullOrEmpty(DefaultAnimation) && animPlayer != null)
+                {
+                    animPlayer.RootNode = animPlayer.GetPathTo(generatedNode);
+                    if (!animPlayer.HasAnimationLibrary("Mixamo"))
+                        animPlayer.AddAnimationLibrary("Mixamo", GD.Load<AnimationLibrary>(LibraryToLoad));
+                    if (animPlayer.HasAnimation(DefaultAnimation))
+                    {
+                        animPlayer.Play(DefaultAnimation);
+                        animPlayer.Advance(0);
+                    }
+                }
+                if (DisplayHeight > 0) CalibrateDisplay(generatedNode3D);
+            }
         }
 
         if (PlaceholderRoot != null)
         {
             PlaceholderRoot.Visible = false;
         }
+    }
+
+    private async void CalibrateDisplay(Node3D model)
+    {
+        // Evaluate the idle pose before fitting: bind-pose boxes miss the actual feet.
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        if (!IsInstanceValid(model) || !model.IsInsideTree()) return;
+        Aabb? bounds = DisplayBounds(model);
+        if (bounds == null || bounds.Value.Size.Y < 0.001f) return;
+        float scale = DisplayHeight / bounds.Value.Size.Y;
+        model.Scale *= scale;
+        model.Position = new Vector3(model.Position.X, model.Position.Y * scale - bounds.Value.Position.Y * scale, model.Position.Z);
+    }
+
+    private Aabb? DisplayBounds(Node node)
+    {
+        Aabb? bounds = null;
+        if (node is MeshInstance3D mesh && mesh.Mesh != null)
+        {
+            // The dummy renderer cannot bake a skin. Its invisible contract run
+            // uses bind bounds; graphical builds fit the evaluated idle pose.
+            Mesh posed = mesh.Skin != null && DisplayServer.GetName() != "headless"
+                ? mesh.BakeMeshFromCurrentSkeletonPose() ?? mesh.Mesh : mesh.Mesh;
+            Aabb box = GlobalTransform.AffineInverse() * mesh.GlobalTransform * posed.GetAabb();
+            bounds = box;
+        }
+        foreach (Node child in node.GetChildren())
+        {
+            Aabb? childBounds = DisplayBounds(child);
+            if (childBounds != null) bounds = bounds == null ? childBounds : bounds.Value.Merge(childBounds.Value);
+        }
+        return bounds;
     }
 
     private Node TryInstantiateImportedScene()

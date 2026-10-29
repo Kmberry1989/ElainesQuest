@@ -1,5 +1,11 @@
 [
   {
+    "source": "res://Assets/Models/Environment/tile_stonegrassy.glb",
+    "runtime": "res://Assets/RuntimeModels/Models/Environment/tile_stonegrassy.glb",
+    "sourceSHA256": "b29dde7885af5877dabcfac6e1284377b07f38e76cc415bd0bf1ea5496b8611c",
+    "importScale": 1
+  },
+  {
     "source": "res://Assets/Models/Family/Ann-model.glb",
     "runtime": "res://Assets/RuntimeModels/Models/Family/Ann-model.glb",
     "sourceSHA256": "b02d575c53bdd2dda04166e32d61e902895eb0d9a7f656cc17ce45a915e81bf8",

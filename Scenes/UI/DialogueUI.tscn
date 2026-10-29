@@ -1,6 +1,18 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UI/DialogueUI.cs" id="1_dialogue"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_dialogue"]
+bg_color = Color(0.06, 0.10, 0.08, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.65, 0.43, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_left = 14
+corner_radius_bottom_right = 14
 
 [node name="DialogueUI" type="CanvasLayer"]
 script = ExtResource("1_dialogue")
@@ -14,10 +26,14 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Panel" type="Panel" parent="Control"]
-offset_left = 64.0
-offset_top = 560.0
-offset_right = 1216.0
-offset_bottom = 696.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = -200.0
+offset_right = -32.0
+offset_bottom = -28.0
+theme_override_styles/panel = SubResource("StyleBox_dialogue")
 
 [node name="NameLabel" type="Label" parent="Control/Panel"]
 offset_left = 24.0
@@ -33,3 +49,16 @@ offset_right = 1120.0
 offset_bottom = 120.0
 autowrap_mode = 3
 text = "Dialogue goes here."
+
+[node name="ContinueHint" type="Label" parent="Control/Panel"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -350.0
+offset_top = -36.0
+offset_right = -24.0
+offset_bottom = -12.0
+text = "E  Continue    ·    Esc  Close"
+horizontal_alignment = 2
+theme_override_colors/font_color = Color(0.8, 0.86, 0.73, 1)

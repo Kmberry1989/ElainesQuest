@@ -10,22 +10,30 @@ public partial class PlatformerCamera : Camera3D
 
     private float _shakeRemaining;
     private float _shakeStrength;
+    private Vector3 _lookAhead;
 
     public override void _Ready()
     {
         Current = true;
+        PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off;
         Target ??= GetTree().GetFirstNodeInGroup("player") as Node3D;
         ConnectPlayerSignals();
+        if (Target != null)
+        {
+            GlobalPosition = Target.GlobalPosition + Offset;
+            LookAt(Target.GlobalPosition + Vector3.Up, Vector3.Up);
+        }
     }
 
     public override void _Process(double delta)
     {
-        if (Target == null)
+        if (!IsInstanceValid(Target))
         {
             Target = GetTree().GetFirstNodeInGroup("player") as Node3D;
             ConnectPlayerSignals();
             return;
         }
+        Vector3 targetPosition = Target.GetGlobalTransformInterpolated().Origin;
 
         float weight = 1.0f - Mathf.Exp(-FollowSpeed * (float)delta);
         Vector3 lookAhead = Vector3.Zero;
@@ -39,6 +47,8 @@ public partial class PlatformerCamera : Camera3D
             }
         }
 
+        _lookAhead = _lookAhead.Lerp(lookAhead, 1.0f - Mathf.Exp(-3.5f * (float)delta));
+
         Vector3 shake = Vector3.Zero;
         if (_shakeRemaining > 0.0f)
         {
@@ -50,9 +60,10 @@ public partial class PlatformerCamera : Camera3D
             _shakeStrength = Mathf.MoveToward(_shakeStrength, 0.0f, ShakeDamping * (float)delta);
         }
 
-        Vector3 desiredPosition = Target.GlobalPosition + Offset + lookAhead + shake;
-        GlobalPosition = GlobalPosition.Lerp(desiredPosition, weight);
-        LookAt(Target.GlobalPosition + Vector3.Up * 1.5f + lookAhead * 0.35f, Vector3.Up);
+        Vector3 desiredPosition = targetPosition + Offset + _lookAhead + shake;
+        GlobalPosition = GlobalPosition.DistanceTo(desiredPosition) > 25.0f
+            ? desiredPosition : GlobalPosition.Lerp(desiredPosition, weight);
+        LookAt(targetPosition + Vector3.Up + _lookAhead * 0.35f, Vector3.Up);
     }
 
     public void ApplyShake(float strength, float duration = 0.2f)

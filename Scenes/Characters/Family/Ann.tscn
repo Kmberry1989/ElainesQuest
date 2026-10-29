@@ -9,7 +9,8 @@ mid_height = 1.1
 [node name="Ann" type="Node3D"]
 
 [node name="Visuals" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.0, 0)
 script = ExtResource("1_runtime_model")
+DisplayHeight = 1.8
+DefaultAnimation = "Mixamo/idle"
 ModelPath = "res://Assets/RuntimeModels/Models/Family/Ann-model.glb"
 
