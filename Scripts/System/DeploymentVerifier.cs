@@ -44,6 +44,12 @@ public partial class DeploymentVerifier : Node
             Require(player.GlobalPosition.Y > groundY + 0.5f, "visible jump clearance");
             await WaitFor(() => player.IsOnFloor(), "jump returns to visible ground");
             Require(Mathf.Abs(player.GlobalPosition.Y - groundY) < 0.1f, "stable ground height");
+            Require(InputMap.HasAction("melee_attack"), "melee input available");
+            Require(player.AutoAimEnabled, "autoaim enabled by default");
+            AnimationPlayer animation = player.AnimTree.GetNode<AnimationPlayer>(player.AnimTree.AnimPlayer);
+            Require(animation.HasAnimation("Melee/strike"), "supplied melee animation available");
+            Require(player.TryMeleeAttack(), "grounded melee attack");
+            await WaitSeconds(0.85);
             Vector3 start = player.GlobalPosition;
             Input.ActionPress("move_forward");
             await WaitSeconds(0.35);
@@ -69,7 +75,7 @@ public partial class DeploymentVerifier : Node
             await WaitFor(() => GetTree().CurrentScene?.SceneFilePath == "res://Scenes/Hub/HubWorld.tscn", "hub return transition");
             await VerifyModels(GetTree().CurrentScene);
             Require(FindPlayer() != null, "returned hub player");
-            GD.Print("EXPORT_VERIFY: PASS (models, movement, jump and landing, single daylight rig, camera, forest portal, hub return)");
+            GD.Print("EXPORT_VERIFY: PASS (models, movement, jump and landing, single daylight rig, camera, autoaim default, melee input and animation, forest portal, hub return)");
             GetTree().Quit(0);
         }
         catch (Exception error)

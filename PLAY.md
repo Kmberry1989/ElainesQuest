@@ -6,7 +6,7 @@ The builds include the game engine and .NET runtime; Godot and a developer setup
 - **Windows (64-bit):** extract the entire ZIP, then open `ElainesQuest.exe`. Keep its data files and folders beside it.
 - **Mac (Apple Silicon or Intel):** extract the ZIP, then open `ElainesQuest.app`. This preview uses an ad-hoc signature and is not Apple-notarized. If macOS blocks the trusted download, use **System Settings → Privacy & Security → Open Anyway** after attempting to open it.
 
-Move with **WASD / arrow keys**, jump with **Space**, interact or advance dialogue with **E**, cast with **F**, open the spell wheel with **Tab**, and wave with **Q**. **Escape** closes dialogue. A gamepad can also move Elaine, jump, interact, and cast.
+Move with **WASD / arrow keys**, jump with **Space**, interact or advance dialogue with **E**, cast with **F**, melee with **R**, open the spell wheel with **Tab**, and wave with **Q**. **Escape** closes dialogue. On a gamepad, use **R1 / RB** to cast, **R2 / RT** for melee, and **L1 / LB** for the spell wheel. Attacks automatically turn toward a nearby visible enemy; spells aim at its height and lead moving targets. With no valid target, attacks follow Elaine's facing. Melee strikes a short forward arc and cannot hit through walls.
 
 Begin in the Hub, talk to Sasha, and enter the Forest portal. Find Toby, clear the encounters, rescue Matthew, and return to the Hub. Follow the objective text for later areas.
 

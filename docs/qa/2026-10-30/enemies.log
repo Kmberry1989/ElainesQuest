@@ -1,0 +1,39 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+ENEMY_VERIFY: Jacko pose Idle PASS (delta 13.5098)
+ENEMY_VERIFY: Jacko pose Walk PASS (delta 12.1168)
+ENEMY_VERIFY: Jacko pose Attack PASS (delta 8.4854)
+ENEMY_VERIFY: Jacko pose Hit PASS (delta 9.7864)
+ENEMY_VERIFY: Jacko pose Death PASS (delta 24.0741)
+Glimmers: 6
+ENEMY_VERIFY: Jacko PASS (clips True, resolved True, states True, pose True, spell True, cleanup True)
+ENEMY_VERIFY: Corkrot pose Idle PASS (delta 29.2317)
+ENEMY_VERIFY: Corkrot pose Walk PASS (delta 16.4587)
+ENEMY_VERIFY: Corkrot pose Attack PASS (delta 26.3278)
+ENEMY_VERIFY: Corkrot pose Hit PASS (delta 64.1619)
+ENEMY_VERIFY: Corkrot pose Death PASS (delta 17.6716)
+Glimmers: 10
+ENEMY_VERIFY: Corkrot PASS (clips True, resolved True, states True, pose True, spell True, cleanup True)
+ENEMY_VERIFY: FungalBlight pose Idle PASS (delta 30.2350)
+ENEMY_VERIFY: FungalBlight pose Walk PASS (delta 10.6234)
+ENEMY_VERIFY: FungalBlight pose Attack PASS (delta 32.6838)
+ENEMY_VERIFY: FungalBlight pose Hit PASS (delta 31.2529)
+ENEMY_VERIFY: FungalBlight pose Death PASS (delta 10.6271)
+Glimmers: 15
+ENEMY_VERIFY: Fungal Blight PASS (clips True, resolved True, states True, pose True, spell True, cleanup True)
+ENEMY_VERIFY: RustBucketBob pose Idle PASS (delta 25.5663)
+ENEMY_VERIFY: RustBucketBob pose Walk PASS (delta 21.3914)
+ENEMY_VERIFY: RustBucketBob pose Attack PASS (delta 8.9700)
+ENEMY_VERIFY: RustBucketBob pose Hit PASS (delta 52.9018)
+ENEMY_VERIFY: RustBucketBob pose Death PASS (delta 26.4887)
+Glimmers: 33
+ENEMY_VERIFY: RustBucketBob PASS (clips True, resolved True, states True, pose True, spell True, cleanup True)
+ENEMY_VERIFY: BriarWarden pose Idle PASS (delta 58.4398)
+ENEMY_VERIFY: BriarWarden pose Walk PASS (delta 7.2195)
+ENEMY_VERIFY: BriarWarden pose Attack PASS (delta 31.4269)
+ENEMY_VERIFY: BriarWarden pose Hit PASS (delta 55.8489)
+ENEMY_VERIFY: BriarWarden pose Death PASS (delta 57.7255)
+Glimmers: 55
+ENEMY_VERIFY: Briar Warden PASS (clips True, resolved True, states True, pose True, spell True, cleanup True)
+ENEMY_VERIFY: PASS — animation contracts, state travel, spell damage, and defeat cleanup succeeded.
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.

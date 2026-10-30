@@ -1,0 +1,5 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+EXPORT_VERIFY: hub models loaded
+EXPORT_VERIFY: forest models loaded
+EXPORT_VERIFY: PASS (models, movement, jump and landing, single daylight rig, camera, autoaim default, melee input and animation, forest portal, hub return)

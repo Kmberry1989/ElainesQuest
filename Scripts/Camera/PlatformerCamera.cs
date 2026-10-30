@@ -8,6 +8,7 @@ public partial class PlatformerCamera : Camera3D
     [Export] public float LookAheadDistance = 1.35f;
     [Export] public float ShakeDamping = 10.0f;
 
+    private ElaineController _signalPlayer;
     private float _shakeRemaining;
     private float _shakeStrength;
     private Vector3 _lookAhead;
@@ -72,13 +73,32 @@ public partial class PlatformerCamera : Camera3D
         _shakeRemaining = Mathf.Max(_shakeRemaining, duration);
     }
 
+    public override void _ExitTree() => DisconnectPlayerSignals();
+
     private void ConnectPlayerSignals()
     {
-        if (Target is not ElaineController player) return;
-        player.DamageTaken -= OnPlayerDamageTaken;
-        player.SpellHit -= OnPlayerSpellHit;
+        if (Target is not ElaineController player || _signalPlayer == player) return;
+        DisconnectPlayerSignals();
+        _signalPlayer = player;
         player.DamageTaken += OnPlayerDamageTaken;
         player.SpellHit += OnPlayerSpellHit;
+        player.MeleeHit += OnPlayerMeleeHit;
+    }
+
+    private void DisconnectPlayerSignals()
+    {
+        if (IsInstanceValid(_signalPlayer))
+        {
+            _signalPlayer.DamageTaken -= OnPlayerDamageTaken;
+            _signalPlayer.SpellHit -= OnPlayerSpellHit;
+            _signalPlayer.MeleeHit -= OnPlayerMeleeHit;
+        }
+        _signalPlayer = null;
+    }
+
+    private void OnPlayerMeleeHit(int targetsHit)
+    {
+        if (targetsHit > 0) ApplyShake(0.12f, 0.16f);
     }
 
     private void OnPlayerDamageTaken(float _amount, float _currentHealth, float _maxHealth) => ApplyShake(0.24f, 0.24f);

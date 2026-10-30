@@ -16,6 +16,7 @@ public partial class HUD : CanvasLayer
     [Export] public Button SpellSlot1;
     [Export] public Button SpellSlot2;
 
+    private Label _meleeLabel;
     private ElaineController _player;
     private bool _spellWheelVisible;
     private float _combatFeedTimer;
@@ -23,6 +24,7 @@ public partial class HUD : CanvasLayer
 
     public override void _Ready()
     {
+        _meleeLabel = FindChild("MeleeLabel", true, false) as Label;
         GlimmersLabel ??= GetNodeOrNull<Label>("Control/GlimmersLabel") ?? FindChild("GlimmersLabel", true, false) as Label;
         FamilyLabel ??= GetNodeOrNull<Label>("Control/FamilyLabel") ?? FindChild("FamilyLabel", true, false) as Label;
         HealthLabel ??= GetNodeOrNull<Label>("Control/HealthLabel") ?? FindChild("HealthLabel", true, false) as Label;
@@ -118,6 +120,8 @@ public partial class HUD : CanvasLayer
             _player.SpellHit += OnPlayerSpellHit;
             _player.InteractionPromptChanged += OnInteractionPromptChanged;
             _player.DamageTaken += OnPlayerDamageTaken;
+            _player.MeleeStarted += OnPlayerMeleeStarted;
+            _player.MeleeHit += OnPlayerMeleeHit;
         }
 
         RefreshPlayerStatus();
@@ -134,6 +138,8 @@ public partial class HUD : CanvasLayer
             _player.SpellHit -= OnPlayerSpellHit;
             _player.InteractionPromptChanged -= OnInteractionPromptChanged;
             _player.DamageTaken -= OnPlayerDamageTaken;
+            _player.MeleeStarted -= OnPlayerMeleeStarted;
+            _player.MeleeHit -= OnPlayerMeleeHit;
         }
 
         _player = null;
@@ -201,6 +207,10 @@ public partial class HUD : CanvasLayer
         ShowCombatFeed($"{displayName}: {detail}");
     }
 
+    private void OnPlayerMeleeStarted() => ShowCombatFeed("Melee: sweeping strike");
+    private void OnPlayerMeleeHit(int targetsHit) => ShowCombatFeed(targetsHit > 0
+        ? $"Melee: {targetsHit} target{(targetsHit == 1 ? "" : "s")} hit" : "Melee: no target in reach");
+
     private void OnObjectiveChanged(string _objectiveText)
     {
         Refresh();
@@ -264,6 +274,12 @@ public partial class HUD : CanvasLayer
             SpellLabel.Text = _player.GetSpellHudText();
         }
 
+        if (_meleeLabel != null)
+        {
+            float remaining = _player.GetMeleeCooldownRemaining();
+            string status = remaining > 0 ? $"{remaining:0.0}s" : "Ready";
+            _meleeLabel.Text = $"Melee: {status} [R / R2]  Autoaim {(_player.AutoAimEnabled ? "enabled" : "off")}";
+        }
         UpdateSpellWheelButtons();
     }
 

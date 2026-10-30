@@ -1,0 +1,79 @@
+{
+  "attacks.log": {
+    "passed": true,
+    "failure_markers": [],
+    "engine_shutdown_diagnostics": [
+      "ERROR: 3 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ]
+  },
+  "caves.log": {
+    "passed": true,
+    "failure_markers": [],
+    "engine_shutdown_diagnostics": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ]
+  },
+  "controls.log": {
+    "passed": true,
+    "failure_markers": [],
+    "engine_shutdown_diagnostics": []
+  },
+  "enemies.log": {
+    "passed": true,
+    "failure_markers": [],
+    "engine_shutdown_diagnostics": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ]
+  },
+  "export.log": {
+    "passed": true,
+    "failure_markers": [],
+    "engine_shutdown_diagnostics": []
+  },
+  "forest-route.log": {
+    "passed": true,
+    "failure_markers": [],
+    "engine_shutdown_diagnostics": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ]
+  },
+  "jacko-native.log": {
+    "passed": true,
+    "failure_markers": [],
+    "engine_shutdown_diagnostics": []
+  },
+  "moonlit.log": {
+    "passed": true,
+    "failure_markers": [],
+    "engine_shutdown_diagnostics": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ]
+  },
+  "native-attacks.log": {
+    "passed": true,
+    "failure_markers": [],
+    "engine_shutdown_diagnostics": [
+      "ERROR: 3 shaders of type ParticlesShaderRD were never freed",
+      "ERROR: 3 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit."
+    ]
+  },
+  "spells.log": {
+    "passed": true,
+    "failure_markers": [],
+    "engine_shutdown_diagnostics": [
+      "ERROR: 3 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ]
+  },
+  "starfall.log": {
+    "passed": true,
+    "failure_markers": [],
+    "engine_shutdown_diagnostics": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ]
+  },
+  "town.log": {
+    "passed": true,
+    "failure_markers": [],
+    "engine_shutdown_diagnostics": []
+  }
+}

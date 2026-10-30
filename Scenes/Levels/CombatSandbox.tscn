@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="PackedScene" path="res://Scenes/Characters/Player/Elaine.tscn" id="1_elaine"]
 [ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/Jacko.tscn" id="2_jacko"]
@@ -19,11 +19,27 @@ size = Vector3(28, 1, 18)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ground"]
 albedo_color = Color(0.314, 0.361, 0.287, 1)
 
+[sub_resource type="Environment" id="Environment_range"]
+background_mode = 1
+background_color = Color(0.09, 0.12, 0.18, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.75, 0.83, 1, 1)
+ambient_light_energy = 0.7
+
 [node name="CombatSandbox" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_range")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-50, -30, 0)
+light_energy = 1.2
+shadow_enabled = true
 
 [node name="CombatSandboxVerifier" type="Node3D" parent="." node_paths=PackedStringArray("Player")]
 script = ExtResource("5_verifier")
 Player = NodePath("../Elaine")
+JackoScene = ExtResource("2_jacko")
 CorkrotScene = ExtResource("6_corkrot")
 FungalBlightScene = ExtResource("7_fungal")
 RustBucketBobScene = ExtResource("8_boss")

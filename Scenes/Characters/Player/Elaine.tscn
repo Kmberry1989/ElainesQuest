@@ -9,6 +9,8 @@
 [ext_resource type="PackedScene" path="res://Scenes/Combat/ElaineStarVolley.tscn" id="7_volley"]
 [ext_resource type="PackedScene" path="res://Scenes/Combat/ElaineSkyLance.tscn" id="8_lance"]
 
+[ext_resource type="Animation" path="res://Assets/Animations/MeleeStrike.res" id="9_melee"]
+
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.3
 height = 1.7
@@ -16,6 +18,7 @@ height = 1.7
 [node name="Elaine" type="CharacterBody3D" unique_id=65812238 node_paths=PackedStringArray("SpellOrigin")]
 script = ExtResource("1_elaine")
 JumpVelocity = 6.2
+MeleeAnimation = ExtResource("9_melee")
 SpellProjectileScene = ExtResource("3_firebolt")
 SpellImpactScene = ExtResource("6_impact")
 BurstSpellProjectileScene = ExtResource("7_volley")

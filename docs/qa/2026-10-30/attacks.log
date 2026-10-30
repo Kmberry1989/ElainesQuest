@@ -1,0 +1,18 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+ATTACK_VERIFY: PASS spell 0 autoaim hits side/behind/elevated target
+ATTACK_VERIFY: PASS spell 1 autoaim hits side/behind/elevated target
+ATTACK_VERIFY: PASS spell 2 autoaim hits side/behind/elevated target
+ATTACK_VERIFY: PASS autoaim ignores inactive targets and walls
+ATTACK_VERIFY: PASS dead target is reacquired before release
+ATTACK_VERIFY: PASS supplied melee animation installed
+ATTACK_VERIFY: PASS melee cooldown and action exclusivity
+ATTACK_VERIFY: PASS melee animation state plays
+ATTACK_VERIFY: PASS melee animates the actual character bones
+ATTACK_VERIFY: PASS melee arc, autoaim, range and one hit per health component
+ATTACK_VERIFY: PASS respawn cancels pending melee damage
+ATTACK_VERIFY: PASS melee cannot hit through walls
+ATTACK_VERIFY: PASS R key starts melee through real input dispatch
+ATTACK_VERIFY: PASS right trigger works on a nonzero controller slot
+ATTACK_VERIFY: PASS — autoaim and melee contracts
+ERROR: 3 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.

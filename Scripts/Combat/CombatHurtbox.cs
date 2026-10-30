@@ -26,6 +26,14 @@ public partial class CombatHurtbox : Area3D
         return Health?.ApplyDamage(damage) ?? false;
     }
 
+    public Vector3 GetAimPoint()
+    {
+        return GetNodeOrNull<CollisionShape3D>("CollisionShape3D")?.GlobalPosition ?? GlobalPosition;
+    }
+
+    public bool IsTargetable => IsInsideTree() && IsVisibleInTree() && CanProcess() &&
+        !IsQueuedForDeletion() && Health != null && IsInstanceValid(Health) && Health.IsAlive;
+
     public Vector3 GetImpactPoint()
     {
         return ImpactAnchor?.GlobalPosition ?? GlobalPosition;

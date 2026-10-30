@@ -100,6 +100,25 @@ public partial class ElaineController : CharacterBody3D
     [Export] public PackedScene LanceSpellProjectileScene;
     [Export] public PackedScene LanceSpellImpactScene;
 
+    [ExportCategory("Autoaim and Melee")]
+    [Export] public bool AutoAimEnabled = true;
+    [Export] public float MeleeDamage = 1.5f;
+    [Export] public float MeleeRange = 2.7f;
+    [Export] public float MeleeCooldown = 0.75f;
+    [Export] public float MeleeReleaseTime = 0.25f;
+    [Export] public float MeleeRecovery = 0.7f;
+    [Export] public float MeleeArcDegrees = 120.0f;
+    [Export] public Animation MeleeAnimation;
+
+    [Signal]
+    public delegate void MeleeStartedEventHandler();
+    [Signal]
+    public delegate void MeleeHitEventHandler(int targetsHit);
+
+    private float _meleeCooldownTimer;
+    private float _pendingMeleeTimer = -1.0f;
+    private CombatHurtbox _attackTarget;
+
     [ExportCategory("Nodes")]
     [Export] public Node3D Visuals;
     [Export] public AnimationPlayer AnimPlayer;
@@ -160,6 +179,7 @@ public partial class ElaineController : CharacterBody3D
         BurstSpellImpactScene ??= SpellImpactScene;
         LanceSpellProjectileScene ??= ResourceLoader.Load<PackedScene>("res://Scenes/Combat/ElaineSkyLance.tscn");
         LanceSpellImpactScene ??= SpellImpactScene;
+        MeleeAnimation ??= GD.Load<Animation>("res://Assets/Animations/MeleeStrike.res");
         _respawnPoint = GlobalPosition;
         _currentHealth = MaxHealth;
         _spellCooldownDuration = SpellCooldown;
@@ -178,6 +198,7 @@ public partial class ElaineController : CharacterBody3D
             return;
         }
 
+        InstallMeleeAnimation();
         AnimTree.Active = true;
         _stateMachinePlayback = (AnimationNodeStateMachinePlayback)AnimTree.Get("parameters/playback");
         string initialState = string.IsNullOrEmpty(_currentAnim) ? "Idle" : _currentAnim;
@@ -204,7 +225,7 @@ public partial class ElaineController : CharacterBody3D
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (IsDialogueOpen())
+        if (IsDialogueOpen() || IsSpellWheelOpen())
         {
             return;
         }
@@ -228,6 +249,12 @@ public partial class ElaineController : CharacterBody3D
             return;
         }
 
+        if (@event.IsActionPressed("melee_attack"))
+        {
+            TryMeleeAttack();
+            return;
+        }
+
         if (@event.IsActionPressed("emote"))
         {
             StartOneShot("Wave", "Mixamo/wave");
@@ -238,8 +265,8 @@ public partial class ElaineController : CharacterBody3D
     {
         Vector3 velocity = Velocity;
         float d = (float)delta;
-        bool spellWheelOpen = IsSpellWheelOpen();
-        Vector2 inputDir = spellWheelOpen
+        bool controlsBlocked = IsSpellWheelOpen() || IsDialogueOpen();
+        Vector2 inputDir = controlsBlocked
             ? Vector2.Zero
             : Input.GetVector("move_left", "move_right", "move_forward", "move_backward");
         float inputStrength = Mathf.Clamp(inputDir.Length(), 0.0f, 1.0f);
@@ -247,7 +274,10 @@ public partial class ElaineController : CharacterBody3D
 
         _damageInvulnerabilityTimer = Mathf.Max(0.0f, _damageInvulnerabilityTimer - d);
         _spellCooldownTimer = Mathf.Max(0.0f, _spellCooldownTimer - d);
+        _meleeCooldownTimer = Mathf.Max(0.0f, _meleeCooldownTimer - d);
         _castBufferTimer = Mathf.Max(-1.0f, _castBufferTimer - d);
+
+        if (controlsBlocked) _castBufferTimer = -1.0f;
 
         UpdateNearbyInteraction();
         if (_castBufferTimer >= 0.0f && _spellCooldownTimer <= 0.0f && TryCastSelectedSpell())
@@ -269,6 +299,16 @@ public partial class ElaineController : CharacterBody3D
             _oneShotState = string.Empty;
         }
 
+        if (_pendingMeleeTimer >= 0.0f)
+        {
+            _pendingMeleeTimer -= d;
+            if (_pendingMeleeTimer <= 0.0f)
+            {
+                _pendingMeleeTimer = -1.0f;
+                ReleaseMeleeAttack();
+            }
+        }
+
         if (_pendingSpellTimer >= 0.0f)
         {
             _pendingSpellTimer -= d;
@@ -285,7 +325,7 @@ public partial class ElaineController : CharacterBody3D
             _oneShotTimer = 0.0f;
             CancelQueuedSpellCast();
 
-            if (Input.IsActionPressed("jump") && Velocity.Y < 0.0f && _hoverTimer > 0.0f)
+            if (!controlsBlocked && Input.IsActionPressed("jump") && Velocity.Y < 0.0f && _hoverTimer > 0.0f)
             {
                 _isHovering = true;
                 velocity.Y -= (Gravity * HoverGravityModifier) * d;
@@ -305,7 +345,7 @@ public partial class ElaineController : CharacterBody3D
             _isHovering = false;
         }
 
-        if (Input.IsActionJustPressed("jump") && IsOnFloor())
+        if (!controlsBlocked && Input.IsActionJustPressed("jump") && IsOnFloor())
         {
             velocity.Y = JumpVelocity;
             TravelAnimationState("Jump");
@@ -327,7 +367,7 @@ public partial class ElaineController : CharacterBody3D
 
             if (Visuals != null)
             {
-                float targetAngle = Mathf.Atan2(direction.X, direction.Z);
+                float targetAngle = Mathf.Atan2(-direction.X, -direction.Z);
                 float currentRotation = Visuals.Rotation.Y;
                 Visuals.Rotation = new Vector3(0.0f, Mathf.LerpAngle(currentRotation, targetAngle, RotationSpeed * d), 0.0f);
             }
@@ -382,9 +422,15 @@ public partial class ElaineController : CharacterBody3D
         _oneShotState = string.Empty;
         _oneShotTimer = 0.0f;
         _spellCooldownTimer = 0.0f;
+        _meleeCooldownTimer = 0.0f;
+        _pendingMeleeTimer = -1.0f;
+        _attackTarget = null;
         _spellCooldownDuration = GetCurrentSpell().Cooldown;
         _damageInvulnerabilityTimer = RespawnInvulnerabilityDuration;
         CancelQueuedSpellCast();
+        _castBufferTimer = -1.0f;
+        _hoverTimer = HoverDuration;
+        _isHovering = false;
         RestoreFullHealth();
         TravelAnimationState("Idle");
     }
@@ -620,6 +666,8 @@ public partial class ElaineController : CharacterBody3D
             return false;
         }
 
+        _attackTarget = AcquireAttackTarget(spell.ProjectileRange);
+        FaceAttackTarget(_attackTarget);
         _spellCooldownDuration = spell.Cooldown;
         _spellCooldownTimer = spell.Cooldown;
         _pendingSpellIndex = _selectedSpellIndex;
@@ -630,7 +678,7 @@ public partial class ElaineController : CharacterBody3D
 
     private bool StartOneShot(string stateName, string animationName)
     {
-        if (!IsOnFloor() || IsDialogueOpen() || _oneShotTimer > 0.0f)
+        if (!IsOnFloor() || IsDialogueOpen() || IsSpellWheelOpen() || _oneShotTimer > 0.0f)
         {
             return false;
         }
@@ -696,6 +744,8 @@ public partial class ElaineController : CharacterBody3D
     {
         _pendingSpellTimer = -1.0f;
         _pendingSpellIndex = -1;
+        _pendingMeleeTimer = -1.0f;
+        _attackTarget = null;
     }
 
     private void SpawnSpellProjectile()
@@ -709,10 +759,25 @@ public partial class ElaineController : CharacterBody3D
             return;
         }
 
+        _attackTarget = ResolveAttackTarget(_attackTarget, spell.ProjectileRange);
+        FaceAttackTarget(_attackTarget);
         Vector3 direction = ResolveSpellDirection();
         Vector3 spawnPoint =
             SpellOrigin?.GlobalPosition ??
             (GlobalPosition + Vector3.Up * 1.2f + direction * 0.9f);
+
+        if (IsInstanceValid(_attackTarget))
+        {
+            Vector3 aimPoint = _attackTarget.GetAimPoint();
+            // Lead moving enemies rather than aiming at where they were at release.
+            if (_attackTarget.GetParent() is EnemyCombatant movingTarget)
+            {
+                float travelTime = spawnPoint.DistanceTo(aimPoint) / Mathf.Max(1, spell.ProjectileSpeed);
+                aimPoint += movingTarget.Velocity * travelTime;
+            }
+            Vector3 aimDirection = aimPoint - spawnPoint;
+            if (aimDirection.LengthSquared() > 0.001f) direction = aimDirection.Normalized();
+        }
 
         int projectileCount = Mathf.Max(1, spell.ProjectileCount);
         for (int projectileIndex = 0; projectileIndex < projectileCount; projectileIndex++)
@@ -743,6 +808,166 @@ public partial class ElaineController : CharacterBody3D
         }
 
         EmitSignal(SignalName.SpellProjectilesReleased, spellIndex, projectileCount, spell.DisplayName);
+    }
+
+    public float GetMeleeCooldownRemaining() => _meleeCooldownTimer;
+
+    public bool TryMeleeAttack()
+    {
+        if (_meleeCooldownTimer > 0 || !StartOneShot("Melee", "Melee/strike")) return false;
+        _attackTarget = AcquireAttackTarget(MeleeRange);
+        FaceAttackTarget(_attackTarget);
+        _oneShotTimer = Mathf.Max(MeleeRecovery, MeleeReleaseTime + 0.1f);
+        _meleeCooldownTimer = Mathf.Max(MeleeCooldown, _oneShotTimer);
+        _pendingMeleeTimer = Mathf.Max(0.05f, MeleeReleaseTime);
+        EmitSignal(SignalName.MeleeStarted);
+        return true;
+    }
+
+    private void ReleaseMeleeAttack()
+    {
+        _attackTarget = ResolveAttackTarget(_attackTarget, MeleeRange);
+        FaceAttackTarget(_attackTarget);
+        ShowMeleeSwing();
+        Vector3 origin = GlobalPosition + Vector3.Up * 1.1f;
+        Vector3 forward = ResolveSpellDirection();
+        var hitHealth = new System.Collections.Generic.HashSet<ulong>();
+        int hits = 0;
+        foreach (Node node in GetTree().GetNodesInGroup("combat_hurtbox"))
+        {
+            if (node is not CombatHurtbox target || !CanAimAt(target, MeleeRange)) continue;
+            Vector3 offset = target.GetAimPoint() - origin;
+            Vector3 flat = new(offset.X, 0, offset.Z);
+            if (flat.LengthSquared() > 0.001f && forward.Dot(flat.Normalized()) < Mathf.Cos(Mathf.DegToRad(MeleeArcDegrees * 0.5f))) continue;
+            if (!hitHealth.Add(target.Health.GetInstanceId()) || !target.ApplyHit(MeleeDamage)) continue;
+            hits++;
+            if (SpellImpactScene != null)
+            {
+                Node3D effect = SpellImpactScene.Instantiate<Node3D>();
+                GetTree().CurrentScene.AddChild(effect);
+                effect.GlobalPosition = target.GetAimPoint();
+                effect.Scale = Vector3.One * 0.5f;
+            }
+        }
+        if (hits > 0) GameManager.Instance?.RequestHitStop(0.04f);
+        EmitSignal(SignalName.MeleeHit, hits);
+    }
+
+    private void ShowMeleeSwing()
+    {
+        var surface = new SurfaceTool();
+        surface.Begin(Mesh.PrimitiveType.Triangles);
+        const int segments = 16;
+        for (int i = 0; i < segments; i++)
+        {
+            float a = Mathf.DegToRad(-MeleeArcDegrees * 0.5f + MeleeArcDegrees * i / segments);
+            float b = Mathf.DegToRad(-MeleeArcDegrees * 0.5f + MeleeArcDegrees * (i + 1) / segments);
+            Vector3 innerA = new Vector3(Mathf.Sin(a), 0, -Mathf.Cos(a)) * (MeleeRange * 0.45f);
+            Vector3 outerA = new Vector3(Mathf.Sin(a), 0, -Mathf.Cos(a)) * MeleeRange;
+            Vector3 innerB = new Vector3(Mathf.Sin(b), 0, -Mathf.Cos(b)) * (MeleeRange * 0.45f);
+            Vector3 outerB = new Vector3(Mathf.Sin(b), 0, -Mathf.Cos(b)) * MeleeRange;
+            foreach (Vector3 point in new[] { innerA, outerA, innerB, outerA, outerB, innerB }) surface.AddVertex(point);
+        }
+        var material = new StandardMaterial3D
+        {
+            ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+            Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+            CullMode = BaseMaterial3D.CullModeEnum.Disabled,
+            AlbedoColor = new Color(1, 0.8f, 0.28f, 0.75f)
+        };
+        var swing = new MeshInstance3D { Mesh = surface.Commit(), MaterialOverride = material };
+        GetTree().CurrentScene.AddChild(swing);
+        swing.GlobalPosition = GlobalPosition + Vector3.Up * 0.9f;
+        swing.GlobalRotation = Visuals?.GlobalRotation ?? GlobalRotation;
+        Tween tween = swing.CreateTween();
+        tween.TweenProperty(material, "albedo_color:a", 0.0f, 0.2);
+        tween.TweenCallback(Callable.From(swing.QueueFree));
+    }
+
+    private CombatHurtbox ResolveAttackTarget(CombatHurtbox target, float range)
+    {
+        if (!AutoAimEnabled) return null;
+        return IsInstanceValid(target) && CanAimAt(target, range) ? target : AcquireAttackTarget(range);
+    }
+
+    private CombatHurtbox AcquireAttackTarget(float range)
+    {
+        if (!AutoAimEnabled) return null;
+        CombatHurtbox nearest = null;
+        float bestScore = float.MaxValue;
+        Vector3 origin = GlobalPosition + Vector3.Up * 1.25f;
+        Vector3 forward = ResolveSpellDirection();
+        foreach (Node node in GetTree().GetNodesInGroup("combat_hurtbox"))
+        {
+            if (node is not CombatHurtbox target || !CanAimAt(target, range)) continue;
+            Vector3 offset = target.GetAimPoint() - origin;
+            float score = offset.Length() + (1 - forward.Dot(offset.Normalized())) * 1.5f;
+            if (score >= bestScore) continue;
+            nearest = target;
+            bestScore = score;
+        }
+        return nearest;
+    }
+
+    private bool CanAimAt(CombatHurtbox target, float range)
+    {
+        if (!IsInstanceValid(target) || !target.IsTargetable || IsAncestorOf(target)) return false;
+        Vector3 origin = GlobalPosition + Vector3.Up * 1.25f;
+        Vector3 destination = target.GetAimPoint();
+        if (origin.DistanceSquaredTo(destination) > range * range) return false;
+        var query = PhysicsRayQueryParameters3D.Create(origin, destination);
+        query.Exclude.Add(GetRid());
+        query.CollideWithAreas = false;
+        var hit = GetWorld3D().DirectSpaceState.IntersectRay(query);
+        if (hit.Count == 0) return true;
+        Node collider = hit["collider"].AsGodotObject() as Node;
+        return collider != null && (collider == target || collider.IsAncestorOf(target));
+    }
+
+    private void FaceAttackTarget(CombatHurtbox target)
+    {
+        if (!IsInstanceValid(target) || Visuals == null) return;
+        Vector3 offset = target.GetAimPoint() - GlobalPosition;
+        if (new Vector2(offset.X, offset.Z).LengthSquared() > 0.001f)
+            Visuals.GlobalRotation = new Vector3(0, Mathf.Atan2(-offset.X, -offset.Z), 0);
+    }
+
+    private void InstallMeleeAnimation()
+    {
+        AnimationPlayer player = ResolveActiveAnimationPlayer();
+        if (player == null || MeleeAnimation == null || AnimTree.TreeRoot is not AnimationNodeStateMachine machine) return;
+        Animation clip = (Animation)MeleeAnimation.Duplicate();
+        Animation reference = player.GetAnimation("Mixamo/cast");
+        string skeletonPath = "RootNode/Skeleton3D";
+        for (int i = 0; reference != null && i < reference.GetTrackCount(); i++)
+        {
+            string path = reference.TrackGetPath(i).ToString();
+            if (path.Contains("Skeleton3D:", System.StringComparison.Ordinal)) { skeletonPath = path.Split(':')[0]; break; }
+        }
+        for (int i = clip.GetTrackCount() - 1; i >= 0; i--)
+        {
+            string path = clip.TrackGetPath(i).ToString();
+            int colon = path.IndexOf(':');
+            if (colon < 0 || !path.Contains("Skeleton3D")) { clip.RemoveTrack(i); continue; }
+            clip.TrackSetPath(i, new NodePath(skeletonPath + path.Substring(colon)));
+        }
+        clip.LoopMode = Animation.LoopModeEnum.None;
+        // Fit the supplied swing to the attack recovery without replacing existing clips.
+        float rate = (float)clip.Length / Mathf.Max(0.1f, MeleeRecovery);
+        for (int i = 0; i < clip.GetTrackCount(); i++)
+            for (int key = 0; key < clip.TrackGetKeyCount(i); key++)
+                clip.TrackSetKeyTime(i, key, clip.TrackGetKeyTime(i, key) / rate);
+        clip.Length = MeleeRecovery;
+        var library = new AnimationLibrary();
+        library.AddAnimation("strike", clip);
+        if (player.HasAnimationLibrary("Melee")) player.RemoveAnimationLibrary("Melee");
+        player.AddAnimationLibrary("Melee", library);
+        machine = (AnimationNodeStateMachine)machine.Duplicate();
+        machine.AddNode("Melee", new AnimationNodeAnimation { Animation = "Melee/strike" });
+        foreach (string state in new[] { "Idle", "Walk", "Run" })
+            machine.AddTransition(state, "Melee", new AnimationNodeStateMachineTransition());
+        machine.AddTransition("Melee", "Idle", new AnimationNodeStateMachineTransition());
+        AnimTree.TreeRoot = machine;
     }
 
     public void NotifySpellHit(int spellIndex, int hitNumber, int maxTargetHits)

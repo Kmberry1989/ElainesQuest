@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="PackedScene" path="res://Assets/Models/Enemies/Jacko.fbx" id="1_model"]
 [ext_resource type="Script" path="res://Scripts/Combat/EnemyCombatant.cs" id="2_enemy"]
@@ -12,6 +12,8 @@
 [ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Swiping.fbx" id="10_swipe"]
 [ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Dying.fbx" id="11_death"]
 [ext_resource type="PackedScene" path="res://Scenes/Combat/SpellImpact.tscn" id="12_impact"]
+
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Shove Reaction.fbx" id="13_hit"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.45
@@ -47,6 +49,7 @@ RunAnimationScene = ExtResource("8_run")
 AttackAnimationScene = ExtResource("9_attack")
 SecondaryAttackAnimationScene = ExtResource("10_swipe")
 DeathAnimationScene = ExtResource("11_death")
+HitAnimationScene = ExtResource("13_hit")
 Visuals = NodePath("Visuals")
 Health = NodePath("Health")
 CollisionShape = NodePath("CollisionShape3D")

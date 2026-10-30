@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 public partial class CombatSandboxVerifier : Node3D
 {
     [Export] public ElaineController Player;
+    [Export] public PackedScene JackoScene;
     [Export] public PackedScene CorkrotScene;
     [Export] public PackedScene FungalBlightScene;
     [Export] public PackedScene RustBucketBobScene;
@@ -24,7 +25,7 @@ public partial class CombatSandboxVerifier : Node3D
             return;
         }
 
-        if (HasVerificationArgument("--verify-spells") || HasVerificationArgument("--verify-enemies"))
+        if (HasVerificationArgument("--verify-spells") || HasVerificationArgument("--verify-enemies") || HasVerificationArgument("--verify-controls") || HasVerificationArgument("--verify-attacks"))
         {
             Player.SpellProjectilesReleased += OnSpellProjectilesReleased;
             Player.SpellHit += OnSpellHit;
@@ -46,6 +47,8 @@ public partial class CombatSandboxVerifier : Node3D
 
     private async void RunVerification()
     {
+        // Keep the manual-range enemy from intercepting deterministic target tests.
+        GetParent().GetNodeOrNull("Jacko")?.QueueFree();
         await WaitSeconds(0.4f);
         Player.GlobalPosition = new Vector3(0.0f, 1.2f, 4.0f);
         Player.Velocity = Vector3.Zero;
@@ -55,6 +58,17 @@ public partial class CombatSandboxVerifier : Node3D
         }
 
         await WaitSeconds(0.4f);
+
+        if (HasVerificationArgument("--verify-attacks"))
+        {
+            await VerifyAttacks();
+            return;
+        }
+        if (HasVerificationArgument("--verify-controls"))
+        {
+            await VerifyControls();
+            return;
+        }
 
         bool passed;
         if (HasVerificationArgument("--verify-enemies"))
@@ -85,13 +99,226 @@ public partial class CombatSandboxVerifier : Node3D
         GetTree().Quit(passed ? 0 : 1);
     }
 
+    private async Task VerifyAttacks()
+    {
+        bool passed = true;
+        void Check(bool condition, string description)
+        {
+            passed &= condition;
+            GD.Print($"ATTACK_VERIFY: {(condition ? "PASS" : "FAIL")} {description}");
+        }
+        GetTree().CurrentScene.GetNodeOrNull("Jacko")?.QueueFree();
+        await WaitSeconds(0.1f);
+        Vector3 home = new(0, 0.1f, 4);
+        Player.AutoAimEnabled = true;
+        for (int spell = 0; spell < 3; spell++)
+        {
+            ClearStageTargets();
+            Player.RespawnTo(home);
+            Player.Visuals.GlobalRotation = Vector3.Zero;
+            Player.SelectSpell(spell);
+            Vector3 position = spell switch {
+                1 => new Vector3(0, 1.25f, 10), // Behind Elaine.
+                2 => new Vector3(5, 3.5f, 4), // Above the casting plane.
+                _ => new Vector3(6, 1.25f, 4), // Ninety degrees to the side.
+            };
+            CombatHealth target = CreateTarget("Autoaim", position, 10, false);
+            await WaitSeconds(0.2f);
+            bool accepted = Player.TryCastSelectedSpell();
+            await WaitSeconds(1.0f);
+            Check(accepted && target.CurrentHealth < 10, $"spell {spell} autoaim hits side/behind/elevated target");
+        }
+
+        ClearStageTargets();
+        Player.RespawnTo(home);
+        Player.SelectSpell(0);
+        Player.Visuals.GlobalRotation = Vector3.Zero;
+        CombatHealth hidden = CreateTarget("Hidden", new Vector3(0, 1.25f, 2), 10, false);
+        ((Node3D)hidden.GetParent()).Visible = false;
+        hidden.GetParent().ProcessMode = ProcessModeEnum.Disabled;
+        CombatHealth blocked = CreateTarget("BehindWall", new Vector3(5, 1.25f, 4), 10, false);
+        CombatHealth clear = CreateTarget("Clear", new Vector3(-5, 1.25f, 4), 10, false);
+        StaticBody3D wall = new();
+        wall.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(0.2f, 4, 4) } });
+        GetTree().CurrentScene.AddChild(wall);
+        wall.GlobalPosition = new Vector3(2.5f, 2, 4);
+        await WaitSeconds(0.2f);
+        Player.TryCastSelectedSpell();
+        await WaitSeconds(1);
+        Check(clear.CurrentHealth < 10 && blocked.CurrentHealth == 10 && hidden.CurrentHealth == 10,
+            "autoaim ignores inactive targets and walls");
+        wall.QueueFree();
+
+        ClearStageTargets();
+        Player.RespawnTo(home);
+        CombatHealth doomed = CreateTarget("Doomed", new Vector3(3, 1.25f, 4), 10, false);
+        CombatHealth replacement = CreateTarget("Replacement", new Vector3(6, 1.25f, 4), 10, false);
+        await WaitSeconds(0.2f);
+        Player.TryCastSelectedSpell();
+        doomed.ApplyDamage(999);
+        await WaitSeconds(1);
+        Check(replacement.CurrentHealth < 10, "dead target is reacquired before release");
+
+        ClearStageTargets();
+        Player.RespawnTo(home);
+        Player.Visuals.GlobalRotation = Vector3.Zero;
+        CombatHealth near = CreateTarget("Near", new Vector3(2, 1.1f, 4), 10, false);
+        CombatHealth alongside = CreateTarget("Alongside", new Vector3(2, 1.1f, 4.5f), 10, false);
+        CombatHealth rear = CreateTarget("Rear", new Vector3(-2, 1.1f, 4), 10, false);
+        CombatHealth far = CreateTarget("Far", new Vector3(5, 1.1f, 4), 10, false);
+        var duplicate = new CombatHurtbox { Health = near };
+        near.GetParent().AddChild(duplicate);
+        duplicate.AddChild(new CollisionShape3D { Shape = new SphereShape3D { Radius = 0.4f } });
+        await WaitSeconds(0.2f);
+        AnimationPlayer animation = Player.AnimTree.GetNode<AnimationPlayer>(Player.AnimTree.AnimPlayer);
+        Check(animation.HasAnimation("Melee/strike"), "supplied melee animation installed");
+        Skeleton3D skeleton = Player.Visuals.FindChild("Skeleton3D", true, false) as Skeleton3D;
+        Transform3D[] beforePose = CapturePose(skeleton);
+        bool meleeAccepted = Player.TryMeleeAttack();
+        Check(meleeAccepted && !Player.TryMeleeAttack() && !Player.TryCastSelectedSpell(), "melee cooldown and action exclusivity");
+        await WaitSeconds(0.1f);
+        Check(Player.AnimTree.Get("parameters/playback").As<AnimationNodeStateMachinePlayback>().GetCurrentNode() == "Melee", "melee animation state plays");
+        Check(EnemyCombatant.MeasureAnimationPoseDelta(beforePose, CapturePose(skeleton)) > 0.001f, "melee animates the actual character bones");
+        await WaitSeconds(0.17f);
+        foreach (string argument in OS.GetCmdlineUserArgs())
+        {
+            if (!argument.StartsWith("--attack-capture=", System.StringComparison.Ordinal)) continue;
+            await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            GetViewport().GetTexture().GetImage().SavePng(argument.Substring("--attack-capture=".Length));
+        }
+        await WaitSeconds(0.63f);
+        Check(Mathf.IsEqualApprox(near.CurrentHealth, 10 - Player.MeleeDamage) &&
+            Mathf.IsEqualApprox(alongside.CurrentHealth, 10 - Player.MeleeDamage) &&
+            rear.CurrentHealth == 10 && far.CurrentHealth == 10, "melee arc, autoaim, range and one hit per health component");
+
+        Player.RespawnTo(home);
+        await WaitSeconds(0.1f);
+        float before = near.CurrentHealth;
+        Player.TryMeleeAttack();
+        Player.RespawnTo(home);
+        await WaitSeconds(0.4f);
+        Check(near.CurrentHealth == before, "respawn cancels pending melee damage");
+        wall = new StaticBody3D();
+        wall.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(0.1f, 4, 6) } });
+        GetTree().CurrentScene.AddChild(wall);
+        wall.GlobalPosition = new Vector3(1, 2, 4);
+        Player.Visuals.GlobalRotation = new Vector3(0, -Mathf.Pi / 2, 0);
+        Player.AutoAimEnabled = false;
+        await WaitSeconds(0.2f);
+        Player.TryMeleeAttack();
+        await WaitSeconds(0.8f);
+        Check(near.CurrentHealth == before, "melee cannot hit through walls");
+        wall.QueueFree();
+        ClearStageTargets();
+        Player.RespawnTo(home);
+        await WaitSeconds(0.2f);
+        Input.ParseInputEvent(new InputEventKey { PhysicalKeycode = Key.R, Pressed = true });
+        await WaitSeconds(0.1f);
+        Input.ParseInputEvent(new InputEventKey { PhysicalKeycode = Key.R, Pressed = false });
+        Check(Player.GetMeleeCooldownRemaining() > 0, "R key starts melee through real input dispatch");
+        Player.RespawnTo(home);
+        await WaitSeconds(0.2f);
+        Input.ParseInputEvent(new InputEventJoypadMotion { Device = 3, Axis = JoyAxis.TriggerRight, AxisValue = 1 });
+        await WaitSeconds(0.1f);
+        Input.ParseInputEvent(new InputEventJoypadMotion { Device = 3, Axis = JoyAxis.TriggerRight, AxisValue = 0 });
+        Check(Player.GetMeleeCooldownRemaining() > 0, "right trigger works on a nonzero controller slot");
+        await WaitSeconds(1.0f);
+        GD.Print($"ATTACK_VERIFY: {(passed ? "PASS" : "FAIL")} — autoaim and melee contracts");
+        GetTree().Quit(passed ? 0 : 1);
+    }
+
+    private static Transform3D[] CapturePose(Skeleton3D skeleton)
+    {
+        if (skeleton == null) return System.Array.Empty<Transform3D>();
+        var result = new Transform3D[skeleton.GetBoneCount()];
+        for (int i = 0; i < result.Length; i++) result[i] = skeleton.GetBonePose(i);
+        return result;
+    }
+
+    private async Task VerifyControls()
+    {
+        bool passed = true;
+        void Check(bool condition, string description)
+        {
+            passed &= condition;
+            GD.Print($"CONTROLS_VERIFY: {(condition ? "PASS" : "FAIL")} {description}");
+        }
+
+        // Test real input and physics instead of directly setting the facing angle.
+        foreach (var move in new[] {
+            ("move_forward", Vector3.Forward), ("move_backward", Vector3.Back),
+            ("move_left", Vector3.Left), ("move_right", Vector3.Right) })
+        {
+            Player.RespawnTo(new Vector3(0, 0.1f, 4));
+            await WaitSeconds(0.2f);
+            Vector3 start = Player.GlobalPosition;
+            Input.ActionPress(move.Item1);
+            await WaitSeconds(0.45f);
+            Input.ActionRelease(move.Item1);
+            Check((Player.GlobalPosition - start).Dot(move.Item2) > 0.5f, move.Item1 + " moves correctly");
+            Check((-Player.Visuals.GlobalBasis.Z).Dot(move.Item2) > 0.98f, move.Item1 + " faces and casts along movement");
+            Check((Player.SpellOrigin.GlobalPosition - Player.GlobalPosition).Dot(move.Item2) > 0.8f, "spell origin stays ahead");
+            await WaitSeconds(0.4f);
+        }
+
+        Player.RespawnTo(new Vector3(0, 0.1f, 4));
+        await WaitSeconds(0.2f);
+        Input.ActionPress("spell_wheel");
+        Input.ActionPress("jump");
+        Input.ActionPress("move_right");
+        bool wheelCastRejected = !Player.TryCastSelectedSpell() && !Player.TryMeleeAttack();
+        await WaitSeconds(0.15f);
+        Check(wheelCastRejected && Player.IsOnFloor() && Player.Velocity.Length() < 0.1f, "wheel blocks casting, jumping and walking");
+        Input.ActionRelease("spell_wheel");
+        Input.ActionRelease("jump");
+        Input.ActionRelease("move_right");
+
+        DialogueUI dialogue = GD.Load<PackedScene>("res://Scenes/UI/DialogueUI.tscn").Instantiate<DialogueUI>();
+        GetTree().CurrentScene.AddChild(dialogue);
+        dialogue.ShowDialogue("Audit", "Control isolation");
+        Input.ActionPress("jump");
+        Input.ActionPress("move_right");
+        bool dialogueCastRejected = !Player.TryCastSelectedSpell() && !Player.TryMeleeAttack();
+        await WaitSeconds(0.15f);
+        Check(dialogueCastRejected && Player.IsOnFloor() && Player.Velocity.Length() < 0.1f, "dialogue blocks casting, jumping and walking");
+        Input.ActionRelease("jump");
+        Input.ActionRelease("move_right");
+        dialogue.HideDialogue();
+        dialogue.QueueFree();
+
+        // A buffered input from an interrupted cast must not fire after respawn.
+        Check(Player.TryCastSelectedSpell(), "grounded cast accepted");
+        Player._UnhandledInput(new InputEventAction { Action = "cast_magic", Pressed = true });
+        Player.RespawnTo(new Vector3(0, 0.1f, 4));
+        await WaitSeconds(0.1f);
+        Check(Player.GetSpellCooldownRemaining() == 0, "respawn clears buffered casting");
+        Check(!Player.SelectSpell(-1) && !Player.SelectSpell(Player.GetSpellCount()), "invalid spell selection rejected");
+        StaticBody3D wall = new();
+        wall.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(0.02f, 4, 4) } });
+        GetTree().CurrentScene.AddChild(wall);
+        wall.GlobalPosition = new Vector3(0, 2, -4);
+        await WaitSeconds(0.1f);
+        SpellProjectile fastSpell = new();
+        fastSpell.AddChild(new CollisionShape3D { Shape = new SphereShape3D { Radius = 0.05f } });
+        GetTree().CurrentScene.AddChild(fastSpell);
+        fastSpell.GlobalPosition = new Vector3(-1.1f, 2, -4);
+        fastSpell.Launch(Player, Vector3.Right, 1, 120, 100);
+        await WaitSeconds(0.1f);
+        Check(!IsInstanceValid(fastSpell) || fastSpell.IsQueuedForDeletion(), "fast projectile cannot tunnel through thin wall");
+        if (IsInstanceValid(fastSpell)) fastSpell.QueueFree();
+        wall.QueueFree();
+        GD.Print($"CONTROLS_VERIFY: {(passed ? "PASS" : "FAIL")} — movement, facing, modal controls, respawn buffer, projectile sweep");
+        GetTree().Quit(passed ? 0 : 1);
+    }
+
     private async Task<bool> VerifyEnemies()
     {
+        bool jackoPassed = await VerifyEnemy("Jacko", JackoScene, new[] { "idle", "walk", "run", "attack", "swipe", "hit", "death" }, true);
         bool corkrotPassed = await VerifyEnemy("Corkrot", CorkrotScene, new[] { "idle", "walk", "run", "attack", "hit", "death" }, false);
         bool fungalPassed = await VerifyEnemy("Fungal Blight", FungalBlightScene, new[] { "idle", "walk", "run", "attack", "hit", "death" }, false);
         bool bossPassed = await VerifyEnemy("RustBucketBob", RustBucketBobScene, new[] { "idle", "walk", "run", "attack", "swipe", "hit", "death" }, true);
         bool wardenPassed = await VerifyEnemy("Briar Warden", BriarWardenScene, new[] { "idle", "walk", "run", "attack", "swipe", "hit", "death" }, true);
-        return corkrotPassed && fungalPassed && bossPassed && wardenPassed;
+        return jackoPassed && corkrotPassed && fungalPassed && bossPassed && wardenPassed;
     }
 
     private async Task<bool> VerifyEnemy(string displayName, PackedScene scene, IReadOnlyList<string> requiredClips, bool expectsSecondaryAttack)
@@ -218,6 +445,9 @@ public partial class CombatSandboxVerifier : Node3D
         Vector3 origin = GetSpellOrigin();
         Vector3 direction = GetFacingDirection();
         CombatHealth first = CreateTarget("Sky Lance First", origin + direction * 5.0f, 3.0f, false);
+        var duplicateHurtbox = new CombatHurtbox { Health = first };
+        first.GetParent().AddChild(duplicateHurtbox);
+        duplicateHurtbox.AddChild(new CollisionShape3D { Shape = new SphereShape3D { Radius = 0.5f } });
         CombatHealth second = CreateTarget("Sky Lance Second", origin + direction * 9.0f, 3.0f, false);
         return await CastAndAssert("Sky Lance", 2, 1, new[] { first, second }, 2, 2);
     }

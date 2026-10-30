@@ -119,10 +119,10 @@ public partial class EnemyCombatant : CharacterBody3D
                 hasSkeletonTrack = true;
             }
 
-            if (string.IsNullOrWhiteSpace(nodePath) || animationRoot.GetNodeOrNull<Node>(nodePath) == null)
-            {
-                return false;
-            }
+            Node target = string.IsNullOrWhiteSpace(nodePath) ? null : animationRoot.GetNodeOrNull<Node>(nodePath);
+            if (target == null) return false;
+            if (target is Skeleton3D skeleton && propertySeparator >= 0 &&
+                skeleton.FindBone(trackPath.Substring(propertySeparator + 1)) < 0) return false;
         }
 
         return hasSkeletonTrack;
@@ -391,7 +391,7 @@ public partial class EnemyCombatant : CharacterBody3D
         }
 
         Animation rebuilt = (Animation)animation.Duplicate();
-        NormalizeTrackPaths(rebuilt);
+        NormalizeTrackPaths(rebuilt, node.FindChild("Skeleton3D", true, false) as Skeleton3D);
         rebuilt.LoopMode = shouldLoop ? Animation.LoopModeEnum.Linear : Animation.LoopModeEnum.None;
         library.AddAnimation(libraryName, rebuilt);
         hasAnimations = true;
@@ -413,18 +413,50 @@ public partial class EnemyCombatant : CharacterBody3D
         return animationPlayer.GetAnimationList()[0];
     }
 
-    private static void NormalizeTrackPaths(Animation animation)
+    private void NormalizeTrackPaths(Animation animation, Skeleton3D sourceSkeleton)
     {
-        for (int i = 0; i < animation.GetTrackCount(); i++)
+        Skeleton3D targetSkeleton = Visuals?.FindChild("Skeleton3D", true, false) as Skeleton3D;
+        for (int i = animation.GetTrackCount() - 1; i >= 0; i--)
         {
             string path = animation.TrackGetPath(i).ToString();
-            int skeletonIndex = path.IndexOf("Skeleton3D", System.StringComparison.Ordinal);
-            if (skeletonIndex == -1)
-            {
-                continue;
-            }
-
+            int skeletonIndex = path.IndexOf("Skeleton3D", StringComparison.Ordinal);
+            if (skeletonIndex == -1) continue;
             string trimmed = path.Substring(skeletonIndex);
+            int colon = trimmed.IndexOf(':');
+            if (colon >= 0 && targetSkeleton != null)
+            {
+                string sourceBone = trimmed.Substring(colon + 1);
+                string targetBone = sourceBone;
+                if (targetSkeleton.FindBone(targetBone) < 0)
+                {
+                    // Jacko uses Blender-style names and centimetre bone translations.
+                    targetBone = sourceBone.Replace("mixamorig_", "", StringComparison.Ordinal);
+                    string side = targetBone.StartsWith("Left", StringComparison.Ordinal) ? ".L"
+                        : targetBone.StartsWith("Right", StringComparison.Ordinal) ? ".R" : "";
+                    if (side.Length > 0) targetBone = targetBone.Substring(side == ".L" ? 4 : 5);
+                    targetBone = targetBone.ToLowerInvariant() + side;
+                }
+                int targetIndex = targetSkeleton.FindBone(targetBone);
+                if (targetIndex < 0) { animation.RemoveTrack(i); continue; }
+                int sourceIndex = sourceSkeleton?.FindBone(sourceBone) ?? -1;
+                if (sourceBone != targetBone && sourceIndex >= 0)
+                {
+                    Transform3D sourceRest = sourceSkeleton.GetBoneRest(sourceIndex);
+                    Transform3D targetRest = targetSkeleton.GetBoneRest(targetIndex);
+                    float scale = sourceRest.Origin.Length() > 0.00001f
+                        ? targetRest.Origin.Length() / sourceRest.Origin.Length() : 1;
+                    Quaternion rotationOffset = targetRest.Basis.GetRotationQuaternion() * sourceRest.Basis.GetRotationQuaternion().Inverse();
+                    for (int key = 0; key < animation.TrackGetKeyCount(i); key++)
+                    {
+                        Variant value = animation.TrackGetKeyValue(i, key);
+                        if (animation.TrackGetType(i) == Animation.TrackType.Position3D)
+                            animation.TrackSetKeyValue(i, key, targetRest.Origin + (value.AsVector3() - sourceRest.Origin) * scale);
+                        else if (animation.TrackGetType(i) == Animation.TrackType.Rotation3D)
+                            animation.TrackSetKeyValue(i, key, (rotationOffset * value.AsQuaternion()).Normalized());
+                    }
+                }
+                trimmed = trimmed.Substring(0, colon + 1) + targetBone;
+            }
             animation.TrackSetPath(i, new NodePath(trimmed));
         }
     }
@@ -702,7 +734,8 @@ public partial class EnemyCombatant : CharacterBody3D
 
     private float ResolveAnimationDuration(string clipName, float fallback)
     {
-        Animation animation = _animationPlayer?.GetAnimation($"Enemy/{clipName}");
+        Animation animation = _animationPlayer != null && _animationPlayer.HasAnimation($"Enemy/{clipName}")
+            ? _animationPlayer.GetAnimation($"Enemy/{clipName}") : null;
         return animation == null ? fallback : (float)animation.Length;
     }
 

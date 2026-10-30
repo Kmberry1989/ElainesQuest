@@ -1,0 +1,7 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+Glimmers: 4
+Glimmers: 9
+Glimmers: 31
+CAVE_VERIFY: PASS (opening True, pressure True, boss True, complete True)
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.

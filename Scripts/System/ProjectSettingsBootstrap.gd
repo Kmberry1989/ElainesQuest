@@ -47,6 +47,7 @@ func configure_input_map() -> void:
 	], ANALOG_DEADZONE)
 	set_action("jump", [make_key_event(KEY_SPACE), make_joy_button_event(JOY_BUTTON_A)])
 	set_action("interact", [make_key_event(KEY_E), make_joy_button_event(JOY_BUTTON_X)])
+	set_action("melee_attack", [make_key_event(KEY_R), make_joy_axis_event(JOY_AXIS_TRIGGER_RIGHT, 1.0)])
 	set_action("emote", [make_key_event(KEY_Q), make_joy_button_event(JOY_BUTTON_Y)])
 	set_action("cast_magic", [make_key_event(KEY_F), make_joy_button_event(JOY_BUTTON_RIGHT_SHOULDER)])
 	set_action("spell_wheel", [make_key_event(KEY_TAB), make_joy_button_event(JOY_BUTTON_LEFT_SHOULDER)])

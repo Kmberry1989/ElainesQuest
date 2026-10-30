@@ -1,0 +1,21 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+CONTROLS_VERIFY: PASS move_forward moves correctly
+CONTROLS_VERIFY: PASS move_forward faces and casts along movement
+CONTROLS_VERIFY: PASS spell origin stays ahead
+CONTROLS_VERIFY: PASS move_backward moves correctly
+CONTROLS_VERIFY: PASS move_backward faces and casts along movement
+CONTROLS_VERIFY: PASS spell origin stays ahead
+CONTROLS_VERIFY: PASS move_left moves correctly
+CONTROLS_VERIFY: PASS move_left faces and casts along movement
+CONTROLS_VERIFY: PASS spell origin stays ahead
+CONTROLS_VERIFY: PASS move_right moves correctly
+CONTROLS_VERIFY: PASS move_right faces and casts along movement
+CONTROLS_VERIFY: PASS spell origin stays ahead
+CONTROLS_VERIFY: PASS wheel blocks casting, jumping and walking
+CONTROLS_VERIFY: PASS dialogue blocks casting, jumping and walking
+CONTROLS_VERIFY: PASS grounded cast accepted
+CONTROLS_VERIFY: PASS respawn clears buffered casting
+CONTROLS_VERIFY: PASS invalid spell selection rejected
+CONTROLS_VERIFY: PASS fast projectile cannot tunnel through thin wall
+CONTROLS_VERIFY: PASS — movement, facing, modal controls, respawn buffer, projectile sweep

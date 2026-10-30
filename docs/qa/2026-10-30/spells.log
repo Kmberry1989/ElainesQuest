@@ -1,0 +1,7 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+SPELL_VERIFY: Sun Ember PASS (released 1/1, damaged 1/1, hits 1/1)
+SPELL_VERIFY: Star Volley PASS (released 3/3, damaged 3/3, hits 3/3)
+SPELL_VERIFY: Sky Lance PASS (released 1/1, damaged 2/2, hits 2/2)
+SPELL_VERIFY: PASS — Sun Ember, Star Volley, and Sky Lance contracts succeeded.
+ERROR: 3 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.

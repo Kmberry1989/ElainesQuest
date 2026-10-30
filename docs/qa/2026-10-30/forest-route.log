@@ -1,0 +1,19 @@
+Godot Engine v4.7.stable.mono.official.5b4e0cb0f - https://godotengine.org
+
+Toby has moved to the Hub!
+Glimmers: 5
+Glimmers: 13
+Glimmers: 19
+Glimmers: 29
+Glimmers: 35
+FOREST_ROUTE_VERIFY: PASS encounter gates unlock
+FOREST_ROUTE_VERIFY: PASS jump and land on StepPlatformA at (-2.266328, 0.900239, 0.0)
+FOREST_ROUTE_VERIFY: PASS jump and land on StepPlatformB at (5.783981, 1.900211, 0.0)
+FOREST_ROUTE_VERIFY: PASS jump and land on LowerArena at (11.73405, 2.900132, 0.0)
+FOREST_ROUTE_VERIFY: PASS jump and land on RidgeBridge at (29.81775, 4.70083, 0.0)
+FOREST_ROUTE_VERIFY: PASS jump and land on CliffStep at (39.73437, 6.200829, 0.0)
+FOREST_ROUTE_VERIFY: PASS jump and land on UpperArena at (44.75102, 7.90068, 0.0)
+Glimmers: 36
+FOREST_ROUTE_VERIFY: PASS jump and land on FinalSanctuary at (62.71758, 9.400847, 0.0)
+FOREST_ROUTE_VERIFY: PASS
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.

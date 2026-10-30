@@ -208,6 +208,11 @@ enabled=PackedStringArray("res://addons/PlantGenerator/plugin.cfg", "res://addon
 
 [input]
 
+melee_attack={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":82), Object(InputEventJoypadMotion,"device":-1,"axis":5,"axis_value":1.0)]
+}
+
 ui_cancel={
 "deadzone": 0.5,
 "events": Array[InputEvent]([Object(InputEventKey,
