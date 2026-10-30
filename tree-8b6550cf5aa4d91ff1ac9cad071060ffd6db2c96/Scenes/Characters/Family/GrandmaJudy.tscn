@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/System/RuntimeGltfModel.cs" id="1_runtime_model"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_1"]
+radius = 0.35
+mid_height = 1.1
+
+[node name="GrandmaJudy" type="Node3D"]
+
+[node name="Visuals" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.0, 0)
+script = ExtResource("1_runtime_model")
+ModelPath = "res://Assets/Models/Family/Grandma_Judy-model.glb"
+

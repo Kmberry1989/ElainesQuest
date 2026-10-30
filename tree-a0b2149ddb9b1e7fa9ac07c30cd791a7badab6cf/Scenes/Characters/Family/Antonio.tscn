@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/System/RuntimeGltfModel.cs" id="1_runtime_model"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_1"]
+radius = 0.35
+mid_height = 1.1
+
+[node name="Antonio" type="Node3D"]
+
+[node name="Visuals" type="Node3D" parent="."]
+script = ExtResource("1_runtime_model")
+DisplayHeight = 1.8
+DefaultAnimation = "Mixamo/idle"
+ModelPath = "res://Assets/RuntimeModels/Models/Family/Antonio-model.glb"
+

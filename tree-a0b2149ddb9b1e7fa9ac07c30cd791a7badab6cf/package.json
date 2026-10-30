@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "archiver": "^8.0.0"
+  },
+  "devDependencies": {
+    "@gltf-transform/core": "3.4.5",
+    "@gltf-transform/extensions": "3.4.5",
+    "@gltf-transform/functions": "3.4.5"
+  }
+}

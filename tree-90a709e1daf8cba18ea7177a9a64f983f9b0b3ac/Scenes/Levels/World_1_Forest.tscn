@@ -1,0 +1,312 @@
+[gd_scene load_steps=27 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Player/Elaine.tscn" id="1_elaine"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Collectible.tscn" id="2_collectible"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/HazardVolume.tscn" id="3_hazard"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Checkpoint.tscn" id="4_checkpoint"]
+[ext_resource type="Script" path="res://Scripts/Camera/PlatformerCamera.cs" id="5_camera"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/LevelPortal.tscn" id="6_portal"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/FamilyRescue.tscn" id="7_family_rescue"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Wildlife/Toby.tscn" id="8_toby"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/HUD.tscn" id="9_hud"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/DialogueUI.tscn" id="10_dialogue"]
+[ext_resource type="PackedScene" path="res://Scenes/Environment/OutdoorAddons.tscn" id="11_outdoor"]
+[ext_resource type="PackedScene" uid="uid://c5qpths8recvk" path="res://Assets/Models/Environment/wood_platform.glb" id="12_platform"]
+[ext_resource type="PackedScene" uid="uid://dkbyxlgdt3b1e" path="res://Assets/Models/Environment/small_bridge.glb" id="13_bridge"]
+[ext_resource type="PackedScene" uid="uid://cgvvnr5ldqk5b" path="res://Assets/Models/Environment/rounded_tree.glb" id="14_tree"]
+[ext_resource type="PackedScene" uid="uid://xhq8dy5dutw3" path="res://Assets/Models/Environment/circle_flowers.glb" id="15_flowers"]
+[ext_resource type="PackedScene" uid="uid://cvm53fvr7aluj" path="res://Assets/Models/Environment/lamp_post1.glb" id="16_lamp"]
+[ext_resource type="PackedScene" uid="uid://sx577eby4xf8" path="res://Assets/Models/Environment/triple_sign.glb" id="17_signpost"]
+[ext_resource type="PackedScene" uid="uid://ctyvtpw6jf2tp" path="res://Assets/Models/Environment/rocks.glb" id="18_rocks"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/Jacko.tscn" id="19_jacko"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/SpellWisp.tscn" id="20_wisp"]
+[ext_resource type="Script" path="res://Scripts/Levels/ForestAdventureDirector.cs" id="21_director"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_start"]
+size = Vector3(16, 1, 18)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_step"]
+size = Vector3(6, 1, 6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_arena"]
+size = Vector3(14, 1, 14)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bridge"]
+size = Vector3(8, 1, 5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_final"]
+size = Vector3(12, 1, 12)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_barrier"]
+size = Vector3(2.2, 3.6, 7.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hazard"]
+size = Vector3(78, 2, 28)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_barrier"]
+transparency = 1
+albedo_color = Color(0.388, 0.886, 1, 0.3)
+emission_enabled = true
+emission = Color(0.4, 0.93, 1, 1)
+emission_energy_multiplier = 2.2
+
+[sub_resource type="BoxMesh" id="BoxMesh_barrier"]
+size = Vector3(2.2, 3.6, 7.0)
+material = SubResource("StandardMaterial3D_barrier")
+
+[node name="World1Forest" type="Node3D" node_paths=PackedStringArray("FirstGate", "SecondGate", "RescueNode", "ReturnPortal")]
+script = ExtResource("21_director")
+FirstEncounterEnemyPaths = Array[NodePath]([NodePath("SpellWispLower"), NodePath("JackoLower")])
+SecondEncounterEnemyPaths = Array[NodePath]([NodePath("SpellWispUpperA"), NodePath("JackoUpper"), NodePath("SpellWispUpperB")])
+FirstGate = NodePath("FirstEncounterGate")
+SecondGate = NodePath("SecondEncounterGate")
+RescueNode = NodePath("MatthewRescue")
+ReturnPortal = NodePath("ReturnPortal")
+
+[node name="OutdoorAddons" parent="." instance=ExtResource("11_outdoor")]
+grass_center = Vector3(20, 0, 0)
+grass_extent = Vector2i(18, 10)
+grass_spacing = 2
+grass_height = 0.02
+
+[node name="PlayerSpawn" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1.2, 0)
+
+[node name="Elaine" parent="." instance=ExtResource("1_elaine")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1.2, 0)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+script = ExtResource("5_camera")
+Offset = Vector3(0, 5.25, 8.6)
+
+[node name="HUD" parent="." instance=ExtResource("9_hud")]
+
+[node name="DialogueUI" parent="." instance=ExtResource("10_dialogue")]
+
+[node name="StartMeadow" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StartMeadow"]
+shape = SubResource("BoxShape3D_start")
+
+[node name="StartPlatformVisual" parent="StartMeadow" instance=ExtResource("12_platform")]
+transform = Transform3D(1.5, 0, 0, 0, 1.0, 0, 0, 0, 1.5, 0, 0.5, 0)
+
+[node name="StartBridge" parent="StartMeadow" instance=ExtResource("13_bridge")]
+transform = Transform3D(1.2, 0, 0, 0, 1.0, 0, 0, 0, 1.2, 4.4, 0.08, 0)
+
+[node name="Toby" parent="." instance=ExtResource("8_toby")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.8, -3.2)
+
+[node name="TrailSignpost" parent="." instance=ExtResource("17_signpost")]
+transform = Transform3D(1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0, -17, 0.0, -4.8)
+
+[node name="StartTreeA" parent="." instance=ExtResource("14_tree")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, -21, 0, -7)
+
+[node name="StartTreeB" parent="." instance=ExtResource("14_tree")]
+transform = Transform3D(1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0, -10, 0, 6)
+
+[node name="StartFlowers" parent="." instance=ExtResource("15_flowers")]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, -14, 0.02, 4)
+
+[node name="CollectibleStartA" parent="." instance=ExtResource("2_collectible")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17, 1.3, 1.5)
+
+[node name="CollectibleStartB" parent="." instance=ExtResource("2_collectible")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 1.3, 2.2)
+
+[node name="StepPlatformA" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.4, -1.8)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StepPlatformA"]
+shape = SubResource("BoxShape3D_step")
+
+[node name="StepPlatformVisual" parent="StepPlatformA" instance=ExtResource("12_platform")]
+transform = Transform3D(0.9, 0, 0, 0, 0.95, 0, 0, 0, 0.9, 0, 0.5, 0)
+
+[node name="CollectibleStepA" parent="." instance=ExtResource("2_collectible")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.9, -1.8)
+
+[node name="StepPlatformB" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 1.4, 1.9)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StepPlatformB"]
+shape = SubResource("BoxShape3D_step")
+
+[node name="StepPlatformVisual" parent="StepPlatformB" instance=ExtResource("12_platform")]
+transform = Transform3D(0.9, 0, 0, 0, 0.95, 0, 0, 0, 0.9, 0, 0.5, 0)
+
+[node name="CollectibleStepB" parent="." instance=ExtResource("2_collectible")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 2.9, 1.9)
+
+[node name="LowerArena" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 2.4, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LowerArena"]
+shape = SubResource("BoxShape3D_arena")
+
+[node name="LowerArenaPlatform" parent="LowerArena" instance=ExtResource("12_platform")]
+transform = Transform3D(1.25, 0, 0, 0, 1.0, 0, 0, 0, 1.25, 0, 0.5, 0)
+
+[node name="LowerArenaRocks" parent="LowerArena" instance=ExtResource("18_rocks")]
+transform = Transform3D(1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0, -4.8, 0.4, -3.8)
+
+[node name="LowerArenaFlowers" parent="LowerArena" instance=ExtResource("15_flowers")]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 4.2, 0.05, 2.6)
+
+[node name="LowerCheckpoint" parent="." instance=ExtResource("4_checkpoint")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, 2.9, 0)
+
+[node name="SpellWispLower" parent="." instance=ExtResource("20_wisp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.0, 2.9, -2.4)
+HoverAmplitude = 0.3
+HoverSpeed = 2.8
+RunSpeed = 4.8
+DetectionRange = 16.0
+PreferredRange = 5.5
+DefeatGlimmers = 5
+
+[node name="JackoLower" parent="." instance=ExtResource("19_jacko")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.8, 2.9, 1.8)
+RunSpeed = 5.1
+AttackCooldown = 1.0
+DefeatGlimmers = 8
+
+[node name="FirstEncounterGate" type="Node3D" parent="."]
+
+[node name="BarrierBody" type="StaticBody3D" parent="FirstEncounterGate"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.8, 4.2, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FirstEncounterGate/BarrierBody"]
+shape = SubResource("BoxShape3D_barrier")
+
+[node name="BarrierMesh" type="MeshInstance3D" parent="FirstEncounterGate/BarrierBody"]
+mesh = SubResource("BoxMesh_barrier")
+
+[node name="BarrierGlow" type="OmniLight3D" parent="FirstEncounterGate/BarrierBody"]
+light_color = Color(0.458824, 0.941176, 1, 1)
+light_energy = 1.35
+omni_range = 9.0
+
+[node name="RidgeBridge" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31, 4.2, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RidgeBridge"]
+shape = SubResource("BoxShape3D_bridge")
+
+[node name="RidgeBridgeVisual" parent="RidgeBridge" instance=ExtResource("13_bridge")]
+transform = Transform3D(1.25, 0, 0, 0, 1.0, 0, 0, 0, 1.25, 0, 0.08, 0)
+
+[node name="BridgeLamp" parent="." instance=ExtResource("16_lamp")]
+transform = Transform3D(1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 28.2, 4.7, -3.2)
+
+[node name="CliffStep" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 5.7, -1.8)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CliffStep"]
+shape = SubResource("BoxShape3D_step")
+
+[node name="CliffStepVisual" parent="CliffStep" instance=ExtResource("12_platform")]
+transform = Transform3D(0.95, 0, 0, 0, 0.95, 0, 0, 0, 0.95, 0, 0.5, 0)
+
+[node name="CollectibleCliff" parent="." instance=ExtResource("2_collectible")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 7.2, -1.8)
+
+[node name="UpperArena" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 49, 7.4, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="UpperArena"]
+shape = SubResource("BoxShape3D_arena")
+
+[node name="UpperArenaPlatform" parent="UpperArena" instance=ExtResource("12_platform")]
+transform = Transform3D(1.3, 0, 0, 0, 1.0, 0, 0, 0, 1.3, 0, 0.5, 0)
+
+[node name="UpperArenaTree" parent="UpperArena" instance=ExtResource("14_tree")]
+transform = Transform3D(1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0, -5.0, 0.0, 4.8)
+
+[node name="UpperArenaRock" parent="UpperArena" instance=ExtResource("18_rocks")]
+transform = Transform3D(0.9, 0, 0, 0, 0.9, 0, 0, 0, 0.9, 4.8, 0.4, -4.2)
+
+[node name="UpperCheckpoint" parent="." instance=ExtResource("4_checkpoint")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.5, 7.9, 1.6)
+
+[node name="SpellWispUpperA" parent="." instance=ExtResource("20_wisp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.6, 7.9, -3.2)
+HoverAmplitude = 0.36
+HoverSpeed = 3.0
+RunSpeed = 5.0
+PreferredRange = 5.0
+DefeatGlimmers = 6
+
+[node name="JackoUpper" parent="." instance=ExtResource("19_jacko")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 49.8, 7.9, 1.2)
+RunSpeed = 5.4
+AttackCooldown = 0.95
+AttackDamage = 1.35
+DefeatGlimmers = 10
+
+[node name="SpellWispUpperB" parent="." instance=ExtResource("20_wisp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 53.0, 7.9, -1.6)
+HoverAmplitude = 0.4
+HoverSpeed = 3.1
+RunSpeed = 5.1
+PreferredRange = 4.8
+DefeatGlimmers = 6
+
+[node name="SecondEncounterGate" type="Node3D" parent="."]
+
+[node name="BarrierBody" type="StaticBody3D" parent="SecondEncounterGate"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58, 9.2, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SecondEncounterGate/BarrierBody"]
+shape = SubResource("BoxShape3D_barrier")
+
+[node name="BarrierMesh" type="MeshInstance3D" parent="SecondEncounterGate/BarrierBody"]
+mesh = SubResource("BoxMesh_barrier")
+
+[node name="BarrierGlow" type="OmniLight3D" parent="SecondEncounterGate/BarrierBody"]
+light_color = Color(0.458824, 0.941176, 1, 1)
+light_energy = 1.35
+omni_range = 9.0
+
+[node name="FinalSanctuary" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 8.9, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FinalSanctuary"]
+shape = SubResource("BoxShape3D_final")
+
+[node name="FinalPlatformVisual" parent="FinalSanctuary" instance=ExtResource("12_platform")]
+transform = Transform3D(1.05, 0, 0, 0, 1.0, 0, 0, 0, 1.05, 0, 0.5, 0)
+
+[node name="SanctuaryLampA" parent="." instance=ExtResource("16_lamp")]
+transform = Transform3D(1.35, 0, 0, 0, 1.35, 0, 0, 0, 1.35, 62.6, 9.4, -3.4)
+
+[node name="SanctuaryLampB" parent="." instance=ExtResource("16_lamp")]
+transform = Transform3D(1.35, 0, 0, 0, 1.35, 0, 0, 0, 1.35, 69.4, 9.4, -3.4)
+
+[node name="SanctuaryFlowers" parent="." instance=ExtResource("15_flowers")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 66, 8.95, 3.2)
+
+[node name="CollectibleSanctuaryA" parent="." instance=ExtResource("2_collectible")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63.4, 10.4, 0)
+
+[node name="CollectibleSanctuaryB" parent="." instance=ExtResource("2_collectible")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.6, 10.4, 0)
+
+[node name="MatthewRescue" parent="." instance=ExtResource("7_family_rescue")]
+transform = Transform3D(1.2, 0, 0, 0, 1.6, 0, 0, 0, 1.2, 66, 10.0, 0)
+FamilyId = "Matthew"
+DisplayName = "Matthew"
+RescueDialogue = "Elaine, your spells pushed the corruption back. Let's take this trail home."
+BonusGlimmers = 20
+
+[node name="ReturnPortal" parent="." instance=ExtResource("6_portal")]
+transform = Transform3D(1.4, 0, 0, 0, 1.8, 0, 0, 0, 1.2, 72.2, 10.3, 0)
+TargetScene = "res://Scenes/Hub/HubWorld.tscn"
+
+[node name="HazardVolume" parent="." instance=ExtResource("3_hazard")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, -3.4, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HazardVolume"]
+shape = SubResource("BoxShape3D_hazard")

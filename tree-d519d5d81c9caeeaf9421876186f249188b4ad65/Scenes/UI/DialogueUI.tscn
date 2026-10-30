@@ -1,0 +1,35 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/DialogueUI.cs" id="1_dialogue"]
+
+[node name="DialogueUI" type="CanvasLayer"]
+script = ExtResource("1_dialogue")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="Control"]
+offset_left = 64.0
+offset_top = 560.0
+offset_right = 1216.0
+offset_bottom = 696.0
+
+[node name="NameLabel" type="Label" parent="Control/Panel"]
+offset_left = 24.0
+offset_top = 16.0
+offset_right = 280.0
+offset_bottom = 48.0
+text = "Speaker"
+
+[node name="DialogueLabel" type="Label" parent="Control/Panel"]
+offset_left = 24.0
+offset_top = 56.0
+offset_right = 1120.0
+offset_bottom = 120.0
+autowrap_mode = 3
+text = "Dialogue goes here."

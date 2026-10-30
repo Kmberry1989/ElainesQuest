@@ -1,0 +1,13 @@
+.godot/
+.mono/
+.import/
+export_presets.cfg
+*.import
+*.translation
+*.uid
+*.sln.DotSettings.user
+*.csproj.user
+*.dotCover
+.DS_Store
+bin/
+obj/

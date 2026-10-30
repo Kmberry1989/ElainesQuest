@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Combat/OneShotEffect.cs" id="1_effect"]
+[ext_resource type="PackedScene" path="res://oneshot/fbVFX.tscn" id="2_fx"]
+
+[node name="SpellImpact" type="Node3D"]
+script = ExtResource("1_effect")
+Lifetime = 0.5
+
+[node name="Effect" parent="." instance=ExtResource("2_fx")]
+transform = Transform3D(0.75, 0, 0, 0, 0.75, 0, 0, 0, 0.75, 0, 0, 0)

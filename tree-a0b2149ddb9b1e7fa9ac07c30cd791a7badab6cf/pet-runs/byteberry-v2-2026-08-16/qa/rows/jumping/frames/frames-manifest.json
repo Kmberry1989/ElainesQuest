@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "chroma_key": {
+    "hex": "#00FFFF",
+    "rgb": [
+      0,
+      255,
+      255
+    ],
+    "threshold": 96.0
+  },
+  "rows": [
+    {
+      "state": "jumping",
+      "frames": [
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/jumping/frames/jumping/00.png",
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/jumping/frames/jumping/01.png",
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/jumping/frames/jumping/02.png",
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/jumping/frames/jumping/03.png",
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/jumping/frames/jumping/04.png"
+      ],
+      "method": "components"
+    }
+  ]
+}

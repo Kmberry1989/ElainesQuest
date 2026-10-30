@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://lyol2svtyf03"]
+
+[ext_resource type="Script" uid="uid://copyeei1j32el" path="res://Scripts/Player/ElaineController.cs" id="1_elaine"]
+[ext_resource type="Script" path="res://Scripts/System/RuntimeGltfModel.cs" id="2_runtime_model"]
+[ext_resource type="AnimationLibrary" path="res://Assets/Animations/MixamoLibrary.res" id="4_sv6l0"]
+[ext_resource type="AnimationNodeStateMachine" path="res://Scenes/Characters/Player/ElaineAnimStateMachine.tres" id="5_state_machine"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
+radius = 0.45
+height = 1.1
+
+[node name="Elaine" type="CharacterBody3D" unique_id=65812238]
+script = ExtResource("1_elaine")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=295033199]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+visible = false
+shape = SubResource("CapsuleShape3D_1")
+
+[node name="Visuals" type="Node3D" parent="." unique_id=1036865365]
+script = ExtResource("2_runtime_model")
+ModelPath = "res://Assets/Models/Elaine/Elaine-model.glb"
+LoadedScale = Vector3(1.5, 1.5, 1.5)
+
+[node name="GlobalAnimationPlayer" type="AnimationPlayer" parent="." unique_id=115740099]
+root_node = NodePath("../Visuals/__RuntimeModel/RootNode")
+libraries/Mixamo = ExtResource("4_sv6l0")
+
+[node name="AnimationTree" type="AnimationTree" parent="." node_paths=PackedStringArray("anim_player")]
+tree_root = ExtResource("5_state_machine")
+anim_player = NodePath("../GlobalAnimationPlayer")
+active = false
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1417130941]

@@ -1,0 +1,92 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="PackedScene" path="res://Assets/Models/Enemies/Scarecrow.fbx" id="1_model"]
+[ext_resource type="Script" path="res://Scripts/Combat/EnemyCombatant.cs" id="2_enemy"]
+[ext_resource type="Script" path="res://Scripts/Combat/CombatHealth.cs" id="3_health"]
+[ext_resource type="Script" path="res://Scripts/Combat/CombatHurtbox.cs" id="4_hurt"]
+[ext_resource type="Script" path="res://Scripts/Combat/CombatMeleeHitbox.cs" id="5_hit"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Standing Idle 03.fbx" id="6_idle"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Walking.fbx" id="7_walk"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Charge.fbx" id="8_run"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Swiping.fbx" id="9_attack"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Charge.fbx" id="10_charge"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Shove Reaction.fbx" id="11_hit"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Dying.fbx" id="12_death"]
+[ext_resource type="PackedScene" path="res://Scenes/Combat/SpellImpact.tscn" id="13_impact"]
+[ext_resource type="Script" path="res://Scripts/Combat/EnemyAnimationProfile.cs" id="14_profile"]
+
+[sub_resource type="CapsuleShape3D" id="body"]
+radius = 0.75
+height = 2.6
+[sub_resource type="CapsuleShape3D" id="hurt"]
+radius = 0.95
+height = 2.9
+[sub_resource type="SphereShape3D" id="attack"]
+radius = 1.8
+
+[sub_resource type="Resource" id="animation_profile"]
+script = ExtResource("14_profile")
+IdleAnimationScene = ExtResource("6_idle")
+WalkAnimationScene = ExtResource("7_walk")
+RunAnimationScene = ExtResource("8_run")
+AttackAnimationScene = ExtResource("9_attack")
+SecondaryAttackAnimationScene = ExtResource("10_charge")
+HitAnimationScene = ExtResource("11_hit")
+DeathAnimationScene = ExtResource("12_death")
+AttackImpactNormalized = 0.45
+AttackActiveNormalized = 0.16
+AttackRecoveryNormalized = 0.28
+SecondaryAttackImpactNormalized = 0.38
+SecondaryAttackActiveNormalized = 0.18
+SecondaryAttackRecoveryNormalized = 0.25
+
+[node name="BriarWarden" type="CharacterBody3D" node_paths=PackedStringArray("AnimationTree", "Visuals", "Health", "CollisionShape", "Hurtbox", "AttackHitbox")]
+script = ExtResource("2_enemy")
+WalkSpeed = 1.7
+RunSpeed = 3.8
+DetectionRange = 24.0
+PreferredRange = 6.0
+AttackRange = 3.1
+AttackCooldown = 2.3
+AttackDamage = 1.7
+AttackWindup = 0.78
+AttackActiveDuration = 0.24
+AttackRecovery = 0.95
+HitStunDuration = 0.3
+DefeatGlimmers = 22
+DeathDelay = 1.35
+AnimationTree = NodePath("AnimationTree")
+AnimationProfile = SubResource("animation_profile")
+AlternateAttacks = true
+SecondaryAttackWindup = 0.58
+SecondaryAttackActiveDuration = 0.68
+SecondaryAttackRecovery = 0.85
+SecondaryAttackMoveSpeed = 7.6
+Visuals = NodePath("Visuals")
+Health = NodePath("Health")
+CollisionShape = NodePath("CollisionShape3D")
+Hurtbox = NodePath("Hurtbox")
+AttackHitbox = NodePath("AttackHitbox")
+DefeatEffectScene = ExtResource("13_impact")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 1.35, 0)
+shape = SubResource("body")
+[node name="Visuals" type="Node3D" parent="."]
+[node name="Model" parent="Visuals" instance=ExtResource("1_model")]
+[node name="AnimationTree" type="AnimationTree" parent="."]
+[node name="Health" type="Node" parent="."]
+script = ExtResource("3_health")
+MaxHealth = 14.0
+[node name="Hurtbox" type="Area3D" parent="." node_paths=PackedStringArray("Health", "ImpactAnchor")]
+script = ExtResource("4_hurt")
+Health = NodePath("../Health")
+ImpactAnchor = NodePath("../Visuals")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hurtbox"]
+position = Vector3(0, 1.4, 0)
+shape = SubResource("hurt")
+[node name="AttackHitbox" type="Area3D" parent="."]
+script = ExtResource("5_hit")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AttackHitbox"]
+position = Vector3(0, 1.2, 1.8)
+shape = SubResource("attack")

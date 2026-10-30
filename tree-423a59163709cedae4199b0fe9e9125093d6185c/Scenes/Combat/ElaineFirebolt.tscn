@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Combat/SpellProjectile.cs" id="1_projectile"]
+[ext_resource type="PackedScene" path="res://fireball/fireball.tscn" id="2_fireball"]
+[ext_resource type="PackedScene" path="res://Scenes/Combat/SpellImpact.tscn" id="3_impact"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_hit"]
+radius = 0.45
+
+[node name="ElaineFirebolt" type="Area3D"]
+script = ExtResource("1_projectile")
+DefaultDamage = 1.0
+DefaultSpeed = 24.0
+DefaultRange = 28.0
+ImpactScene = ExtResource("3_impact")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_hit")
+
+[node name="Visuals" parent="." instance=ExtResource("2_fireball")]
+transform = Transform3D(0.45, 0, 0, 0, 0.45, 0, 0, 0, 0.45, 0, 0, 0)

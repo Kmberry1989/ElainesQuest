@@ -1,0 +1,78 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="PackedScene" path="res://Assets/Models/Enemies/Corkrot.fbx" id="1_model"]
+[ext_resource type="Script" path="res://Scripts/Combat/EnemyCombatant.cs" id="2_enemy"]
+[ext_resource type="Script" path="res://Scripts/Combat/CombatHealth.cs" id="3_health"]
+[ext_resource type="Script" path="res://Scripts/Combat/CombatHurtbox.cs" id="4_hurt"]
+[ext_resource type="Script" path="res://Scripts/Combat/CombatMeleeHitbox.cs" id="5_hit"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Idle.fbx" id="6_idle"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Walking.fbx" id="7_walk"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Run.fbx" id="8_run"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Punch.fbx" id="9_attack"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Dying.fbx" id="10_death"]
+[ext_resource type="PackedScene" path="res://Scenes/Combat/SpellImpact.tscn" id="11_impact"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Shove Reaction.fbx" id="12_hit"]
+[ext_resource type="Script" path="res://Scripts/Combat/EnemyAnimationProfile.cs" id="13_profile"]
+
+[sub_resource type="CapsuleShape3D" id="body"]
+radius = 0.42
+height = 1.25
+[sub_resource type="CapsuleShape3D" id="hurt"]
+radius = 0.62
+height = 1.7
+[sub_resource type="SphereShape3D" id="attack"]
+radius = 0.85
+
+[sub_resource type="Resource" id="animation_profile"]
+script = ExtResource("13_profile")
+IdleAnimationScene = ExtResource("6_idle")
+WalkAnimationScene = ExtResource("7_walk")
+RunAnimationScene = ExtResource("8_run")
+AttackAnimationScene = ExtResource("9_attack")
+HitAnimationScene = ExtResource("12_hit")
+DeathAnimationScene = ExtResource("10_death")
+AttackImpactNormalized = 0.35
+AttackActiveNormalized = 0.18
+AttackRecoveryNormalized = 0.25
+
+[node name="Corkrot" type="CharacterBody3D" node_paths=PackedStringArray("AnimationTree", "Visuals", "Health", "CollisionShape", "Hurtbox", "AttackHitbox")]
+script = ExtResource("2_enemy")
+WalkSpeed = 3.4
+RunSpeed = 5.8
+DetectionRange = 19.0
+PreferredRange = 4.0
+AttackRange = 1.7
+AttackCooldown = 1.0
+AttackDamage = 0.75
+AttackWindup = 0.24
+AttackRecovery = 0.26
+DefeatGlimmers = 4
+AnimationTree = NodePath("AnimationTree")
+AnimationProfile = SubResource("animation_profile")
+Visuals = NodePath("Visuals")
+Health = NodePath("Health")
+CollisionShape = NodePath("CollisionShape3D")
+Hurtbox = NodePath("Hurtbox")
+AttackHitbox = NodePath("AttackHitbox")
+DefeatEffectScene = ExtResource("11_impact")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.9, 0)
+shape = SubResource("body")
+[node name="Visuals" type="Node3D" parent="."]
+[node name="Model" parent="Visuals" instance=ExtResource("1_model")]
+[node name="AnimationTree" type="AnimationTree" parent="."]
+[node name="Health" type="Node" parent="."]
+script = ExtResource("3_health")
+MaxHealth = 2.5
+[node name="Hurtbox" type="Area3D" parent="." node_paths=PackedStringArray("Health", "ImpactAnchor")]
+script = ExtResource("4_hurt")
+Health = NodePath("../Health")
+ImpactAnchor = NodePath("../Visuals")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hurtbox"]
+position = Vector3(0, 1, 0)
+shape = SubResource("hurt")
+[node name="AttackHitbox" type="Area3D" parent="."]
+script = ExtResource("5_hit")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AttackHitbox"]
+position = Vector3(0, 0.9, 1)
+shape = SubResource("attack")

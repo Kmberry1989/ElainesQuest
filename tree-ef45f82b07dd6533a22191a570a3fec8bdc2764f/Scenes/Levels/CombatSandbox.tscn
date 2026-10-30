@@ -1,0 +1,39 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Player/Elaine.tscn" id="1_elaine"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Enemies/Jacko.tscn" id="2_jacko"]
+[ext_resource type="Script" path="res://Scripts/Camera/PlatformerCamera.cs" id="3_camera"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/HUD.tscn" id="4_hud"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(28, 1, 18)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+size = Vector3(28, 1, 18)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ground"]
+albedo_color = Color(0.314, 0.361, 0.287, 1)
+
+[node name="CombatSandbox" type="Node3D"]
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("BoxShape3D_ground")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("BoxMesh_ground")
+surface_material_override/0 = SubResource("StandardMaterial3D_ground")
+
+[node name="Elaine" parent="." instance=ExtResource("1_elaine")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 1.2, 0)
+
+[node name="Jacko" parent="." instance=ExtResource("2_jacko")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+script = ExtResource("3_camera")
+Offset = Vector3(0, 4.75, 8.25)
+
+[node name="HUD" parent="." instance=ExtResource("4_hud")]

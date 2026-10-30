@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Interactables/Checkpoint.cs" id="1_checkpoint"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/checkpoint.glb" id="2_model"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_1"]
+height = 2.0
+radius = 0.9
+
+[node name="Checkpoint" type="Area3D"]
+script = ExtResource("1_checkpoint")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CylinderShape3D_1")
+
+[node name="CheckpointModel" parent="." instance=ExtResource("2_model")]
+
+[node name="RespawnMarker" type="Marker3D" parent="."]

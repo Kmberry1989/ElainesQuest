@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "chroma_key": {
+    "hex": "#00FFFF",
+    "rgb": [
+      0,
+      255,
+      255
+    ],
+    "threshold": 96.0
+  },
+  "rows": [
+    {
+      "state": "waving",
+      "frames": [
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/waving/frames/waving/00.png",
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/waving/frames/waving/01.png",
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/waving/frames/waving/02.png",
+        "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/rows/waving/frames/waving/03.png"
+      ],
+      "method": "components"
+    }
+  ]
+}

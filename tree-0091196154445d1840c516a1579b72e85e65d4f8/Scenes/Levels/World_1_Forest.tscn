@@ -1,0 +1,128 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Player/Elaine.tscn" id="1_elaine"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Collectible.tscn" id="2_collectible"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/HazardVolume.tscn" id="3_hazard"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Checkpoint.tscn" id="4_checkpoint"]
+[ext_resource type="Script" path="res://Scripts/Camera/PlatformerCamera.cs" id="5_camera"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/LevelPortal.tscn" id="6_portal"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/FamilyRescue.tscn" id="7_family_rescue"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Wildlife/Toby.tscn" id="8_toby"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/HUD.tscn" id="9_hud"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/DialogueUI.tscn" id="10_dialogue"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/space_grassy.glb" id="11_ground_visual"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/flowers_wild.glb" id="12_flowers"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/lamp_post.glb" id="13_lamp"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/familiarity_tree-2.glb" id="14_tree"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Environment/tile_stonegrassy.glb" id="15_stone_tile"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(18, 1, 18)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+size = Vector3(18, 1, 18)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_mid"]
+size = Vector3(8, 1, 8)
+
+[sub_resource type="BoxMesh" id="BoxMesh_mid"]
+size = Vector3(8, 1, 8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_goal"]
+size = Vector3(8, 1, 8)
+
+[sub_resource type="BoxMesh" id="BoxMesh_goal"]
+size = Vector3(8, 1, 8)
+
+[node name="World1Forest" type="Node3D"]
+
+[node name="PlayerSpawn" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1.2, 0)
+
+[node name="GroundStart" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GroundStart"]
+shape = SubResource("BoxShape3D_ground")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GroundStart"]
+mesh = SubResource("BoxMesh_ground")
+
+[node name="GroundStartVisual" parent="GroundStart" instance=ExtResource("11_ground_visual")]
+transform = Transform3D(1.4, 0, 0, 0, 1.0, 0, 0, 0, 1.4, 0, 0.5, 0)
+
+[node name="MidPlatform" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 2.0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MidPlatform"]
+shape = SubResource("BoxShape3D_mid")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="MidPlatform"]
+mesh = SubResource("BoxMesh_mid")
+
+[node name="MidPlatformStone" parent="MidPlatform" instance=ExtResource("15_stone_tile")]
+transform = Transform3D(1.2, 0, 0, 0, 1.0, 0, 0, 0, 1.2, 0, 0.5, 0)
+
+[node name="GoalPlatform" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 4.0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GoalPlatform"]
+shape = SubResource("BoxShape3D_goal")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GoalPlatform"]
+mesh = SubResource("BoxMesh_goal")
+
+[node name="GoalPlatformVisual" parent="GoalPlatform" instance=ExtResource("11_ground_visual")]
+transform = Transform3D(1.2, 0, 0, 0, 1.0, 0, 0, 0, 1.2, 0, 0.5, 0)
+
+[node name="ForestTreeA" parent="." instance=ExtResource("14_tree")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, -2, 0, -5)
+
+[node name="ForestTreeB" parent="." instance=ExtResource("14_tree")]
+transform = Transform3D(1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0, 10, 0, 4)
+
+[node name="Flowers" parent="." instance=ExtResource("12_flowers")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 2.0, 2)
+
+[node name="GoalLamp" parent="." instance=ExtResource("13_lamp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 4.5, -2)
+
+[node name="Elaine" parent="." instance=ExtResource("1_elaine")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1.2, 0)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+script = ExtResource("5_camera")
+Offset = Vector3(0, 7, 11)
+
+[node name="HUD" parent="." instance=ExtResource("9_hud")]
+
+[node name="DialogueUI" parent="." instance=ExtResource("10_dialogue")]
+
+[node name="CollectibleA" parent="." instance=ExtResource("2_collectible")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.3, 0)
+
+[node name="CollectibleB" parent="." instance=ExtResource("2_collectible")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 3.1, 0)
+
+[node name="CollectibleC" parent="." instance=ExtResource("2_collectible")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 4.7, 0)
+
+[node name="Toby" parent="." instance=ExtResource("8_toby")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 2.5, -2)
+
+[node name="Checkpoint" parent="." instance=ExtResource("4_checkpoint")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4.5, 2)
+
+[node name="MatthewRescue" parent="." instance=ExtResource("7_family_rescue")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 5.0, 0)
+FamilyId = "Matthew"
+DisplayName = "Matthew"
+RescueDialogue = "Matthew is safe now. Let's head back to the Hub and help the Family Tree grow."
+BonusGlimmers = 15
+
+[node name="ReturnPortal" parent="." instance=ExtResource("6_portal")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 5.5, 0)
+TargetScene = "res://Scenes/Hub/HubWorld.tscn"
+
+[node name="HazardVolume" parent="." instance=ExtResource("3_hazard")]
+transform = Transform3D(2.2, 0, 0, 0, 1, 0, 0, 0, 1.2, 3, -5, 0)

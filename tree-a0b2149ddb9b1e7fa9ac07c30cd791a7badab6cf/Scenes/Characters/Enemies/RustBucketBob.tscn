@@ -1,0 +1,91 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="PackedScene" path="res://Assets/Models/Enemies/RustBucketBob.fbx" id="1_model"]
+[ext_resource type="Script" path="res://Scripts/Combat/EnemyCombatant.cs" id="2_enemy"]
+[ext_resource type="Script" path="res://Scripts/Combat/CombatHealth.cs" id="3_health"]
+[ext_resource type="Script" path="res://Scripts/Combat/CombatHurtbox.cs" id="4_hurt"]
+[ext_resource type="Script" path="res://Scripts/Combat/CombatMeleeHitbox.cs" id="5_hit"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Orc Idle.fbx" id="6_idle"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Orc Walk.fbx" id="7_walk"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Run.fbx" id="8_run"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Mutant Swiping.fbx" id="9_attack"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Standing React Death Forward.fbx" id="10_death"]
+[ext_resource type="PackedScene" path="res://Scenes/Combat/SpellImpact.tscn" id="11_impact"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Charge.fbx" id="12_charge"]
+[ext_resource type="PackedScene" path="res://Assets/Animations/Enemy/Shaking It Off.fbx" id="13_hit"]
+[ext_resource type="Script" path="res://Scripts/Combat/EnemyAnimationProfile.cs" id="14_profile"]
+
+[sub_resource type="CapsuleShape3D" id="body"]
+radius = 0.8
+height = 2.4
+[sub_resource type="CapsuleShape3D" id="hurt"]
+radius = 1.0
+height = 2.6
+[sub_resource type="SphereShape3D" id="attack"]
+radius = 1.6
+
+[sub_resource type="Resource" id="animation_profile"]
+script = ExtResource("14_profile")
+IdleAnimationScene = ExtResource("6_idle")
+WalkAnimationScene = ExtResource("7_walk")
+RunAnimationScene = ExtResource("8_run")
+AttackAnimationScene = ExtResource("9_attack")
+SecondaryAttackAnimationScene = ExtResource("12_charge")
+HitAnimationScene = ExtResource("13_hit")
+DeathAnimationScene = ExtResource("10_death")
+AttackImpactNormalized = 0.48
+AttackActiveNormalized = 0.16
+AttackRecoveryNormalized = 0.28
+SecondaryAttackImpactNormalized = 0.38
+SecondaryAttackActiveNormalized = 0.18
+SecondaryAttackRecoveryNormalized = 0.25
+
+[node name="RustBucketBob" type="CharacterBody3D" node_paths=PackedStringArray("AnimationTree", "Visuals", "Health", "CollisionShape", "Hurtbox", "AttackHitbox")]
+script = ExtResource("2_enemy")
+WalkSpeed = 1.8
+RunSpeed = 3.4
+DetectionRange = 24.0
+PreferredRange = 5.0
+AttackRange = 3.0
+AttackCooldown = 2.4
+AttackDamage = 1.8
+AttackWindup = 0.85
+AttackActiveDuration = 0.28
+AttackRecovery = 1.1
+HitStunDuration = 0.32
+DefeatGlimmers = 18
+DeathDelay = 1.4
+AnimationTree = NodePath("AnimationTree")
+AnimationProfile = SubResource("animation_profile")
+AlternateAttacks = true
+SecondaryAttackWindup = 0.65
+SecondaryAttackActiveDuration = 0.62
+SecondaryAttackRecovery = 0.9
+SecondaryAttackMoveSpeed = 7.2
+Visuals = NodePath("Visuals")
+Health = NodePath("Health")
+CollisionShape = NodePath("CollisionShape3D")
+Hurtbox = NodePath("Hurtbox")
+AttackHitbox = NodePath("AttackHitbox")
+DefeatEffectScene = ExtResource("11_impact")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 1.4, 0)
+shape = SubResource("body")
+[node name="Visuals" type="Node3D" parent="."]
+[node name="Model" parent="Visuals" instance=ExtResource("1_model")]
+[node name="AnimationTree" type="AnimationTree" parent="."]
+[node name="Health" type="Node" parent="."]
+script = ExtResource("3_health")
+MaxHealth = 12.0
+[node name="Hurtbox" type="Area3D" parent="." node_paths=PackedStringArray("Health", "ImpactAnchor")]
+script = ExtResource("4_hurt")
+Health = NodePath("../Health")
+ImpactAnchor = NodePath("../Visuals")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hurtbox"]
+position = Vector3(0, 1.4, 0)
+shape = SubResource("hurt")
+[node name="AttackHitbox" type="Area3D" parent="."]
+script = ExtResource("5_hit")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AttackHitbox"]
+position = Vector3(0, 1.2, 1.8)
+shape = SubResource("attack")

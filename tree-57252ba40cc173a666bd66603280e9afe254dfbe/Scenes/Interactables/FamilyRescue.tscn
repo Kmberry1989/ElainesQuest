@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Interactables/FamilyRescue.cs" id="1_rescue"]
+[ext_resource type="PackedScene" path="res://Scenes/Characters/Family/Matthew.tscn" id="2_family"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
+radius = 0.55
+height = 1.2
+
+[node name="FamilyRescue" type="Area3D"]
+script = ExtResource("1_rescue")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_1")
+
+[node name="Matthew" parent="." instance=ExtResource("2_family")]
+
+[node name="RescueMarker" type="Marker3D" parent="."]

@@ -1,0 +1,76 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Combat/EnemyCombatant.cs" id="1_enemy"]
+[ext_resource type="Script" path="res://Scripts/Combat/CombatHealth.cs" id="2_health"]
+[ext_resource type="Script" path="res://Scripts/Combat/CombatHurtbox.cs" id="3_hurtbox"]
+[ext_resource type="PackedScene" path="res://Scenes/Combat/SpellImpact.tscn" id="4_impact"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.6
+height = 1.2
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_hurtbox"]
+radius = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_core"]
+albedo_color = Color(1, 0.751, 0.36, 1)
+emission_enabled = true
+emission = Color(1, 0.564706, 0.196078, 1)
+emission_energy_multiplier = 1.9
+
+[sub_resource type="SphereMesh" id="SphereMesh_core"]
+radius = 0.42
+height = 0.84
+material = SubResource("StandardMaterial3D_core")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_shell"]
+transparency = 1
+albedo_color = Color(1, 0.688, 0.22, 0.2)
+emission_enabled = true
+emission = Color(1, 0.584314, 0.243137, 1)
+emission_energy_multiplier = 0.85
+
+[sub_resource type="SphereMesh" id="SphereMesh_shell"]
+radius = 0.72
+height = 1.44
+material = SubResource("StandardMaterial3D_shell")
+
+[node name="SpellWisp" type="CharacterBody3D" node_paths=PackedStringArray("Visuals", "Health", "CollisionShape", "Hurtbox")]
+script = ExtResource("1_enemy")
+DefeatEffectScene = ExtResource("4_impact")
+Visuals = NodePath("Visuals")
+Health = NodePath("Health")
+CollisionShape = NodePath("CollisionShape3D")
+Hurtbox = NodePath("Hurtbox")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="Visuals" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15, 0)
+
+[node name="Core" type="MeshInstance3D" parent="Visuals"]
+mesh = SubResource("SphereMesh_core")
+
+[node name="Shell" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 0, 0, 0)
+mesh = SubResource("SphereMesh_shell")
+
+[node name="Glow" type="OmniLight3D" parent="Visuals"]
+light_color = Color(1, 0.713726, 0.360784, 1)
+light_energy = 1.2
+omni_range = 5.0
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2_health")
+MaxHealth = 3.0
+
+[node name="Hurtbox" type="Area3D" parent="." node_paths=PackedStringArray("Health", "ImpactAnchor")]
+script = ExtResource("3_hurtbox")
+Health = NodePath("../Health")
+ImpactAnchor = NodePath("../Visuals")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hurtbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15, 0)
+shape = SubResource("SphereShape3D_hurtbox")

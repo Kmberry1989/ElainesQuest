@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "reviewed_by": "parent",
+  "directions": [
+    {"direction":"000","expected":"up","verdict":"pass","horizontal":"front/neutral horizontal axis is intentional","vertical":"eyes, muzzle, and chin clearly aim upward","observed":"upward gaze with grounded body","reason":"Cardinal up anchor is unmistakable and distinct from neutral."},
+    {"direction":"022.5","expected":"up-right","verdict":"pass","horizontal":"muzzle and eyes lead screen-right","vertical":"eyes and chin remain above center","observed":"slight up-right gaze","reason":"Even first interpolation from up toward right."},
+    {"direction":"045","expected":"up-right","verdict":"pass","horizontal":"nose and face turn screen-right","vertical":"gaze remains lifted","observed":"clear up-right gaze","reason":"Diagonal preserves both cardinal cues."},
+    {"direction":"067.5","expected":"up-right","verdict":"pass","horizontal":"strong screen-right profile cue","vertical":"muzzle and eyes remain above center","observed":"near-right, slightly-up gaze","reason":"Near-right diagonal advances naturally toward the right cardinal."},
+    {"direction":"090","expected":"right","verdict":"pass","horizontal":"nose and eye globes clearly point screen-right","vertical":"vertical axis is neutral by construction","observed":"unmistakable screen-right side profile","reason":"Right cardinal opposes the left cardinal in screen coordinates."},
+    {"direction":"112.5","expected":"down-right","verdict":"pass","horizontal":"nose and muzzle lead screen-right","vertical":"eyes and chin begin lowering","observed":"down-right gaze","reason":"Even transition from right toward down."},
+    {"direction":"135","expected":"down-right","verdict":"pass","horizontal":"face remains aimed screen-right","vertical":"eyes and muzzle are visibly below center","observed":"clear down-right gaze","reason":"Both axes remain readable at pet size."},
+    {"direction":"157.5","expected":"down-right","verdict":"pass","horizontal":"muzzle still leads screen-right","vertical":"chin and eyes strongly aim downward","observed":"near-down, slightly-right gaze","reason":"Final step before down preserves the clockwise arc."},
+    {"direction":"180","expected":"down","verdict":"pass","horizontal":"front/neutral horizontal axis is intentional","vertical":"chin and both eye globes clearly aim downward","observed":"unmistakable downward gaze","reason":"Cardinal down anchor is distinct from the up anchor."},
+    {"direction":"202.5","expected":"down-left","verdict":"pass","horizontal":"muzzle begins leading screen-left","vertical":"eyes and chin remain lowered","observed":"down-left gaze","reason":"Even first interpolation from down toward left."},
+    {"direction":"225","expected":"down-left","verdict":"pass","horizontal":"nose and face turn screen-left","vertical":"gaze remains lowered","observed":"clear down-left gaze","reason":"Diagonal preserves both cardinal cues."},
+    {"direction":"247.5","expected":"down-left","verdict":"pass","horizontal":"strong screen-left profile cue","vertical":"muzzle and eyes remain below center","observed":"near-left, slightly-down gaze","reason":"Near-left diagonal advances naturally toward the left cardinal."},
+    {"direction":"270","expected":"left","verdict":"pass","horizontal":"nose and eye globes clearly point screen-left","vertical":"vertical axis is neutral by construction","observed":"unmistakable screen-left side profile","reason":"Left cardinal visibly opposes the right cardinal."},
+    {"direction":"292.5","expected":"up-left","verdict":"pass","horizontal":"nose and muzzle lead screen-left","vertical":"eyes and chin begin lifting","observed":"up-left gaze","reason":"Even transition from left toward up."},
+    {"direction":"315","expected":"up-left","verdict":"pass","horizontal":"face remains aimed screen-left","vertical":"eyes and muzzle are visibly above center","observed":"clear up-left gaze","reason":"Both axes remain readable at pet size."},
+    {"direction":"337.5","expected":"up-left","verdict":"pass","horizontal":"muzzle still leads screen-left","vertical":"chin and eyes strongly aim upward","observed":"near-up, slightly-left gaze","reason":"Final step before up preserves the clockwise loop."}
+  ]
+}

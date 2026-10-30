@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "spriteVersionNumber": 2,
+  "run_dir": "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16",
+  "spritesheet": "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/final/spritesheet-extended.webp",
+  "validation": "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/final/validation-extended.json",
+  "installed_validation": "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/final/validation-installed.json",
+  "chroma_despill": "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/chroma-despill-extended.json",
+  "contact_sheet": "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/contact-sheet-extended.png",
+  "direction_sheet": "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/look-directions.png",
+  "direction_semantics": "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/direction-semantics.json",
+  "blind_direction_validation": "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/direction-blind-validation.json",
+  "continuity": "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/look-continuity.json",
+  "review": "/Users/kyleberry/Desktop/ElainesQuest/pet-runs/byteberry-v2-2026-08-16/qa/review.json",
+  "package": "/Users/kyleberry/.codex/pets/byteberry",
+  "visual_qa": "pass",
+  "continuity_review": "warnings accepted after normal-size ordered-loop review"
+}
