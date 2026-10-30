@@ -14,6 +14,8 @@ The active checkout is `~/Library/Mobile Documents/com~apple~CloudDocs/Desktop/E
 - Downloaded the 88,319,700-byte ElainesQuest Git-history bundle from the computer backup, verified its Git blob hash against GitHub and verified its prerequisite. Its sole reference is the same `f998587`; imported it under `refs/backup/computer-2026-10-29/`. The backup's four non-generated local files are the same pet extras captured above.
 - Moved Finder's `.DS_Store` out of `.git/refs` to `.git/refs-finder-metadata-preserved.DS_Store`; it was producing invalid-ref errors. No source data was deleted.
 
+- The final connectivity check also exposed 321 unattached trees and two blobs, which may include old index snapshots. Preserved every one in the commit named by `qa/2026-10-30/recovered-object-manifest.json` and branch `archive/recovered-snapshots-2026-10-30`, then merged that recovery history without changing the tested runtime tree. Their raw historical variants are retained for inspection rather than overwriting the working game.
+
 ## Implemented
 
 - **Autoaim:** all three spells and melee acquire a living, active, visible combat target, prefer nearby targets toward the facing direction, and turn Elaine toward it. Static world geometry blocks selection. Spells aim at the target's height, lead moving enemies, and reacquire if the original target dies or leaves range before release. Without a target, attacks follow the current facing. The exported `AutoAimEnabled` setting defaults to true.
