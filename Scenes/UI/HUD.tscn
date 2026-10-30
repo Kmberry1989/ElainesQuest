@@ -33,7 +33,7 @@ offset_left = 24.0
 offset_top = 80.0
 offset_right = 420.0
 offset_bottom = 110.0
-text = "Sun Ember: Ready  [F]  Wheel [Tab]"
+text = "Sun Ember: Ready  [F / R1]  Wheel [Tab / L1]"
 
 [node name="CombatFeedLabel" type="Label" parent="Control"]
 offset_left = 24.0

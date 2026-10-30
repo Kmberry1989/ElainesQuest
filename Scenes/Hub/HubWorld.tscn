@@ -23,7 +23,7 @@
 [ext_resource type="PackedScene" uid="uid://c5qpths8recvk" path="res://Assets/Models/Environment/wood_platform.glb" id="18_wood_path"]
 [ext_resource type="PackedScene" uid="uid://sx577eby4xf8" path="res://Assets/Models/Environment/triple_sign.glb" id="19_signpost"]
 [ext_resource type="PackedScene" uid="uid://b13365v14jwu4" path="res://Assets/Models/Environment/picket_fence.glb" id="20_fencing"]
-[ext_resource type="Shader" uid="uid://bi3o8elbtqoni" path="res://addons/simplegrasstextured/shaders/grass.gdshader" id="26_mai7p"]
+[ext_resource type="Shader" path="res://addons/simplegrasstextured/shaders/grass.gdshader" id="26_mai7p"]
 [ext_resource type="Texture2D" uid="uid://c4ggdp0kg5wjk" path="res://addons/simplegrasstextured/textures/grassbushcc008.png" id="27_5htik"]
 [ext_resource type="ArrayMesh" uid="uid://sptcpdx6wtm8" path="res://addons/simplegrasstextured/default_mesh.tres" id="28_xmiyk"]
 [ext_resource type="Script" uid="uid://2juaclm8gc1n" path="res://addons/simplegrasstextured/grass.gd" id="29_bmof1"]
@@ -126,6 +126,9 @@ Offset = Vector3(0, 4.75, 7.5)
 
 [node name="PortalToWorld1" parent="." unique_id=278331382 instance=ExtResource("2_portal")]
 transform = Transform3D(3.9982448, 0, -0.11849881, 0, 4, 0, 0.11849881, 0, 3.9982448, 1.9716606, 9.0310135, -80.51198)
+PortalName = "Forest Trail"
+TargetScene = "res://Scenes/Levels/World_1_Forest.tscn"
+ArrivalMarker = "ForestArrival"
 
 [node name="TownTrailPortal" parent="." instance=ExtResource("2_portal")]
 transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, -8, 1, 8)
@@ -141,6 +144,14 @@ ArrivalMarker = "CaveArrival"
 RequiredRealmId = "MoonlitGarden"
 LockedMessage = "A cold cave wind rises from the arch. Restore the Moonlit Garden before following it."
 
+[node name="StarfallSanctumPortal" parent="." instance=ExtResource("2_portal")]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0, 1, 11)
+PortalName = "Starfall Gate"
+TargetScene = "res://Scenes/Levels/StarfallSanctum.tscn"
+ArrivalMarker = "StarfallArrival"
+RequiredRealmId = "EchoingCaves"
+LockedMessage = "The starfall gate is dark. Restore the Echoing Caves before following Matthew's final lead."
+
 [node name="MatthewFinalLead" parent="." instance=ExtResource("36_matthew")]
 position = Vector3(2.5, 1, 4.5)
 
@@ -153,13 +164,17 @@ RequiredRealmId = "MoonlitGarden"
 RequiredRealmDialogue = "You restored the Moonlit Garden! The cold wind beyond the northern arch leads to the Echoing Caves. Follow the cave trail when you are ready."
 RequiredRealmObjective = "Matthew has revealed the cave trail. Follow the northern arch to the Echoing Caves."
 CompletedRealmId = "EchoingCaves"
-CompletedRealmDialogue = "The last echo has faded. The final path is waiting for us beyond the town, Elaine."
+CompletedRealmDialogue = "The last echo has faded. The final path is waiting at the starfall gate, Elaine. Face whatever is holding the sky closed."
+CompletedRealmObjective = "Matthew has revealed the starfall gate. Enter it from the Hub and defeat the guardian beyond the final lead."
 
 [node name="HubArrival" type="Marker3D" parent="."]
 position = Vector3(-4, 1.2, 6)
 
 [node name="CaveArrival" type="Marker3D" parent="."]
 position = Vector3(5, 1.2, 6)
+
+[node name="StarfallReturnArrival" type="Marker3D" parent="."]
+position = Vector3(0, 1.2, 13)
 
 [node name="Campfire" parent="." unique_id=1322397961 instance=ExtResource("15_campfire")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.942013, 1.5227857, -59.24817)

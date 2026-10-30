@@ -498,10 +498,10 @@ public partial class ElaineController : CharacterBody3D
         SpellConfig spell = GetCurrentSpell();
         if (_spellCooldownTimer <= 0.0f)
         {
-            return $"{spell.DisplayName} — {GetSpellRoleText(_selectedSpellIndex)}: Ready  [F]  Wheel [Tab]";
+            return $"{spell.DisplayName} — {GetSpellRoleText(_selectedSpellIndex)}: Ready  [F / R1]  Wheel [Tab / L1]";
         }
 
-        return $"{spell.DisplayName} — {GetSpellRoleText(_selectedSpellIndex)}: {Mathf.Ceil(_spellCooldownTimer * 10.0f) / 10.0f:0.0}s  Wheel [Tab]";
+        return $"{spell.DisplayName} — {GetSpellRoleText(_selectedSpellIndex)}: {Mathf.Ceil(_spellCooldownTimer * 10.0f) / 10.0f:0.0}s  Wheel [Tab / L1]";
     }
 
     private bool TryInteract()

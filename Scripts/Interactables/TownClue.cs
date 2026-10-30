@@ -7,7 +7,7 @@ public partial class TownClue : Area3D, IPlayerInteractable
     [Export] public string DiscoveryText = "This must be connected to the strange portal.";
     [Export] public int GlimmerReward = 1;
 
-    public string InteractionPrompt => "E  Investigate";
+    public string InteractionPrompt => "[E / Square] Investigate";
 
     public override void _Ready()
     {

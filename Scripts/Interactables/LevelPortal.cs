@@ -9,7 +9,7 @@ public partial class LevelPortal : Area3D, IPlayerInteractable
     [Export] public string LockedMessage = "This portal is dormant. Find the clues that can awaken it.";
     [Export] public string ArrivalMarker = "";
 
-    public string InteractionPrompt => $"E  Enter {PortalName}";
+    public string InteractionPrompt => $"[E / Square] Enter {PortalName}";
 
     public override void _Ready()
     {

@@ -57,7 +57,7 @@ public partial class TownAdventureDirector : Node3D
             GameManager.Instance?.FindTownClue(PortalClueId);
             if (portalWasDormant && !realmComplete)
             {
-                GameManager.Instance?.RequestDialogue("Moonlit Gate", "The three clues resonate. Press E at the awakened gate to enter the Moonlit Garden.");
+                GameManager.Instance?.RequestDialogue("Moonlit Gate", "The three clues resonate. Press E or Square at the awakened gate to enter the Moonlit Garden.");
             }
         }
 
