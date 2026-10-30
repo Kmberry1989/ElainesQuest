@@ -20,15 +20,8 @@
 [ext_resource type="PackedScene" uid="uid://ctyvtpw6jf2tp" path="res://Assets/Models/Environment/rocks.glb" id="15_campfire"]
 [ext_resource type="PackedScene" uid="uid://cvm53fvr7aluj" path="res://Assets/Models/Environment/lamp_post1.glb" id="16_lamp"]
 [ext_resource type="PackedScene" uid="uid://xhq8dy5dutw3" path="res://Assets/Models/Environment/circle_flowers.glb" id="17_flowers"]
-[ext_resource type="PackedScene" uid="uid://c5qpths8recvk" path="res://Assets/Models/Environment/wood_platform.glb" id="18_wood_path"]
 [ext_resource type="PackedScene" uid="uid://sx577eby4xf8" path="res://Assets/Models/Environment/triple_sign.glb" id="19_signpost"]
 [ext_resource type="PackedScene" uid="uid://b13365v14jwu4" path="res://Assets/Models/Environment/picket_fence.glb" id="20_fencing"]
-[ext_resource type="Shader" path="res://addons/simplegrasstextured/shaders/grass.gdshader" id="26_mai7p"]
-[ext_resource type="Texture2D" uid="uid://c4ggdp0kg5wjk" path="res://addons/simplegrasstextured/textures/grassbushcc008.png" id="27_5htik"]
-[ext_resource type="ArrayMesh" uid="uid://sptcpdx6wtm8" path="res://addons/simplegrasstextured/default_mesh.tres" id="28_xmiyk"]
-[ext_resource type="Script" uid="uid://2juaclm8gc1n" path="res://addons/simplegrasstextured/grass.gd" id="29_bmof1"]
-[ext_resource type="PackedScene" uid="uid://bcvcsush1r0h5" path="res://fireball/fireball.tscn" id="30_0cpgs"]
-[ext_resource type="PackedScene" uid="uid://dkbyxlgdt3b1e" path="res://Assets/Models/Environment/small_bridge.glb" id="31_nd2bq"]
 [ext_resource type="PackedScene" uid="uid://mt5sgew7o5s4" path="res://Assets/Models/Environment/fountain.glb" id="32_e23pu"]
 [ext_resource type="PackedScene" uid="uid://4670i8d8v4qf" path="res://Assets/Models/Environment/empty_farm_land.glb" id="34_f6esk"]
 [ext_resource type="PackedScene" uid="uid://cpnq6o2080m0m" path="res://Assets/Models/Environment/bench.glb" id="35_t0m0q"]
@@ -36,49 +29,12 @@
 [ext_resource type="Script" path="res://Scripts/NPCs/NPC.cs" id="37_npc"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
-size = Vector3(36, 1, 36)
-
-[sub_resource type="BoxMesh" id="BoxMesh_ground"]
-size = Vector3(36, 1, 36)
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_yeibc"]
-render_priority = 0
-shader = ExtResource("26_mai7p")
-shader_parameter/albedo = Color(1, 1, 1, 1)
-shader_parameter/texture_albedo = ExtResource("27_5htik")
-shader_parameter/texture_frames = Vector2(1, 1)
-shader_parameter/light_mode = 1
-shader_parameter/alpha_scissor_threshold = 0.5
-shader_parameter/normal_scale = 1.0
-shader_parameter/metallic = 0.0
-shader_parameter/metallic_texture_channel = Vector4(1, 0, 0, 0)
-shader_parameter/roughness = 1.0
-shader_parameter/roughness_texture_channel = Vector4(1, 0, 0, 0)
-shader_parameter/specular = 0.5
-shader_parameter/scale_h = 1.0
-shader_parameter/scale_w = 1.0
-shader_parameter/scale_var = -0.25
-shader_parameter/grass_strength = 0.55
-shader_parameter/optimization_by_distance = false
-shader_parameter/optimization_level = 7.0
-shader_parameter/optimization_dist_min = 10.0
-shader_parameter/optimization_dist_max = 50.0
-shader_parameter/grass_size_y = 1.0
-shader_parameter/interactive_mode = true
-shader_parameter/interactive_level_xz = 3.0
-shader_parameter/interactive_level_y = 0.3
-metadata/SimpleGrassTexturedMaterial = "2.1.0"
-
-[sub_resource type="MultiMesh" id="MultiMesh_hx3db"]
-transform_format = 1
-instance_count = 13
-mesh = ExtResource("28_xmiyk")
-buffer = PackedFloat32Array(4.9974213, 0, 0.16056287, -17.063833, 0, 5, 0, 0, -0.16056287, 0, 4.9974213, 8.550443, 3.9907951, 0, 3.0122342, 12.719119, 0, 5, 0, 0, -3.0122342, 0, 3.9907951, 9.11484, 0.7566062, 0, 4.942423, 11.953946, 0, 5, 0, 0, -4.942423, 0, 0.7566062, 7.67206, 4.346163, 0, 2.4720168, -14.146534, 0, 5, 0, 0, -2.4720168, 0, 4.346163, -22.942074, -2.685194, 0, -4.2177877, 10.18935, 0, 5, 0, 0, 4.2177877, 0, -2.685194, -18.877918, -4.8744545, 0, -1.1134148, 8.720368, 0, 5, 0, 0, 1.1134148, 0, -4.8744545, -19.115566, 4.8852406, 0, -1.0650923, -13.552891, 0, 5, 0, 0, 1.0650923, 0, 4.8852406, -13.286496, 4.3627524, 0, -2.4426196, -18.40761, 0, 5, 0, 0, 2.4426196, 0, 4.3627524, -0.23834372, -4.9971123, 0, -0.1699128, -10.637626, 0, 5, 0, 0, 0.1699128, 0, -4.9971123, 2.892043, 4.921833, 0, -0.8806585, -1.961639, 0, 5, 0, 0, 0.8806585, 0, 4.921833, 7.7303123, -4.7276835, 0, -1.6275768, -3.2779615, 0, 5, 0, 0, 1.6275768, 0, -4.7276835, -19.467823, -2.7988925, 0, 4.1432114, -3.4647944, 0, 5, 0, 0, -4.1432114, 0, -2.7988925, -20.627525, -4.3585167, 0, -2.45017, 8.846031, 0, 5, 0, 0, 2.45017, 0, -4.3585167, 0.96932507)
+size = Vector3(96, 1, 96)
 
 [node name="HubWorld" type="Node3D" unique_id=592241118]
 
 [node name="PlayerSpawn" type="Marker3D" parent="." unique_id=1132448436]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1.2, 0)
+position = Vector3(-2, 0.15, 6)
 
 [node name="OutdoorAddons" parent="." unique_id=1556336261 instance=ExtResource("8b_outdoor")]
 
@@ -86,14 +42,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1.2, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ground" unique_id=968340026]
-transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, -5.4837713, 0)
 shape = SubResource("BoxShape3D_ground")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground" unique_id=495990241]
-transform = Transform3D(5.1753883, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0)
-visible = false
-ignore_occlusion_culling = true
-mesh = SubResource("BoxMesh_ground")
 
 [node name="plant_bed" parent="Ground" unique_id=149149778 instance=ExtResource("3_t0m0q")]
 transform = Transform3D(-2, 0, -3.019916e-07, 0, 2, 0, 3.019916e-07, 0, -2, -35.937305, 5.4728403, -77.80528)
@@ -107,37 +56,32 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 69.640625, 4.9943476, -68.236
 [node name="gnome1" parent="Ground" unique_id=273515400 instance=ExtResource("5_iycvs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71.312195, 4.996966, -63.84854)
 
-[node name="MainPath" parent="." unique_id=2084500421 instance=ExtResource("18_wood_path")]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 3, 1.1271348, -29.252804)
-
-[node name="PortalPath" parent="." unique_id=1245961082 instance=ExtResource("18_wood_path")]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 8.8, 1.0643649, -64.90138)
-
 [node name="Elaine" parent="." unique_id=1735672370 instance=ExtResource("1_elaine")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -68.98833, 2.373998, 0)
+position = Vector3(-2, 0.15, 6)
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=211968595]
 script = ExtResource("4_camera")
-Offset = Vector3(0, 4.75, 7.5)
+Offset = Vector3(0, 4.3, 7.3)
+fov = 55.0
 
 [node name="HUD" parent="." unique_id=1139995694 instance=ExtResource("7_hud")]
 
 [node name="DialogueUI" parent="." unique_id=1769872697 instance=ExtResource("8_dialogue")]
 
 [node name="PortalToWorld1" parent="." unique_id=278331382 instance=ExtResource("2_portal")]
-transform = Transform3D(3.9982448, 0, -0.11849881, 0, 4, 0, 0.11849881, 0, 3.9982448, 1.9716606, 9.0310135, -80.51198)
+position = Vector3(0, 1.5, -17)
 PortalName = "Forest Trail"
 TargetScene = "res://Scenes/Levels/World_1_Forest.tscn"
 ArrivalMarker = "ForestArrival"
 
 [node name="TownTrailPortal" parent="." instance=ExtResource("2_portal")]
-transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, -8, 1, 8)
+position = Vector3(-17, 1.5, 8)
 PortalName = "Town Investigation"
 TargetScene = "res://Scenes/Levels/World_03_Town.tscn"
 ArrivalMarker = "HubArrival"
 
 [node name="CaveTrailPortal" parent="." instance=ExtResource("2_portal")]
-transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 9, 1, 8)
+position = Vector3(17, 1.5, 8)
 PortalName = "Cave Trail"
 TargetScene = "res://Scenes/Levels/World_02_Caves.tscn"
 ArrivalMarker = "CaveArrival"
@@ -145,7 +89,7 @@ RequiredRealmId = "MoonlitGarden"
 LockedMessage = "A cold cave wind rises from the arch. Restore the Moonlit Garden before following it."
 
 [node name="StarfallSanctumPortal" parent="." instance=ExtResource("2_portal")]
-transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0, 1, 11)
+position = Vector3(0, 1.5, 19)
 PortalName = "Starfall Gate"
 TargetScene = "res://Scenes/Levels/StarfallSanctum.tscn"
 ArrivalMarker = "StarfallArrival"
@@ -153,7 +97,7 @@ RequiredRealmId = "EchoingCaves"
 LockedMessage = "The starfall gate is dark. Restore the Echoing Caves before following Matthew's final lead."
 
 [node name="MatthewFinalLead" parent="." instance=ExtResource("36_matthew")]
-position = Vector3(2.5, 1, 4.5)
+position = Vector3(7, 0, 2)
 
 [node name="NPCData" type="Node3D" parent="MatthewFinalLead"]
 script = ExtResource("37_npc")
@@ -168,13 +112,13 @@ CompletedRealmDialogue = "The last echo has faded. The final path is waiting at 
 CompletedRealmObjective = "Matthew has revealed the starfall gate. Enter it from the Hub and defeat the guardian beyond the final lead."
 
 [node name="HubArrival" type="Marker3D" parent="."]
-position = Vector3(-4, 1.2, 6)
+position = Vector3(-2, 0.15, 3)
 
 [node name="CaveArrival" type="Marker3D" parent="."]
-position = Vector3(5, 1.2, 6)
+position = Vector3(12, 0.15, 7)
 
 [node name="StarfallReturnArrival" type="Marker3D" parent="."]
-position = Vector3(0, 1.2, 13)
+position = Vector3(0, 0.15, 14)
 
 [node name="Campfire" parent="." unique_id=1322397961 instance=ExtResource("15_campfire")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.942013, 1.5227857, -59.24817)
@@ -195,10 +139,10 @@ transform = Transform3D(2.742959, 0, -1.2149801, 0, 3, 0, 1.2149801, 0, 2.742959
 transform = Transform3D(1.7310767, 0, 0, 0, 1.7310767, 0, 0, 0, 1, -0.8, 4.144554, -3.4)
 
 [node name="Sasha" parent="." unique_id=953640570 instance=ExtResource("3_sasha")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.783808, 1, -2)
+position = Vector3(-4, 1, -2)
 
 [node name="FamilyTree" type="Node3D" parent="." unique_id=1578326613 node_paths=PackedStringArray("TreeStages", "FamilySpawnPoints")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 2)
+position = Vector3(6, 0, -2)
 script = ExtResource("5_family_tree")
 TreeStages = []
 FamilySpawnPoints = []
@@ -257,40 +201,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 6)
 [node name="SpawnMarker2" type="Marker3D" parent="AnimalSpawner" unique_id=1593462450]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 7)
 
-[node name="SimpleGrassTextured" type="MultiMeshInstance3D" parent="AnimalSpawner/SpawnMarker2" unique_id=311194200]
-material_override = SubResource("ShaderMaterial_yeibc")
-multimesh = SubResource("MultiMesh_hx3db")
-script = ExtResource("29_bmof1")
-sgt_radius = 2.0
-sgt_density = 25
-sgt_scale = 5.0
-sgt_rotation = 0.0
-sgt_rotation_rand = 1.0
-sgt_dist_min = 5.0
-sgt_follow_normal = false
-sgt_slope = Vector2(0, 45)
-sgt_tool_shape = {
-"airbrush": 1,
-"eraser": 0,
-"pencil": 1
-}
-metadata/_custom_type_script = "uid://2juaclm8gc1n"
-metadata/SimpleGrassTextured = "2.0.5"
-
 [node name="plant_bed" parent="." unique_id=1288505371 instance=ExtResource("3_t0m0q")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -35.253586, 5.1899223, -58.8142)
 
 [node name="plant_bed2" parent="." unique_id=243128109 instance=ExtResource("3_t0m0q")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -50.230427, 5.2555375, -77.82085)
-
-[node name="Fireball" parent="." unique_id=1361901691 instance=ExtResource("30_0cpgs")]
-transform = Transform3D(6.3773994, 0, 0, 0, 0.013358744, -8.026364, 0, 5.480614, 0.003998989, 28.032362, 1.4110818, -59.32938)
-
-[node name="wood_bridge" parent="." unique_id=872601174 instance=ExtResource("31_nd2bq")]
-transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -80.37222, 4.4408646, -33.616592)
-
-[node name="wood_path" parent="." unique_id=2005721926 instance=ExtResource("18_wood_path")]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0.68629694, 2.5634663, -46.460403)
 
 [node name="well" parent="." unique_id=591692631 instance=ExtResource("32_e23pu")]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -60.054775, 7.1809607, -26.683275)

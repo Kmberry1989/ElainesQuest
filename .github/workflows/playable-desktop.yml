@@ -1,0 +1,46 @@
+name: Playable desktop builds
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and run ${{ matrix.platform }} export
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            platform: macos
+          - runner: windows-latest
+            platform: windows
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build, launch, and package the real game
+        run: python tools/build_desktop.py ${{ matrix.platform }}
+      - name: Upload playable archive and validation
+        uses: actions/upload-artifact@v4
+        with:
+          name: ElainesQuest-${{ matrix.platform }}
+          path: |
+            build/ElainesQuest-*.zip
+            build/validation-*.log
+          if-no-files-found: error
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Diagnostics-${{ matrix.platform }}
+          path: build/*.log
+          if-no-files-found: ignore

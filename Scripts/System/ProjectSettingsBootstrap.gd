@@ -65,7 +65,7 @@ func make_key_event(keycode: Key) -> InputEventKey:
 
 func make_joy_button_event(button_index: JoyButton) -> InputEventJoypadButton:
 	var event := InputEventJoypadButton.new()
-	# Device -1 accepts the connected PS4 controller regardless of its slot.
+	# Accept the first available Bluetooth controller instead of requiring device 0.
 	event.device = -1
 	event.button_index = button_index
 	return event

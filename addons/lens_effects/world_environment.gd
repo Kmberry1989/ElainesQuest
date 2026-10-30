@@ -13,7 +13,7 @@ var compositor_effect: CompositorEffect
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
-		camera = EditorInterface.get_editor_viewport_3d().get_camera_3d()
+		camera = Engine.get_singleton("EditorInterface").get_editor_viewport_3d().get_camera_3d()
 	else:
 		camera = get_viewport().get_camera_3d()
 	
@@ -35,7 +35,7 @@ func _process(_delta: float) -> void:
 	var dir_dot := (-camera.global_transform.basis.z).normalized().dot(sun.global_transform.basis.z.normalized())
 	var viewport_size
 	if Engine.is_editor_hint():
-		viewport_size = EditorInterface.get_editor_viewport_3d().get_visible_rect().size
+		viewport_size = Engine.get_singleton("EditorInterface").get_editor_viewport_3d().get_visible_rect().size
 	else:
 		viewport_size = get_viewport().get_visible_rect().size
 	compositor_effect.sun_position = camera.unproject_position(sun.global_transform.basis.z * maxf(camera.near, 1.0) + camera.global_position) / viewport_size

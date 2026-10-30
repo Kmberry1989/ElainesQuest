@@ -11,7 +11,7 @@
 [ext_resource type="PackedScene" path="res://Scenes/UI/HUD.tscn" id="9_hud"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/DialogueUI.tscn" id="10_dialogue"]
 [ext_resource type="PackedScene" uid="uid://dm864sd4ds54c" path="res://Scenes/Environment/OutdoorAddons.tscn" id="11_outdoor"]
-[ext_resource type="PackedScene" uid="uid://c5qpths8recvk" path="res://Assets/Models/Environment/wood_platform.glb" id="12_platform"]
+[ext_resource type="PackedScene" path="res://Assets/RuntimeModels/Models/Environment/tile_stonegrassy.glb" id="12_platform"]
 [ext_resource type="PackedScene" uid="uid://dkbyxlgdt3b1e" path="res://Assets/Models/Environment/small_bridge.glb" id="13_bridge"]
 [ext_resource type="PackedScene" uid="uid://cgvvnr5ldqk5b" path="res://Assets/Models/Environment/rounded_tree.glb" id="14_tree"]
 [ext_resource type="PackedScene" uid="uid://xhq8dy5dutw3" path="res://Assets/Models/Environment/circle_flowers.glb" id="15_flowers"]
@@ -76,7 +76,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1.2, 0)
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1453111756]
 script = ExtResource("5_camera")
-Offset = Vector3(0, 5.25, 8.6)
+Offset = Vector3(0, 4.3, 7.3)
+fov = 55.0
 
 [node name="HUD" parent="." unique_id=2107091872 instance=ExtResource("9_hud")]
 
@@ -104,7 +105,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17, 0, -4.8)
 transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, -21, 0, -7)
 
 [node name="StartTreeB" parent="." unique_id=757358045 instance=ExtResource("14_tree")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -7)
 
 [node name="StartFlowers" parent="." unique_id=582406916 instance=ExtResource("15_flowers")]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, -14, 0.02, 4)
@@ -222,7 +223,7 @@ shape = SubResource("BoxShape3D_arena")
 transform = Transform3D(1.3, 0, 0, 0, 1, 0, 0, 0, 1.3, 0, 0.5, 0)
 
 [node name="UpperArenaTree" parent="UpperArena" unique_id=1062305325 instance=ExtResource("14_tree")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, 4.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, -5.5)
 
 [node name="UpperArenaRock" parent="UpperArena" unique_id=950998661 instance=ExtResource("18_rocks")]
 transform = Transform3D(0.9, 0, 0, 0, 0.9, 0, 0, 0, 0.9, 4.8, 0.4, -4.2)
@@ -294,7 +295,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 63.4, 10.4, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.6, 10.4, 0)
 
 [node name="MatthewRescue" parent="." unique_id=1188738114 instance=ExtResource("7_family_rescue")]
-transform = Transform3D(1.2, 0, 0, 0, 1.6, 0, 0, 0, 1.2, 66, 10, 0)
+position = Vector3(66, 9.4, 0)
 RescueDialogue = "Elaine, you drove the corruption back. Let's head home and help the Family Tree bloom."
 BonusGlimmers = 20
 

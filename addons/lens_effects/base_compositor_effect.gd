@@ -68,7 +68,7 @@ func _render_callback(
 		p_render_data : RenderData,
 	) -> void:
 
-	if not rd or not p_effect_callback_type == effect_callback_type:
+	if not enabled or not rd or not p_effect_callback_type == effect_callback_type:
 		return
 
 	render_data = p_render_data
@@ -132,7 +132,17 @@ func create_sampler(
 
 func create_shader(p_file_path : String) -> RID:
 	var shader_file : RDShaderFile = load(p_file_path)
+	if shader_file == null:
+		push_warning("Optional compositor shader is unavailable: " + p_file_path)
+		return RID()
 	var shader_spirv : RDShaderSPIRV = shader_file.get_spirv()
+	var compile_error := shader_spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)
+	if not compile_error.is_empty():
+		push_warning("Optional compositor shader could not compile: " + compile_error)
+		return RID()
+	if shader_spirv.get_stage_bytecode(RenderingDevice.SHADER_STAGE_COMPUTE).is_empty():
+		push_warning("Optional compositor shader has no compute bytecode: " + p_file_path)
+		return RID()
 	var shader : RID = rd.shader_create_from_spirv(shader_spirv)
 	add_rid_to_free(shader, "shader: %s" % p_file_path)
 	return shader

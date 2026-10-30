@@ -58,7 +58,13 @@ public partial class DialogueUI : CanvasLayer
             return;
         }
 
-        if (@event.IsActionPressed("interact") || @event.IsActionPressed("ui_cancel"))
+        if (@event.IsActionPressed("ui_cancel"))
+        {
+            _dialogueQueue.Clear();
+            HideDialogue();
+            GetViewport().SetInputAsHandled();
+        }
+        else if (@event.IsActionPressed("interact"))
         {
             if (_dialogueQueue.Count > 0)
             {

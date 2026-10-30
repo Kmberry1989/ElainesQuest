@@ -4,6 +4,8 @@ layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
 // ARez: This is the lens flare shader I used: https://www.shadertoy.com/view/wlcyzj
 
+#define MAX_VIEWS 2
+#include "shader_includes/scene_data_inc.glsl"
 #include "shader_includes/scene_data_helpers.glsl"
 #include "shader_includes/effect_data.glsl"
 
@@ -38,11 +40,11 @@ void lensflares(vec2 uv, vec2 pos, out vec3 sunflare, out vec3 lensflare) {
     f0 = f0 + f0 * (sin((ang + 1.0 / 18.0) * 12.0) * .1 + dist * .1 + .8);
 
     float f2 =
-        max(1.0 / (1.0 + 32.0 * length_squared(uvd + 0.8 * pos)), .0) * 00.25;
+        max(1.0 / (1.0 + 32.0 * lens_length_squared(uvd + 0.8 * pos)), .0) * 00.25;
     float f22 =
-        max(1.0 / (1.0 + 32.0 * length_squared(uvd + 0.85 * pos)), .0) * 00.23;
+        max(1.0 / (1.0 + 32.0 * lens_length_squared(uvd + 0.85 * pos)), .0) * 00.23;
     float f23 =
-        max(1.0 / (1.0 + 32.0 * length_squared(uvd + 0.9 * pos)), .0) * 00.21;
+        max(1.0 / (1.0 + 32.0 * lens_length_squared(uvd + 0.9 * pos)), .0) * 00.21;
 
     vec2 uvx = mix(uv, uvd, -0.5);
 

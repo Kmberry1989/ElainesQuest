@@ -5,5 +5,4 @@
 [node name="OutdoorAddons" type="Node3D" unique_id=723685344]
 top_level = true
 script = ExtResource("1_outdoor")
-terrain_radius = 256
-terrain_base_y = -5.0
+terrain_radius = 96

@@ -1,7 +1,4 @@
-#define MAX_VIEWS 2
-// ARez: Uncomment the next line if you build the engine using double precision
-//#define USE_DOUBLE_PRECISION
-#include "godot/scene_data_inc.glsl"
+// SceneData is included by the parent shader before these helpers.
 
 // Set 0: Scene
 layout(set = 0, binding = 0, std140) uniform SceneDataBlock {
@@ -17,7 +14,7 @@ layout(set = 0, binding = 2) uniform sampler2D depth_sampler;
 // in dev builds.
 // layout(set = 0, binding = 4) uniform sampler2D color_sampler;
 
-highp float length_squared(vec2 v) {
+highp float lens_length_squared(vec2 v) {
     return pow(v.x, 2.0) + pow(v.y, 2.0);
 }
 

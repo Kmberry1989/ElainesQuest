@@ -1,0 +1,80 @@
+[
+  {
+    "source": "res://Assets/Models/Environment/tile_stonegrassy.glb",
+    "runtime": "res://Assets/RuntimeModels/Models/Environment/tile_stonegrassy.glb",
+    "sourceSHA256": "b29dde7885af5877dabcfac6e1284377b07f38e76cc415bd0bf1ea5496b8611c",
+    "importScale": 1
+  },
+  {
+    "source": "res://Assets/Models/Family/Ann-model.glb",
+    "runtime": "res://Assets/RuntimeModels/Models/Family/Ann-model.glb",
+    "sourceSHA256": "b02d575c53bdd2dda04166e32d61e902895eb0d9a7f656cc17ce45a915e81bf8",
+    "importScale": 5
+  },
+  {
+    "source": "res://Assets/Models/Family/Antonio-model.glb",
+    "runtime": "res://Assets/RuntimeModels/Models/Family/Antonio-model.glb",
+    "sourceSHA256": "062070c6cb85dd5222d86518c767320d8308f7007120b10ea090b72ce821ae9c",
+    "importScale": 5
+  },
+  {
+    "source": "res://Assets/Models/Family/Armando-model.glb",
+    "runtime": "res://Assets/RuntimeModels/Models/Family/Armando-model.glb",
+    "sourceSHA256": "1ca0a94796616e1b205af8847156e316d0c21484251e912789e67c83fbdce9b3",
+    "importScale": 5
+  },
+  {
+    "source": "res://Assets/Models/Family/Grandma_Judy-model.glb",
+    "runtime": "res://Assets/RuntimeModels/Models/Family/Grandma_Judy-model.glb",
+    "sourceSHA256": "620eb0e52a5eb7edfcfd621b81d9d2dd309eba47a245e7a5d4e80a9b04e1adea",
+    "importScale": 5
+  },
+  {
+    "source": "res://Assets/Models/Family/Matthew-model.glb",
+    "runtime": "res://Assets/RuntimeModels/Models/Family/Matthew-model.glb",
+    "sourceSHA256": "e6f4ada8a61da7c69094151c170e487fadcc1e82d04a52405f33547ce9f5d716",
+    "importScale": 5
+  },
+  {
+    "source": "res://Assets/convenience store.glb",
+    "runtime": "res://Assets/RuntimeModels/convenience store.glb",
+    "sourceSHA256": "66dadf821067b019332000767e729789cca8bd14458bd532d7fc8dcebacf80bd",
+    "importScale": 1
+  },
+  {
+    "source": "res://Assets/house 1.glb",
+    "runtime": "res://Assets/RuntimeModels/house 1.glb",
+    "sourceSHA256": "bac21608595f9e6284185aeddc83545f4f5b512ea4e8113d9a6645740b730d47",
+    "importScale": 1
+  },
+  {
+    "source": "res://Assets/mailbox.glb",
+    "runtime": "res://Assets/RuntimeModels/mailbox.glb",
+    "sourceSHA256": "8042c6164177600e95fde2596f9af943f18d12a965ddb2631621af56db83c270",
+    "importScale": 1
+  },
+  {
+    "source": "res://Assets/school.glb",
+    "runtime": "res://Assets/RuntimeModels/school.glb",
+    "sourceSHA256": "c531f6125509680d2547cd00aa2c1fe325615a854656413181e8c35f4630ac0e",
+    "importScale": 1
+  },
+  {
+    "source": "res://Assets/street.glb",
+    "runtime": "res://Assets/RuntimeModels/street.glb",
+    "sourceSHA256": "6f37c9d287c6f75877a44834ce188b5bd5d48c12fd503ad96feb9d9f86bcaf57",
+    "importScale": 1
+  },
+  {
+    "source": "res://Assets/streetlight.glb",
+    "runtime": "res://Assets/RuntimeModels/streetlight.glb",
+    "sourceSHA256": "e2636288724061d0fac80bc0e889c317cb8992e8eabc316c9904ae1fc2bd278e",
+    "importScale": 1
+  },
+  {
+    "source": "res://Assets/tree 2.glb",
+    "runtime": "res://Assets/RuntimeModels/tree 2.glb",
+    "sourceSHA256": "2b4d792afd2c796d722a0d5b50f0abaaeb2428885c789d8e103dce5d83c42c59",
+    "importScale": 1
+  }
+]
